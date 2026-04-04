@@ -1,4 +1,4 @@
-name: C++ CI CaseConversionAPI - All Platforms
+name: C++ CI CaseConversionAPI - All Platforms (Local App)
 
 on:
   push:
@@ -49,6 +49,12 @@ jobs:
           if (Test-Path "CaseConversionAPI\CppLib\build") {
             Remove-Item -Recurse -Force "CaseConversionAPI\CppLib\build"
           }
+
+      # -------------------------------
+      # Use local app CMakeLists
+      # -------------------------------
+      - name: Use local app CMakeLists
+        run: cp CaseConversionAPI/CppLib/CMakeListsLocalApp.txt CaseConversionAPI/CppLib/CMakeLists.txt
 
       # -------------------------------
       # Configure project

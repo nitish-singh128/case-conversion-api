@@ -47,7 +47,7 @@ jobs:
       - name: Configure String Conversion
         run: cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build -DCMAKE_BUILD_TYPE=Release
       
-        # -------------------------------
+      # -------------------------------
       # Build application and tests
       # -------------------------------
       - name: Build project
