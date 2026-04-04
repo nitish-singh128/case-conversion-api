@@ -17,3 +17,5 @@
 *.swo
 *.vscode/
 *.idea/
+
+*.dylib
