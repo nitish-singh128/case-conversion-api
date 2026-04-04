@@ -1,0 +1,19 @@
+
+# Ignore build directory
+/build/
+/CMakeFiles/
+/CMakeCache.txt
+/Makefile
+/*.cmake
+/*.o
+/*.a
+/*.so
+/*.dll
+/*.exe
+
+# Ignore editor and OS files
+*.DS_Store
+*.swp
+*.swo
+*.vscode/
+*.idea/
