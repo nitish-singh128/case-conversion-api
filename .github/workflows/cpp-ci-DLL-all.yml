@@ -44,7 +44,13 @@ jobs:
       # Clean build folder
       # -------------------------------
       - name: Clean build folder
+        if: runner.os != 'Windows'
         run: rm -rf CaseConversionAPI/CppLib/build_dll
+
+      - name: Clean build directory (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          Remove-Item -Recurse -Force "CaseConversionAPI\CppLib\build_dll"
 
       # -------------------------------
       # Configure DLL project
