@@ -60,30 +60,55 @@ Add the following content to it:
 
 ```Bash
 #!/bin/bash
-# Script to generate a Microsoft-style API folder structure
+# Script to create Microsoft-style folder structure for CaseConversionAPI
 
 ROOT="CaseConversionAPI"
-echo "Creating API folder structure..."
 
-mkdir -p $ROOT/src/CaseConversionAPI/Controllers
-mkdir -p $ROOT/src/CaseConversionAPI/Models
-mkdir -p $ROOT/src/CaseConversionAPI/Services
-mkdir -p $ROOT/src/CaseConversionAPI/Data
-mkdir -p $ROOT/src/CaseConversionAPI/Helpers
-mkdir -p $ROOT/tests/CaseConversionAPI.Tests
-mkdir -p $ROOT/docs
+echo "Creating Microsoft-style folder structure for CaseConversionAPI..."
 
-# Placeholder files
-touch $ROOT/src/CaseConversionAPI/Program.cs
-touch $ROOT/src/CaseConversionAPI/Startup.cs
-touch $ROOT/src/CaseConversionAPI/Controllers/WordCaseController.cs
-touch $ROOT/src/CaseConversionAPI/Models/WordCaseRequest.cs
-touch $ROOT/src/CaseConversionAPI/Models/WordCaseResponse.cs
-touch $ROOT/src/CaseConversionAPI/Services/WordCaseService.cs
-touch $ROOT/tests/CaseConversionAPI.Tests/WordCaseControllerTests.cs
-touch README.md
+# -----------------------------
+# C++ library project
+# -----------------------------
+mkdir -p $ROOT/CppLib/include
+mkdir -p $ROOT/CppLib/src
 
-echo "Folder structure created under $ROOT"
+# -----------------------------
+# .NET API project
+# -----------------------------
+mkdir -p $ROOT/DotNetAPI/Controllers
+mkdir -p $ROOT/DotNetAPI/Models
+mkdir -p $ROOT/DotNetAPI/Services
+
+# Placeholder .NET files
+touch $ROOT/DotNetAPI/Program.cs
+touch $ROOT/DotNetAPI/Startup.cs
+touch $ROOT/DotNetAPI/DotNetAPI.csproj
+touch $ROOT/DotNetAPI/Controllers/WordCaseController.cs
+
+# -----------------------------
+# DLL output folder
+# -----------------------------
+mkdir -p $ROOT/lib
+
+# -----------------------------
+# Tests
+# -----------------------------
+mkdir -p $ROOT/tests/CppTests
+mkdir -p $ROOT/tests/DotNetTests
+
+# -----------------------------
+# Scripts
+# -----------------------------
+mkdir -p $ROOT/scripts
+touch $ROOT/scripts/create_structure.sh
+
+# -----------------------------
+# Root files
+# -----------------------------
+touch $ROOT/README.md
+touch $ROOT/CMakeLists.txt
+
+echo "Microsoft-style folder structure created under $ROOT!"
 ```
 
 ## 6. Make script executable
@@ -102,24 +127,25 @@ After running, the folder structure will look like:
 
 ```Bash
 CaseConversionAPI/
-├── src/
-│   └── CaseConversionAPI/
-│       ├── Controllers/
-│       │   └── WordCaseController.cs
-│       ├── Models/
-│       │   ├── WordCaseRequest.cs
-│       │   └── WordCaseResponse.cs
-│       ├── Services/
-│       │   └── WordCaseService.cs
-│       ├── Data/
-│       ├── Helpers/
-│       ├── Program.cs
-│       └── Startup.cs
+├── CppLib/
+│   ├── include/
+│   └── src/
+├── DotNetAPI/
+│   ├── Controllers/
+│   │   └── WordCaseController.cs
+│   ├── Models/
+│   ├── Services/
+│   ├── Program.cs
+│   ├── Startup.cs
+│   └── DotNetAPI.csproj
+├── lib/
+├── scripts/
+│   └── create_structure.sh
 ├── tests/
-│   └── CaseConversionAPI.Tests/
-│       └── WordCaseControllerTests.cs
-└── README.md
-
+│   ├── CppTests/
+│   └── DotNetTests/
+├── README.md
+└── CMakeLists.txt
 ```
 
 ## Full Local CI Steps in VS Code
