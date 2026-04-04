@@ -1,0 +1,66 @@
+name: C++ DLL + .NET REST API CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # -------------------------------
+    # Build C++ shared library
+    # -------------------------------
+    - name: Install CMake
+      run: brew install cmake
+
+    - name: Build C++ DLL
+      run: |
+        cd CaseConversionAPI/CppLib
+        mkdir -p build
+        cd build
+        cmake ..
+        make
+
+    - name: Verify dylib
+      run: |
+        ls -l CaseConversionAPI/CppLib/build/lib
+
+    # -------------------------------
+    # Setup .NET
+    # -------------------------------
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    # -------------------------------
+    # Build REST API (csproj copies dylib)
+    # -------------------------------
+    - name: Restore .NET
+      run: dotnet restore CaseConversionAPI/DotNetAPI
+
+    - name: Build .NET
+      run: dotnet build CaseConversionAPI/DotNetAPI --no-restore
+
+    # -------------------------------
+    # Run API
+    # -------------------------------
+    - name: Run API
+      run: |
+        cd CaseConversionAPI/DotNetAPI
+        dotnet run &
+        sleep 10
+
+    # -------------------------------
+    # Test endpoint
+    # -------------------------------
+    - name: Test REST endpoint
+      run: |
+        curl "http://localhost:5000/api/WordCase/convert?input=Hello%20World&choice=1"
