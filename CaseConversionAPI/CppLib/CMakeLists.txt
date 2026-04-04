@@ -1,76 +1,30 @@
 cmake_minimum_required(VERSION 3.14)
-project(StringConversion)
+project(ProcessStringDLL LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-enable_testing()
 
-# ---------------------------
+# CMakeLists.txt
+include(CMakeListsLocalApp.txt)
+
+# -----------------------------
 # Include directories
-# ---------------------------
+# -----------------------------
 include_directories(include)
 
-# ---------------------------
-# Library: StringConversionLib
-# ---------------------------
-add_library(StringConversionLib
-    src/AlternatingCaseConversion.cpp
-    src/CapitalizeWordsConversion.cpp
-    src/Client.cpp
-    src/InvertWordsConversion.cpp
-    src/KebabCaseConversion.cpp
-    src/LeetSpeakConversion.cpp
-    src/LowerCaseConversion.cpp
-    src/ProcessString.cpp
-    src/RemoveSpacesConversion.cpp
-    src/RemoveVowelsConversion.cpp
-    src/ReverseConversion.cpp
-    src/SentenceCaseConversion.cpp
-    src/SnakeCaseConversion.cpp
-    src/StringConversionFactory.cpp
-    src/ToggleCaseConversion.cpp
-    src/UpperCaseConversion.cpp    
+# -----------------------------
+# DLL target: ProcessStringDLL
+# -----------------------------
+add_library(ProcessStringDLL SHARED
+    src/ProcessStringDLL.cpp
 )
 
-target_include_directories(StringConversionLib PUBLIC include)
+# Define export macro for Windows DLL
+target_compile_definitions(ProcessStringDLL PRIVATE PROCESSSTRING_EXPORTS)
 
-# ---------------------------
-# Main Application
-# ---------------------------
-add_executable(app src/sourcecode.cpp)
-target_link_libraries(app StringConversionLib)
-
-# ---------------------------
-# GoogleTest Setup
-# ---------------------------
-include(FetchContent)
-
-# Force GoogleTest to use the same runtime on Windows
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/main.zip
+# DLL output folder
+set_target_properties(ProcessStringDLL PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
 )
 
-# Make GoogleTest available
-FetchContent_MakeAvailable(googletest)
-
-# ---------------------------
-# Test Executable
-# ---------------------------
-add_executable(runTests
-    ${PROJECT_SOURCE_DIR}/../tests/CppTests/StringConversionTests.cpp
-    ${PROJECT_SOURCE_DIR}/../tests/CppTests/AdvancedStringConversionTests.cpp
-)
-
-# Link the library and GoogleTest
-target_link_libraries(runTests StringConversionLib gtest gtest_main)
-
-# ---------------------------
-# Register tests with CTest
-# ---------------------------
-add_test(NAME AllTests COMMAND runTests)
-
-
+# Optional: add version info or other properties here

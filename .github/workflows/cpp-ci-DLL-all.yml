@@ -1,4 +1,4 @@
-name: C++ CI CaseConversionAPI - All Platforms
+name: C++ CI ProcessStringDLL - All Platforms
 
 on:
   push:
@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-and-test:
+  build-dll:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -38,70 +38,31 @@ jobs:
 
       - name: Install CMake (Windows)
         if: runner.os == 'Windows'
-        run: choco install cmake ninja --installargs 'ADD_CMAKE_TO_PATH=System' --yes
+        run: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' --yes
 
       # -------------------------------
-      # Configure project
+      # Clean build folder
       # -------------------------------
-      - name: Configure project
-        run: cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build -DCMAKE_BUILD_TYPE=Release
+      - name: Clean build folder
+        run: rm -rf CaseConversionAPI/CppLib/build_dll
 
       # -------------------------------
-      # Build project (all targets)
+      # Configure DLL project
       # -------------------------------
-      - name: Build project
-        run: cmake --build CaseConversionAPI/CppLib/build --parallel
+      - name: Configure DLL project
+        run: cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build_dll -DCMAKE_BUILD_TYPE=Release
 
       # -------------------------------
-      # Run main app
+      # Build DLL
       # -------------------------------
-      - name: Run app (Linux/macOS)
-        if: runner.os != 'Windows'
-        run: ./CaseConversionAPI/CppLib/build/app
-
-      - name: Run app (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          cd CaseConversionAPI\CppLib\build\Release
-          & .\app.exe
+      - name: Build DLL
+        run: cmake --build CaseConversionAPI/CppLib/build_dll --config Release --parallel
 
       # -------------------------------
-      # Run C++ tests
+      # Upload DLL artifact
       # -------------------------------
-      - name: Run tests (Linux/macOS)
-        if: runner.os != 'Windows'
-        run: ctest --output-on-failure --test-dir CaseConversionAPI/CppLib/build
-
-      - name: Run tests (Windows)
-        if: runner.os == 'Windows'
-        run: ctest --output-on-failure -C Release --test-dir CaseConversionAPI/CppLib/build
-
-      # -------------------------------
-      # Set library path for DLL test (Linux/macOS)
-      # -------------------------------
-      - name: Set library path (Linux/macOS)
-        if: runner.os != 'Windows'
-        run: export DYLD_LIBRARY_PATH=./CaseConversionAPI/CppLib/build:$DYLD_LIBRARY_PATH
-
-      # -------------------------------
-      # Run DLL test program
-      # -------------------------------
-      - name: Run DLL test (Linux/macOS)
-        if: runner.os != 'Windows'
-        run: ./CaseConversionAPI/CppLib/build/TestDLL
-
-      - name: Run DLL test (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          cd CaseConversionAPI\CppLib\build\Release
-          & .\TestDLL.exe
-
-      # -------------------------------
-      # Upload logs (optional)
-      # -------------------------------
-      - name: Upload test logs
-        if: always()
+      - name: Upload DLL
         uses: actions/upload-artifact@v4
         with:
-          name: test-logs-${{ matrix.os }}
-          path: CaseConversionAPI/CppLib/build/Testing/Temporary/LastTest.log
+          name: ProcessStringDLL-${{ matrix.os }}
+          path: CaseConversionAPI/CppLib/build_dll/lib/
