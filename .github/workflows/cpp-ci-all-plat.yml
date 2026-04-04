@@ -1,4 +1,4 @@
-name: C++ CI Working Application - All Platforms
+name: C++ CI CaseConversionAPI - All Platforms
 
 on:
   push:
@@ -72,7 +72,7 @@ jobs:
       - name: Run app (Windows)
         if: runner.os == 'Windows'
         run: |
-            cd CaseConversionAPI/CppLib/build
+            cd CaseConversionAPI\CppLib\build
             & .\Debug\app.exe
 
       # -------------------------------
@@ -86,4 +86,12 @@ jobs:
         if: runner.os == 'Windows'
         run: ctest --output-on-failure -C Debug --test-dir CaseConversionAPI/CppLib/build
 
-      # ----------------
+      # -------------------------------
+      # Upload test logs
+      # -------------------------------
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs-${{ matrix.os }}
+          path: CaseConversionAPI/CppLib/build/Testing/Temporary/LastTest.log
