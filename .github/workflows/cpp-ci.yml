@@ -55,11 +55,7 @@ jobs:
 
       # -------------------------------
       # Run tests with CTest
-      # -------------------------------
-      - name: Run String Conversion Tests
-        run: |
-          cd CaseConversionAPI/CppLib/build
-          ctest --output-on-failure
+      # ------------------------------- 
 
       - name: Run String Conversion Tests with Logs
         run: ./CaseConversionAPI/CppLib/build/runTests --gtest_output=console --gtest_brief=0

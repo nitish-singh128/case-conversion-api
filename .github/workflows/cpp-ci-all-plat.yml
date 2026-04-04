@@ -1,0 +1,89 @@
+name: C++ CI Working Application - All Platforms
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+
+    steps:
+      # -------------------------------
+      # Checkout repository
+      # -------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # -------------------------------
+      # Install dependencies
+      # -------------------------------
+      - name: Install compiler & CMake (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y build-essential cmake
+
+      - name: Install CMake (macOS)
+        if: runner.os == 'macOS'
+        run: brew install cmake
+
+      - name: Install CMake (Windows)
+        if: runner.os == 'Windows'
+        run: choco install cmake ninja --installargs 'ADD_CMAKE_TO_PATH=System' --yes
+
+      # -------------------------------
+      # Clean build directory (Windows only)
+      # -------------------------------
+      - name: Clean build directory (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          if (Test-Path "CaseConversionAPI\CppLib\build") {
+            Remove-Item -Recurse -Force "CaseConversionAPI\CppLib\build"
+          }
+
+      # -------------------------------
+      # Configure project
+      # -------------------------------
+      - name: Configure project
+        run: cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build -DCMAKE_BUILD_TYPE=Release
+
+      # -------------------------------
+      # Build project
+      # -------------------------------
+      - name: Build project
+        run: cmake --build CaseConversionAPI/CppLib/build --parallel
+
+      # -------------------------------
+      # Run the main application
+      # -------------------------------
+      - name: Run app (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: ./CaseConversionAPI/CppLib/build/app
+
+      - name: Run app (Windows)
+        if: runner.os == 'Windows'
+        run: |
+            cd CaseConversionAPI/CppLib/build
+            & .\Debug\app.exe
+
+      # -------------------------------
+      # Run tests
+      # -------------------------------
+      - name: Run tests (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: ctest --output-on-failure --test-dir CaseConversionAPI/CppLib/build
+
+      - name: Run tests (Windows)
+        if: runner.os == 'Windows'
+        run: ctest --output-on-failure -C Debug --test-dir CaseConversionAPI/CppLib/build
+
+      # ----------------
