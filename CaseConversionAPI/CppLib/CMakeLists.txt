@@ -74,24 +74,3 @@ target_link_libraries(runTests StringConversionLib gtest gtest_main)
 add_test(NAME AllTests COMMAND runTests)
 
 
-# ---------------------------
-# ProcessString DLL / Shared Library
-# ---------------------------
-add_library(StringConversionDLL SHARED
-    src/ProcessStringDLL.cpp
-)
-
-target_include_directories(StringConversionDLL PUBLIC include)
-
-# Link against the library target, not a file
-target_link_libraries(StringConversionDLL PRIVATE StringConversionLib)
-
-# Export macros per platform
-target_compile_definitions(StringConversionDLL PRIVATE PROCESSSTRING_EXPORTS)
-
-# Output directory
-set_target_properties(StringConversionDLL PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
-    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
-    ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
-)
