@@ -1,2 +1,4 @@
 # Visual Studio solution file
 *.sln
+
+*.DS_Store

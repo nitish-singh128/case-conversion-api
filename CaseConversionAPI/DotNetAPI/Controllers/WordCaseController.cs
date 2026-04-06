@@ -1,3 +1,23 @@
+/*********************************************************************/
+/* File: WordCaseController.cs                                       */
+/*                                                                   */
+/* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
+/* This material may be reproduced for teaching and learning         */
+/* purposes only. It is not to be used in industry or for            */
+/* commercial purposes.                                              */
+/*                                                                   */
+/* Class       - WordCaseController                                  */
+/*                                                                   */
+/* Description - REST API controller that exposes string case        */
+/*               conversion operations. Uses ProcessStringService    */
+/*               to delegate conversion logic based on user choice.  */
+/*                                                                   */
+/* Notes       - Supports multiple conversion strategies including   */
+/*               Alternating Case via native C++ interop.             */
+/*                                                                   */
+/* $Log: WordCaseController.cs                                       */
+/*********************************************************************/
+
 using Microsoft.AspNetCore.Mvc;
 using StringConversionAPI.Models;
 using StringConversionAPI.Services;

@@ -1,5 +1,29 @@
+/*********************************************************************/
+/* $Header: ProcessStringService.cs                                  */
+/*                                                                   */
+/* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
+/* This material may be reproduced for teaching and learning         */
+/* purposes only. It is not to be used in industry or for            */
+/* commercial purposes.                                              */
+/*                                                                   */
+/* Class       - ProcessStringService                                */
+/*                                                                   */
+/* Description - Service responsible for invoking native C++ string  */
+/*               conversion logic via platform-specific shared       */
+/*               libraries. Dynamically loads the appropriate        */
+/*               library and calls exported function using           */
+/*               delegates.                                          */
+/*                                                                   */
+/* Notes       - Uses P/Invoke with NativeLibrary                    */
+/*               Supports Windows, Linux, and macOS                  */
+/*               Delegates conversion based on choice parameter      */
+/*                                                                   */
+/* $Log: ProcessStringService.cs                                     */
+/*********************************************************************/
+
 using System;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace StringConversionAPI.Services
 {
