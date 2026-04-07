@@ -1,5 +1,24 @@
 /*********************************************************************/
-/* header here */
+/* File: StringConversionLoggingTests.cpp                            */
+/*                                                                   */
+/* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
+/* This material may be reproduced for teaching and learning         */
+/* purposes only. It is not to be used in industry or for            */
+/* commercial purposes.                                              */
+/*                                                                   */
+/* Description : Google Test suite validating string conversion      */
+/*               strategies with logging support. Tests include      */
+/*               advanced conversions, client strategy execution,    */
+/*               processString integration, and reverse conversion.  */
+/*                                                                   */
+/* Test Groups :                                                     */
+/*               1. Advanced conversions with logging                */
+/*               2. Client strategy pattern tests                    */
+/*               3. processString integration tests                  */
+/*               4. Special conversion tests                         */
+/*                                                                   */
+/* Notes       : Uses TestHelpers::logConversion for trace output    */
+/*               and debugging validation.                           */
 /*********************************************************************/
 
 #include <gtest/gtest.h>

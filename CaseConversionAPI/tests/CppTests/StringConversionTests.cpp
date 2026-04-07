@@ -1,6 +1,29 @@
 /*********************************************************************/
-/* header here */
+/* File: StringConversionTests.cpp                                   */
+/*                                                                   */
+/* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
+/* This material may be reproduced for teaching and learning         */
+/* purposes only. It is not to be used in industry or for            */
+/* commercial purposes.                                              */
+/*                                                                   */
+/* Description : Unit tests for String Conversion library using      */
+/*               Google Test framework. Covers basic conversions,    */
+/*               advanced conversions, factory creation, strategy    */
+/*               pattern behavior, processString API, and edge       */
+/*               cases.                                              */
+/*                                                                   */
+/* Test Groups :                                                     */
+/*               1. Basic conversion tests                           */
+/*               2. Advanced conversion tests                        */
+/*               3. Edge case tests                                  */
+/*               4. Factory tests                                    */
+/*               5. Client strategy tests                            */
+/*               6. ProcessString integration tests                  */
+/*               7. Logging tests                                    */
+/*                                                                   */
+/* Notes       : Requires GoogleTest and linked conversion library.  */
 /*********************************************************************/
+
 #include <gtest/gtest.h>
 #include <iostream>
 
