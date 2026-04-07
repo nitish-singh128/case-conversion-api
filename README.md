@@ -102,3 +102,29 @@ WordCaseController
         ↑
 REST API
 ```
+
+## Architecture View
+
+```
+                +---------------------+
+                |   REST API (C#)     |
+                +----------+----------+
+                           |
+                       P/Invoke
+                           |
+                +----------v----------+
+                |  ProcessStringDLL   |  <-- DLL wrapper
+                +----------+----------+
+                           |
+                +----------v----------+
+                |   Core C++ Logic    |
+                | (Factory + Strategy)|
+                +----------+----------+
+                           |
+         +-----------------+-----------------+
+         |                                   |
++--------v--------+               +----------v--------+
+|  main.cpp CLI   |               | Google Tests      |
+|  Local testing  |               | Unit testing      |
++-----------------+               +-------------------+
+```
