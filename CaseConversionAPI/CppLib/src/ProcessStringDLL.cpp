@@ -8,12 +8,11 @@
 /*                                                                   */
 /* Class       - ProcessStringDLL                                     */
 /*                                                                   */
-/* Description - Dispatches user choice to appropriate string        */
-/*               conversion strategy using Factory and Client.       */
-/*               Exposes DLL function for C# wrapper interop.        */
+/* Description : DLL wrapper exposing C++ string conversion engine   */
+/*               for C# P/Invoke interoperability. Delegates calls   */
+/*               to core ProcessString dispatcher.                   */
 /*                                                                   */
-/* Notes       - Uses Strategy and Factory design patterns           */
-/*               Returns original input for invalid choice           */
+/* Notes       : Interop layer between native C++ and .NET API       */
 /*                                                                   */
 /*********************************************************************/
 

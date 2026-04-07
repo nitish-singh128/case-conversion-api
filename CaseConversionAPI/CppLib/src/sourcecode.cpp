@@ -8,11 +8,12 @@
 /*                                                                   */
 /* Class       - main                                                */
 /*                                                                   */
-/* Description - Entry point for string conversion application.      */
-/*               Accepts user input and applies selected             */
-/*               conversion strategy.                                */
+/* Description : Console application for local testing of string     */
+/*               conversion engine. Uses ProcessString dispatcher.   */
+/*               Accepts user input and conversion choice, then     */
+/*               displays the converted result.                     */
 /*                                                                   */
-/* Notes       - Uses ProcessString dispatcher                       */
+/* Notes       : Uses ProcessString dispatcher                       */
 /*               Demonstrates runtime selection of conversions       */
 /*                                                                   */
 /* $Log: main.cpp                                                    */

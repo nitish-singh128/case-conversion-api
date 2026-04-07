@@ -8,11 +8,12 @@
 /*                                                                   */
 /* Class       - ProcessString                                       */
 /*                                                                   */
-/* Description - Dispatches user choice to appropriate string        */
-/*               conversion strategy using Factory and Client.       */
+/* Description : Core dispatcher selecting conversion strategies     */
+/*               using Factory and Strategy design patterns.         */
+/*               Shared by DLL and CLI applications.                 */
 /*                                                                   */
-/* Notes       - Uses Strategy and Factory design patterns           */
-/*               Returns original input for invalid choice           */
+/* Notes       : Uses Strategy and Factory design patterns           */
+/*               Returns original input for invalid choice             */
 /*                                                                   */
 /* $Log: ProcessString.cpp                                           */
 /*********************************************************************/
