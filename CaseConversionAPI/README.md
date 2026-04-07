@@ -1,8 +1,8 @@
-## Run the .NET REST API
+# Run the .NET REST API
 
 Follow these steps to build and run the ASP.NET Core API.
 
-### 1. Navigate to API project
+## 1. Navigate to API project
 
 ```bash
 cd CaseConversionAPI/DotNetAPI
@@ -28,7 +28,7 @@ dotnet run
 
 You should see output similar to:
 
-```
+```Bash
 Now listening on: http://localhost:5000
 Application started. Press Ctrl+C to shut down.
 ```
@@ -37,7 +37,7 @@ Application started. Press Ctrl+C to shut down.
 
 Open your browser and go to:
 
-```
+```Bash
 http://localhost:5000/swagger
 ```
 
@@ -45,7 +45,7 @@ http://localhost:5000/swagger
 
 Use the **POST** endpoint:
 
-```
+```Bash
 POST /api/WordCase/convert
 ```
 
@@ -60,7 +60,7 @@ Example request body:
 
 Example response:
 
-```
+```Bash
 HeLlO WoRlD
 ```
 

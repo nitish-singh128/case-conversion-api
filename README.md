@@ -1,8 +1,8 @@
-## C++ DLL Interop (ProcessStringDLL)
+# C++ DLL Interop (ProcessStringDLL)
 
 The project exposes a **C++ string conversion engine** to the .NET REST API using a DLL and P/Invoke.
 
-### Purpose
+## Purpose
 
 `ProcessStringDLL.cpp` acts as a bridge between:
 
@@ -54,7 +54,7 @@ extern "C" PROCESSSTRING_API const char* processStringDLL(const char* input, int
 
 ### Flow
 
-```
+```Bash
 REST API (C#)
      ↓
 ProcessStringService (P/Invoke)
@@ -89,7 +89,7 @@ This enables the REST API to use native C++ performance-critical logic.
 
 ### Architecture Overview
 
-```
+```Bash
 C++ Conversion Engine
         ↑
    DLL Export Layer
@@ -105,7 +105,7 @@ REST API
 
 ## Architecture View
 
-```
+```Bash
                 +---------------------+
                 |   REST API (C#)     |
                 +----------+----------+
