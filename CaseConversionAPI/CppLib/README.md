@@ -30,14 +30,14 @@ A convenient script `run.sh` is provided to build the project and run both the m
 
 ### Steps
 
-1. Make the script executable** (only need to do this once):
+1.Make the script executable** (only need to do this once):
 
 ```bash
 cd CaseConversionAPI/CppLib
 chmod +x run.sh
 ```
 
-2. Run the application and tests
+2.Run the application and tests
 
 ```Bash
 ./run.sh
