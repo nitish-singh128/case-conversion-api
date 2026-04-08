@@ -88,15 +88,21 @@ jobs:
       # -------------------------------
       # 6. Copy correct DLL for platform
       # -------------------------------
-      - name: Copy C++ DLL into API publish
+      - name: Copy C++ DLL into API publish (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
         run: |
           if [ "${{ runner.os }}" == "Linux" ]; then
             cp CaseConversionAPI/CppLib/build_dll/lib/libProcessStringDLL.so ./publish/
           elif [ "${{ runner.os }}" == "macOS" ]; then
             cp CaseConversionAPI/CppLib/build_dll/lib/libProcessStringDLL.dylib ./publish/
-          else
-            copy CaseConversionAPI\CppLib\build_dll\Release\ProcessStringDLL.dll .\publish\
           fi
+
+      - name: Copy DLL on Windows
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          Copy-Item -Path "CaseConversionAPI\CppLib\build_dll\Release\ProcessStringDLL.dll" -Destination ".\publish\"
 
       # -------------------------------
       # 7. Build Frontend
