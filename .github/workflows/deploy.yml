@@ -1,0 +1,60 @@
+name: Build Full Project
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repo
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      # 2. Build C++ DLL with CMake
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v1.14
+        with:
+          cmake-version: '3.26.4'
+
+      - name: Build C++ DLL
+        run: |
+          mkdir -p CaseConversionAPI/CppLib/build
+          cd CaseConversionAPI/CppLib/build
+          cmake ..
+          cmake --build . --config Release
+
+      # 3. Build .NET API (make sure DLL is copied into output)
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore CaseConversionAPI/DotNetAPI
+
+      - name: Build and publish .NET API
+        run: dotnet publish CaseConversionAPI/DotNetAPI -c Release -o ./publish
+
+      # Copy DLL into publish folder
+      - name: Copy C++ DLL into API publish
+        run: cp CaseConversionAPI/CppLib/build/libStringConversionDLL.* ./publish/
+
+      # 4. Build Frontend (Vite/React)
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: |
+          cd string-conversion-ui
+          npm install
+
+      - name: Build frontend
+        run: |
+          cd string-conversion-ui
+          npm run build
