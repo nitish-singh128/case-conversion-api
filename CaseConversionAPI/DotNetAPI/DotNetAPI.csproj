@@ -12,9 +12,20 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="../CppLib/build/lib/libProcessStringDLL.dylib">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+  <!-- Windows DLL -->
+  <None Include="../CppLib/build_dll/Release/ProcessStringDLL.dll"
+        CopyToOutputDirectory="Always"
+        Condition=" '$(OS)' == 'Windows_NT' " />
+
+  <!-- macOS DLL -->
+  <None Include="../CppLib/build_dll/lib/libProcessStringDLL.dylib"
+        CopyToOutputDirectory="Always"
+        Condition=" '$(OS)' == 'OSX' " />
+
+  <!-- Linux DLL -->
+  <None Include="../CppLib/build_dll/lib/libProcessStringDLL.so"
+        CopyToOutputDirectory="Always"
+        Condition=" '$(OS)' == 'Linux' " />
+</ItemGroup>
 
 </Project>

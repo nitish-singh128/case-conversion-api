@@ -1,4 +1,4 @@
-name: Build Full Project
+name: Build Full Project - All Platforms
 
 on:
   push:
@@ -6,50 +6,107 @@ on:
       - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build-dll-api:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
 
     steps:
-      # 1. Checkout repo
+      # -------------------------------
+      # 1. Checkout repository
+      # -------------------------------
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # 2. Build C++ DLL with CMake
-      - name: Setup CMake
+      # -------------------------------
+      # 2. Setup compilers / CMake
+      # -------------------------------
+      - name: Setup CMake (Linux/macOS)
+        if: runner.os != 'Windows'
         uses: jwlawson/actions-setup-cmake@v1.14
         with:
           cmake-version: '3.26.4'
 
-      - name: Build C++ DLL
-        run: |
-          mkdir -p CaseConversionAPI/CppLib/build
-          cd CaseConversionAPI/CppLib/build
-          cmake ..
-          cmake --build . --config Release
+      - name: Install compiler (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y build-essential
 
-      # 3. Build .NET API (make sure DLL is copied into output)
+      - name: Install CMake (macOS)
+        if: runner.os == 'macOS'
+        run: brew install cmake
+
+      - name: Install CMake (Windows)
+        if: runner.os == 'Windows'
+        run: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' --yes
+
+      # -------------------------------
+      # 3. Build C++ DLL
+      # -------------------------------
+      - name: Clean build folder
+        run: |
+          if [ "${{ runner.os }}" != "Windows" ]; then
+            rm -rf CaseConversionAPI/CppLib/build_dll
+          else
+            Remove-Item -Recurse -Force "CaseConversionAPI\CppLib\build_dll" -ErrorAction SilentlyContinue
+          fi
+
+      - name: Configure DLL
+        run: |
+          if [ "${{ runner.os }}" != "Windows" ]; then
+            cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build_dll -DCMAKE_BUILD_TYPE=Release
+          else
+            cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build_dll -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 17 2022" -A x64
+          fi
+
+      - name: Build DLL
+        run: |
+          if [ "${{ runner.os }}" != "Windows" ]; then
+            cmake --build CaseConversionAPI/CppLib/build_dll --parallel
+          else
+            cmake --build CaseConversionAPI/CppLib/build_dll --config Release --parallel
+          fi
+
+      # -------------------------------
+      # 4. Setup .NET
+      # -------------------------------
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore dependencies
+      - name: Restore .NET dependencies
         run: dotnet restore CaseConversionAPI/DotNetAPI
 
+      # -------------------------------
+      # 5. Publish .NET API
+      # -------------------------------
       - name: Build and publish .NET API
         run: dotnet publish CaseConversionAPI/DotNetAPI -c Release -o ./publish
 
-      # Copy DLL into publish folder
+      # -------------------------------
+      # 6. Copy correct DLL for platform
+      # -------------------------------
       - name: Copy C++ DLL into API publish
-        run: cp CaseConversionAPI/CppLib/build/libStringConversionDLL.* ./publish/
+        run: |
+          if [ "${{ runner.os }}" == "Linux" ]; then
+            cp CaseConversionAPI/CppLib/build_dll/lib/libProcessStringDLL.so ./publish/
+          elif [ "${{ runner.os }}" == "macOS" ]; then
+            cp CaseConversionAPI/CppLib/build_dll/lib/libProcessStringDLL.dylib ./publish/
+          else
+            copy CaseConversionAPI\CppLib\build_dll\Release\ProcessStringDLL.dll .\publish\
+          fi
 
-      # 4. Build Frontend (Vite/React)
+      # -------------------------------
+      # 7. Build Frontend
+      # -------------------------------
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Install dependencies
+      - name: Install frontend dependencies
         run: |
           cd string-conversion-ui
           npm install
@@ -58,3 +115,18 @@ jobs:
         run: |
           cd string-conversion-ui
           npm run build
+
+      # -------------------------------
+      # 8. Upload artifacts
+      # -------------------------------
+      - name: Upload API + DLL artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DotNetAPI-${{ matrix.os }}
+          path: ./publish/
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Frontend-${{ matrix.os }}
+          path: string-conversion-ui/dist/
