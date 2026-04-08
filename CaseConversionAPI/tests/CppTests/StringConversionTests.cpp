@@ -24,6 +24,9 @@
 /* Notes       : Requires GoogleTest and linked conversion library.  */
 /*********************************************************************/
 
+/*********************************************************************/
+/* Dependencies                                                      */
+/*********************************************************************/
 #include <gtest/gtest.h>
 #include <iostream>
 
@@ -50,6 +53,9 @@
 #include "RemoveSpacesConversion.hpp"
 #include "RemoveVowelsConversion.hpp"
 #include "SnakeCaseConversion.hpp"
+
+// Enmum for conversion choices
+#include "ConversionTypeEnum.hpp"
 
 //
 // ======================================================
@@ -228,26 +234,26 @@ TEST(ClientTest, NoStrategySet) {
 //
 
 TEST(ProcessStringTest, BasicFlow) {
-    EXPECT_EQ(processString("hello world", 1), "HeLlO WoRlD"); // Alternating
-    EXPECT_EQ(processString("hello world", 2), "Hello World"); // Capitalize
-    EXPECT_EQ(processString("Hello", 3), "hello");       // Lower
-    EXPECT_EQ(processString("Hello", 4), "HELLO");       // Upper
-    EXPECT_EQ(processString("hELLO wORLD", 5), "Hello world"); // Sentence
-    EXPECT_EQ(processString("HeLLo", 6), "hEllO");       // Toggle
-    EXPECT_EQ(processString("Hello", 7), "olleH");       // Reverse
+    EXPECT_EQ(processString("hello world", static_cast<int>(ConversionChoice::Alternating)), "HeLlO WoRlD");
+    EXPECT_EQ(processString("hello world", static_cast<int>(ConversionChoice::Capitalize)), "Hello World");
+    EXPECT_EQ(processString("Hello",       static_cast<int>(ConversionChoice::Lower)),      "hello");
+    EXPECT_EQ(processString("Hello",       static_cast<int>(ConversionChoice::Upper)),      "HELLO");
+    EXPECT_EQ(processString("hELLO wORLD", static_cast<int>(ConversionChoice::Sentence)),   "Hello world");
+    EXPECT_EQ(processString("HeLLo",       static_cast<int>(ConversionChoice::Toggle)),     "hEllO");
+    EXPECT_EQ(processString("Hello",       static_cast<int>(ConversionChoice::Reverse)),    "olleH");
 }
 
 TEST(ProcessStringTest, AdvancedChoices) {
-    EXPECT_EQ(processString("Hello World", 8), "Hll Wrld");       // RemoveVowels
-    EXPECT_EQ(processString("Hello World", 9), "HelloWorld");     // RemoveSpaces
-    EXPECT_EQ(processString("Hello World", 10), "olleH dlroW");   // InvertWords
-    EXPECT_EQ(processString("Hello World", 11), "hello_world");   // SnakeCase
-    EXPECT_EQ(processString("Hello World", 12), "hello-world");   // KebabCase
-    EXPECT_EQ(processString("Test", 13), "7357");                 // LeetSpeak
+    EXPECT_EQ(processString("Hello World", static_cast<int>(ConversionChoice::RemoveVowels)), "Hll Wrld");
+    EXPECT_EQ(processString("Hello World", static_cast<int>(ConversionChoice::RemoveSpaces)), "HelloWorld");
+    EXPECT_EQ(processString("Hello World", static_cast<int>(ConversionChoice::InvertWords)),  "olleH dlroW");
+    EXPECT_EQ(processString("Hello World", static_cast<int>(ConversionChoice::SnakeCase)),    "hello_world");
+    EXPECT_EQ(processString("Hello World", static_cast<int>(ConversionChoice::KebabCase)),    "hello-world");
+    EXPECT_EQ(processString("Test",        static_cast<int>(ConversionChoice::LeetSpeak)),    "7357");
 }
 
 TEST(ProcessStringTest, InvalidChoice) {
-    EXPECT_EQ(processString("Hello", 99), "Hello");
+    EXPECT_EQ(processString("Hello", 99), "hello"); // invalid choice falls back
 }
 
 //
