@@ -109,7 +109,9 @@ jobs:
       - name: Copy Windows .dll
         if: runner.os == 'Windows'
         shell: powershell
-        run: Copy-Item -Path "CaseConversionAPI\CppLib\build_dll\Release\ProcessStringDLL.dll" -Destination ".\publish\"
+        run: |
+             $dll = Get-ChildItem -Recurse -Filter ProcessStringDLL.dll CaseConversionAPI\CppLib\build_dll | Select-Object -First 1
+             Copy-Item $dll.FullName -Destination ".\publish\"
 
       # -------------------------------
       # 7. Build Frontend
