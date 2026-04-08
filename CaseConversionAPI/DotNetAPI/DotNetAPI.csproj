@@ -11,21 +11,21 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.1" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup >
   <!-- Windows DLL -->
   <None Include="../CppLib/build_dll/Release/ProcessStringDLL.dll"
         CopyToOutputDirectory="Always"
-        Condition=" '$(OS)' == 'Windows_NT' " />
+        Condition=" '$(CI)' != 'true' AND '$(OS)' == 'Windows_NT' " />
 
   <!-- macOS DLL -->
   <None Include="../CppLib/build_dll/lib/libProcessStringDLL.dylib"
         CopyToOutputDirectory="Always"
-        Condition=" '$(OS)' == 'OSX' " />
+        Condition=" '$(CI)' != 'true' AND  '$(OS)' == 'OSX' " />
 
   <!-- Linux DLL -->
   <None Include="../CppLib/build_dll/lib/libProcessStringDLL.so"
         CopyToOutputDirectory="Always"
-        Condition=" '$(OS)' == 'Linux' " />
+        Condition=" '$(CI)' != 'true' AND '$(OS)' == 'Linux' " />
 </ItemGroup>
 
 </Project>
