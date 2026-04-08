@@ -1,12 +1,12 @@
 {
   "name": "string-conversion-ui",
   "version": "1.0.0",
-  "private": true,
   "scripts": {
-    "dev": "vite"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^5.0.0",
-    "typescript": "^5.0.0"
+    "vite": "^8.0.7"
   }
 }
