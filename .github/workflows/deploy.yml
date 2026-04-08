@@ -44,13 +44,16 @@ jobs:
       # -------------------------------
       # 3. Build C++ DLL
       # -------------------------------
-      - name: Clean build folder
-        run: |
-          if [ "${{ runner.os }}" != "Windows" ]; then
-            rm -rf CaseConversionAPI/CppLib/build_dll
-          else
-            Remove-Item -Recurse -Force "CaseConversionAPI\CppLib\build_dll" -ErrorAction SilentlyContinue
-          fi
+      
+      - name: Clean build folder (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: rm -rf CaseConversionAPI/CppLib/build_dll
+
+      - name: Clean build folder (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: Remove-Item -Recurse -Force "CaseConversionAPI\CppLib\build_dll" -ErrorAction SilentlyContinue
 
       - name: Configure DLL
         run: |
