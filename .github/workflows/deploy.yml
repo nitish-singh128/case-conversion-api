@@ -92,24 +92,24 @@ jobs:
       - name: Build and publish .NET API
         run: dotnet publish CaseConversionAPI/DotNetAPI -c Release -o ./publish
 
-      # -------------------------------
-      # 6. Copy correct DLL for platform
-      # -------------------------------
-      - name: Copy C++ DLL into API publish (Linux/macOS)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          if [ "${{ runner.os }}" == "Linux" ]; then
-            cp CaseConversionAPI/CppLib/build_dll/lib/libProcessStringDLL.so ./publish/
-          elif [ "${{ runner.os }}" == "macOS" ]; then
-            cp CaseConversionAPI/CppLib/build_dll/lib/libProcessStringDLL.dylib ./publish/
-          fi
+     # -------------------------------
+     # 6. Copy correct DLL for platform
+     # -------------------------------
 
-      - name: Copy DLL on Windows
+      - name: Copy Linux .so
+        if: runner.os == 'Linux'
+        shell: bash
+        run: cp CaseConversionAPI/CppLib/build_dll/lib/libProcessStringDLL.so ./publish/
+
+      - name: Copy macOS .dylib
+        if: runner.os == 'macOS'
+        shell: bash
+        run: cp CaseConversionAPI/CppLib/build_dll/lib/libProcessStringDLL.dylib ./publish/
+
+      - name: Copy Windows .dll
         if: runner.os == 'Windows'
         shell: powershell
-        run: |
-          Copy-Item -Path "CaseConversionAPI\CppLib\build_dll\Release\ProcessStringDLL.dll" -Destination ".\publish\"
+        run: Copy-Item -Path "CaseConversionAPI\CppLib\build_dll\Release\ProcessStringDLL.dll" -Destination ".\publish\"
 
       # -------------------------------
       # 7. Build Frontend
