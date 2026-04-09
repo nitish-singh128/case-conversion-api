@@ -13,7 +13,7 @@ export async function convertText(
   request: ConvertRequest
 ): Promise<ConvertResponse> {
   const response = await fetch(
-    "http://localhost:5000/api/WordCase/convert",
+    "http://localhost:8080/api/WordCase/convert",
     {
       method: "POST",
       headers: {

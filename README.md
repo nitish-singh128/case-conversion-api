@@ -205,3 +205,187 @@ REST API
 - React + Vite + TypeScript (frontend UI)
 - GitHub Actions (CI/CD pipeline)
 - Azure App Service + GitHub Pages (deployment targets)
+
+## Run Backend using Docker
+
+1. Create Dockerfile (Project Root)
+
+```Bash
+# ---------- Build C++ ----------
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake
+
+WORKDIR /src
+COPY . .
+
+# 🔧 Clean old CMake cache
+RUN rm -rf CaseConversionAPI/CppLib/build
+
+# Build C++ shared library
+RUN cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build -DCMAKE_BUILD_TYPE=Release
+RUN cmake --build CaseConversionAPI/CppLib/build --parallel
+
+# Publish .NET API
+RUN dotnet publish CaseConversionAPI/DotNetAPI -c Release -o /app/publish
+
+# Copy shared library
+RUN cp CaseConversionAPI/CppLib/build/lib/libProcessStringDLL.so /app/publish/
+
+# ---------- Runtime ----------
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+
+WORKDIR /app
+COPY --from=build /app/publish .
+
+EXPOSE 8080
+
+ENTRYPOINT ["dotnet", "DotNetAPI.dll"]
+```
+
+2.Start Docker Desktop
+
+Make sure Docker Desktop is running. You can use commmand in terminal to start the ddocker
+
+```Bash
+open -a Docker
+```
+
+3.Build Docker image
+
+From the project root (where the Dockerfile exists):
+
+```Bash
+docker build -t case-conversion-api .
+```
+
+4.Run container
+
+```Bash
+docker run -p 8080:8080 case-conversion-api
+```
+
+You should see:
+
+```
+Now listening on: http://[::]:8080
+```
+
+5.Open Swagger UI
+Open in browser:
+
+```
+http://localhost:8080/
+```
+
+## Running Full Stack using Docker Compose
+
+To run Frontend + Backend together, use Docker Compose.
+
+1.Update Frontend API URL
+
+ENsure the react frontned calls:
+
+```Bash
+http://localhost:8080/api/WordCase/convert
+```
+
+2.Create docker-compose.yml (Project Root)
+
+```Bash
+version: "3.9"
+
+services:
+  backend:
+    build: .
+    container_name: case-api
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  frontend:
+    image: node:20
+    container_name: case-ui
+    working_dir: /app
+    volumes:
+      - ./string-conversion-ui:/app
+    ports:
+      - "5173:5173"
+    command: sh -c "npm install && npm run dev -- --host"
+    depends_on:
+      - backend
+```
+
+3.Run Full Stack
+
+```Bash
+docker compose up --build
+```
+
+This will start:
+
+- Backend → http://localhost:8080
+- Frontend → http://localhost:5173
+
+## Architecture (Containerized)
+
+```
+                +---------------------+
+                |   Frontend (React)  |
+                |   Vite + TypeScript |
+                |   (Docker)          |
+                +----------+----------+
+                           |
+                       HTTP (REST)
+                           |
+                +----------v----------+
+                |   .NET REST API     |
+                |   ASP.NET Core      |
+                |   (Docker)          |
+                +----------+----------+
+                           |
+                        P/Invoke
+                           |
+                +----------v----------+
+                |  C++ Shared Library |
+                |  libProcessString   |
+                +----------+----------+
+                           |
+                +----------v----------+
+                | Factory + Strategy  |
+                |  Conversion Engine  |
+                +---------------------+
+```
+
+## Deployment Architecture (Docker Compose)
+
+```
++-------------------+        +-------------------+
+|   Frontend        | -----> |   Backend API     |
+|   React + Vite    |        |   .NET + C++ DLL  |
+|   Port 5173       |        |   Port 8080       |
++-------------------+        +-------------------+
+```
+
+## Runtime Flow
+
+```
+Browser
+   ↓
+React UI (Docker)
+   ↓
+HTTP REST Call
+   ↓
+ASP.NET Core API (Docker)
+   ↓
+P/Invoke
+   ↓
+C++ Shared Library
+   ↓
+Strategy Pattern Conversion
+   ↓
+Response back to UI
+
+```
