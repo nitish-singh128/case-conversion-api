@@ -170,7 +170,7 @@ Stage 2:
 ---
 
 ## 7. Runtime Flow
-
+```
 User Input (React)
 ↓
 REST API Call
@@ -192,7 +192,7 @@ Result
 API Response
 ↓
 Frontend Display
-
+```
 ---
 
 ## 8. Error Handling
