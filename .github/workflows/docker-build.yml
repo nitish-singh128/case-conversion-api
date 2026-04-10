@@ -32,4 +32,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: nitishsingh/case-conversion-api:latest
+          tags: nitishhsinghhh/case-conversion-api:latest
