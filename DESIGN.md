@@ -272,6 +272,7 @@ Docker Compose orchestrates:
 
 ## 14. Tech Stack
 
+```
 C++ — Conversion engine
 CMake — Build system
 GoogleTest — Unit tests
@@ -279,7 +280,7 @@ GoogleTest — Unit tests
 React + TypeScript — UI
 Docker — Containerization
 GitHub Actions — CI/CD
-
+```
 ---
 
 ## 15. Key Design Decisions
