@@ -30,20 +30,21 @@ The system uses native C++ for efficient string transformations, .NET for servic
 
 ## 4. High-Level Architecture
 
-Frontend (React)
-|
-v
-ASP.NET Core REST API
-|
-v
-P/Invoke Interop Layer
-|
-v
-C++ Shared Library
-|
-v
-Strategy Pattern Conversion Engine
-
+```
+        Frontend (React)
+        |
+        v
+        ASP.NET Core REST API
+        |
+        v
+        P/Invoke Interop Layer
+        |
+        v
+        C++ Shared Library
+        |
+        v
+        Strategy Pattern Conversion Engine
+```
 ---
 
 ## 5. Component Design
@@ -170,28 +171,29 @@ Stage 2:
 ---
 
 ## 7. Runtime Flow
+
 ```
-User Input (React)
-↓
-REST API Call
-↓
-ASP.NET Controller
-↓
-ProcessStringService
-↓
-P/Invoke
-↓
-processStringDLL (C++)
-↓
-Factory
-↓
-Strategy
-↓
-Result
-↓
-API Response
-↓
-Frontend Display
+            User Input (React)
+            ↓
+            REST API Call
+            ↓
+            ASP.NET Controller
+            ↓
+            ProcessStringService
+            ↓
+            P/Invoke
+            ↓
+            processStringDLL (C++)
+            ↓
+            Factory
+            ↓
+            Strategy
+            ↓
+            Result
+            ↓
+            API Response
+            ↓
+            Frontend Display
 ```
 ---
 
