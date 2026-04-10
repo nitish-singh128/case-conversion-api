@@ -221,7 +221,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /src
 COPY . .
 
-# 🔧 Clean old CMake cache
+# Clean old CMake cache
 RUN rm -rf CaseConversionAPI/CppLib/build
 
 # Build C++ shared library
