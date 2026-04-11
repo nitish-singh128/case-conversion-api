@@ -1,3 +1,25 @@
+/*********************************************************************/
+/* File: Program.cs                                                  */
+/*                                                                   */
+/* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
+/* This material may be reproduced for teaching and learning         */
+/* purposes only. It is not to be used in industry or for            */
+/* commercial purposes.                                              */
+/*                                                                   */
+/* Description - Application entry point configuring ASP.NET Core    */
+/*               pipeline, dependency injection, CORS, and Swagger   */
+/*               for the Word Case REST API. Registers services and  */
+/*               maps controller endpoints.                          */
+/*                                                                   */
+/* Notes       - Enables Swagger UI at root                          */
+/*               Configures CORS for cross-origin requests           */
+/*               Registers ProcessStringService for DI               */
+/*                                                                   */
+/* $Log: Program.cs                                                  */
+/* 1.0  11-Apr-2026  Nitish Singh                                    */
+/*      Initial revision.                                            */
+/*********************************************************************/
+
 using Microsoft.OpenApi.Models;
 using StringConversionAPI.Services;
 

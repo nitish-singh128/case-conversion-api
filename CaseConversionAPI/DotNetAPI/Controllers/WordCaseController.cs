@@ -13,9 +13,11 @@
 /*               to delegate conversion logic based on user choice.  */
 /*                                                                   */
 /* Notes       - Supports multiple conversion strategies including   */
-/*               Alternating Case via native C++ interop.             */
+/*               Alternating Case via native C++ interop.            */
 /*                                                                   */
 /* $Log: WordCaseController.cs                                       */
+/* 1.0  11-Apr-2026  Nitish Singh                                   */
+/*      Initial revision.                                            */
 /*********************************************************************/
 
 using Microsoft.AspNetCore.Mvc;
@@ -26,7 +28,7 @@ namespace StringConversionAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class WordCaseController : ControllerBase
+    public class WordCaseController : ControllerBase 
     {
         private readonly ProcessStringService _service;
 

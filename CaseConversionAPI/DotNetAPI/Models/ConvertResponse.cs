@@ -1,5 +1,5 @@
 /*********************************************************************/
-/* $Header: ConvertResponse.cs                                       */
+/* File: ConvertResponse.cs                                          */
 /*                                                                   */
 /* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
 /* This material may be reproduced for teaching and learning         */
@@ -16,6 +16,8 @@
 /*               Encapsulates API response payload                   */
 /*                                                                   */
 /* $Log: ConvertResponse.cs                                          */
+/* 1.0  11-Apr-2026  Nitish Singh                                    */
+/*      Initial revision.                                            */
 /*********************************************************************/
 
 namespace StringConversionAPI.Models

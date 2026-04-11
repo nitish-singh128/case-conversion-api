@@ -1,5 +1,5 @@
 /*********************************************************************/
-/* $Header: ProcessStringService.cs                                  */
+/* File: ProcessStringService.cs                                     */
 /*                                                                   */
 /* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
 /* This material may be reproduced for teaching and learning         */
@@ -19,6 +19,8 @@
 /*               Delegates conversion based on choice parameter      */
 /*                                                                   */
 /* $Log: ProcessStringService.cs                                     */
+/* 1.0  11-Apr-2026  Nitish Singh                                    */
+/*      Initial revision.                                            */
 /*********************************************************************/
 
 using System;

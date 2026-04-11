@@ -6,14 +6,19 @@
 /* purposes only. It is not to be used in industry or for            */
 /* commercial purposes.                                              */
 /*                                                                   */
-/* Class       : ConvertRequest                                      */
+/* Class       - ConvertRequest                                      */
 /*                                                                   */
-/* Description : Model representing the request payload for          */
+/* Description - Model representing the request payload for          */
 /*               string conversion operations. Contains input        */
 /*               text and conversion choice selected by the user.    */
 /*                                                                   */
-/* Notes       : Used by WordCaseController POST endpoint.           */
+/* Notes       - Used by WordCaseController POST endpoint.           */
+/*                                                                   */
+/* $Log: ConvertRequest.cs                                           */
+/* 1.0  11-Apr-2026  Nitish Singh                                    */
+/*      Initial revision.                                            */
 /*********************************************************************/
+
 namespace StringConversionAPI.Models
 {
     public class ConvertRequest
