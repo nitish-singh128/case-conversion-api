@@ -3,6 +3,7 @@
 This project is a REST API for **word case conversion** (uppercase, lowercase, camelcase, etc.), following Microsoft-style folder structure.  
 
 This README captures **all steps from creating the repo to generating the folder structure**.
+
 ---
 
 ## 1. Create a new GitHub repository
