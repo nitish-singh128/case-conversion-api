@@ -22,7 +22,6 @@
 /*********************************************************************/
 
 #include <gtest/gtest.h>
-#include "TestHelpers.hpp"
 
 // ---------------------------
 // Core Includes
@@ -45,6 +44,8 @@
 #include "ProcessString.hpp"
 
 #include <iostream>
+#include <chrono>
+#include <random>
 
 // ============================================================
 // 1. ADVANCED CONVERSION TESTS (WITH LOGGING)
@@ -144,4 +145,53 @@ TEST(ReverseConversionTest, ReverseStringWithLog) {
     logConversion("ReverseCase", input, output);
 
     EXPECT_EQ(output, "!dlroW olleH");
+}
+
+// ============================================================
+// 5. PERFORMANCE TEST
+// ============================================================
+
+
+TEST(UpperCasePerformanceTest, LargeInput) {
+    UpperCaseConversion converter;
+
+    std::string largeInput(1'000'000, 'a');
+
+    auto start = std::chrono::high_resolution_clock::now();
+    auto result = converter.convert(largeInput);
+    auto end = std::chrono::high_resolution_clock::now();
+
+    auto duration =
+        std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+    std::cout << "Execution time: " << duration.count() << " ms\n";
+
+    EXPECT_EQ(result.size(), largeInput.size());
+    
+    EXPECT_LT(duration.count(), 25); // < 25 ms
+}
+
+// ============================================================
+// 6. FUZZ TESTING (RANDOM INPUTS)
+// ============================================================
+
+TEST(UpperCaseFuzzTest, RandomStrings) {
+    UpperCaseConversion converter;
+
+    std::mt19937 rng(123);
+    std::uniform_int_distribution<int> lenDist(0, 100);
+    std::uniform_int_distribution<int> charDist(32, 126);
+
+    for (int i = 0; i < 1000; ++i) {
+        int len = lenDist(rng);
+        std::string input;
+
+        for (int j = 0; j < len; ++j) {
+            input += static_cast<char>(charDist(rng));
+        }
+
+        std::string output = converter.convert(input);
+
+        EXPECT_EQ(output.size(), input.size());
+    }
 }
