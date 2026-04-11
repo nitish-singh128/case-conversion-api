@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  backend:
+    image: nitishhsinghhh/case-api:latest
+    container_name: case-api-prod
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    restart: always
+    networks:
+      - case-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    image: nitishhsinghhh/case-ui:latest
+    container_name: case-ui-prod
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://backend:8080
+    depends_on:
+      - backend
+    restart: always
+    networks:
+      - case-network
+
+networks:
+  case-network:
+    driver: bridge

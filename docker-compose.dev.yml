@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  backend:
+    container_name: case-api-dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: nitishhsinghhh/case-api:dev   
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - ./CaseConversionAPI:/src/CaseConversionAPI
+    networks:
+      - case-network
+
+  frontend:
+    container_name: case-ui-dev
+    image: node:20
+    working_dir: /app
+    volumes:
+      - ./string-conversion-ui:/app
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8080
+    command: sh -c "npm install && npm run dev -- --host"
+    depends_on:
+      - backend
+    networks:
+      - case-network
+
+networks:
+  case-network:
+    driver: bridge

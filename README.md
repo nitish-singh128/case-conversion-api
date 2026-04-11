@@ -1,6 +1,6 @@
 # Case Conversion API
 
-This project demonstrates a full-stack architecture where a native C++ string conversion engine is exposed through a .NET REST API and consumed by a modern frontend UI.
+This project demonstrates a full-stack architecture where a native C++ string conversion engine is exposed through a .NET REST API and consumed by a modern frontend UI. It adheres to production-grade deployment standards, including environment isolation and artifact promotion workflows.
 
 ---
 
@@ -329,9 +329,147 @@ This will start:
 - Backend → http://localhost:8080
 - Frontend → http://localhost:5173
 
+## Environment-Based Deployment (Dev → Staging → Prod)
+
+This project supports multi-environment deployment using Docker Compose and image promotion.
+
+### Deployment Strategy
+
+The system follows
+
+```Bash
+Development → Staging → Production
+```
+
+- Build once in dev
+- Promote the same Docker image forward
+- Avoid rebuilding for each environment
+
+### Docker Image Tagging Strategy
+
+| Environment | Tag       |
+| ----------- | --------- |
+| Dev         | `dev`     |
+| Staging     | `staging` |
+| Production  | `latest`  |
+
+```Bash
+nitishhsinghhh/case-api:dev
+nitishhsinghhh/case-api:staging
+nitishhsinghhh/case-api:latest
+```
+
+## Development Environment
+
+Used for local development with hot reload and debugging.
+
+Run Dev
+
+```Bash
+docker compose -f docker-compose.dev.yml up --build
+```
+
+Features
+
+- Builds image locally
+- Uses ASPNETCORE_ENVIRONMENT=Development
+- Frontend runs with npm run dev
+- Debug logs enabled
+
+## Staging Environment
+
+Used for production-like validation before release
+
+Promote Image from Dev
+
+```Bash
+docker tag nitishhsinghhh/case-api:dev nitishhsinghhh/case-api:staging
+docker push nitishhsinghhh/case-api:staging
+```
+
+Run Staging
+
+```Bash
+docker compose -f docker-compose.staging.yml up -d
+```
+
+Features
+
+- Uses pre-built Docker image
+- Uses ASPNETCORE_ENVIRONMENT=Staging
+- No local builds
+- Simulates production behavior
+
+## Production Environment
+
+Used for final deployment.
+
+Promote Image from Staging
+
+```Bash
+docker tag nitishhsinghhh/case-api:staging nitishhsinghhh/case-api:latest
+docker push nitishhsinghhh/case-api:latest
+```
+
+Run Production
+
+```Bash
+docker compose -f docker-compose.prod.yml up -d
+```
+
+Features
+
+- Uses stable image (latest)
+- Uses ASPNETCORE_ENVIRONMENT=Production
+- Restart policies enabled
+- Health checks enabled
+
+## Full deployment flow
+
+```Bash
+# Step 1: Build in Dev
+docker compose -f docker-compose.dev.yml up --build -d
+docker push nitishhsinghhh/case-api:dev
+
+# Step 2: Promote to Staging
+docker tag nitishhsinghhh/case-api:dev nitishhsinghhh/case-api:staging
+docker push nitishhsinghhh/case-api:staging
+docker compose -f docker-compose.staging.yml up -d
+
+# Step 3: Promote to Production
+docker tag nitishhsinghhh/case-api:staging nitishhsinghhh/case-api:latest
+docker push nitishhsinghhh/case-api:latest
+docker compose -f docker-compose.prod.yml up -d
+```
+
+## Docker compose file
+
+| File                         | Purpose                |
+| ---------------------------- | ---------------------- |
+| `docker-compose.dev.yml`     | Local development      |
+| `docker-compose.staging.yml` | Pre-production testing |
+| `docker-compose.prod.yml`    | Production deployment  |
+
+## Key Principles
+
+- Single artifact promotion (same image across environments)
+- Environment-specific configuration via ASPNETCORE_ENVIRONMENT
+- No rebuilds after dev
+- Isolation of environments
+
+## Resulting Architecture
+
+```Bash
+Developer → Dev Build → Docker Image
+                        ↓
+                    Staging
+                        ↓
+                    Production
+```
+
 ## Architecture (Containerized)
 
-```
+```Bash
                 +---------------------+
                 |   Frontend (React)  |
                 |   Vite + TypeScript |
@@ -361,7 +499,7 @@ This will start:
 
 ## Deployment Architecture (Docker Compose)
 
-```
+```Bash
 +-------------------+        +-------------------+
 |   Frontend        | -----> |   Backend API     |
 |   React + Vite    |        |   .NET + C++ DLL  |
@@ -371,21 +509,21 @@ This will start:
 
 ## Runtime Flow
 
-```
-Browser
-   ↓
-React UI (Docker)
-   ↓
-HTTP REST Call
-   ↓
-ASP.NET Core API (Docker)
-   ↓
-P/Invoke
-   ↓
-C++ Shared Library
-   ↓
-Strategy Pattern Conversion
-   ↓
-Response back to UI
+```Bash
+         Browser
+            ↓
+         React UI (Docker)
+            ↓
+         HTTP REST Call
+            ↓
+         ASP.NET Core API (Docker)
+            ↓
+         P/Invoke
+            ↓
+         C++ Shared Library
+            ↓
+         Strategy Pattern Conversion
+            ↓
+         Response back to UI
 
 ```

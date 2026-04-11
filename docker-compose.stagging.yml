@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  backend:
+    image: nitishhsinghhh/case-api:staging
+    container_name: case-api-staging
+    ports:
+      - "8081:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Staging
+    restart: unless-stopped
+    networks:
+      - case-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    image: nitishhsinghhh/case-ui:staging
+    container_name: case-ui-staging
+    ports:
+      - "5174:5173"
+    environment:
+      - VITE_API_URL=http://backend:8080
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - case-network
+
+networks:
+  case-network:
+    driver: bridge
