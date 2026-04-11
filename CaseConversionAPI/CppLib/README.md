@@ -24,6 +24,75 @@ CaseConversionAPI/
 
 ```
 
+## Architecture
+
+The project follows a modular design using:
+
+- Strategy Pattern for conversion implementations
+- Factory Pattern for runtime object creation
+- Dispatcher layer for conversion selection
+- CLI interface for testing
+- DLL wrapper for interoperability
+
+Flow:
+CLI / API → ProcessString → Factory → Strategy → Result`
+
+## Requirements
+
+- C++17 or later
+- CMake 3.15+
+- GCC / Clang / MSVC
+- GoogleTest (auto-fetched via CMake)
+
+## Using as Library
+
+```cpp
+#include "ProcessString.hpp"
+
+std::string result = processString("hello world", 11);
+```
+
+---
+
+## 6. Conversion Table
+
+```markdown
+## Supported Conversions
+
+| ID | Conversion |
+|----|------------|
+| 1  | Alternating |
+| 2  | Capitalize |
+| 3  | Lower |
+| 4  | Upper |
+| 5  | Sentence |
+| 6  | Toggle |
+| 7  | Reverse |
+| 8  | RemoveVowels |
+| 9  | RemoveSpaces |
+| 10 | InvertWords |
+| 11 | SnakeCase |
+| 12 | KebabCase |
+| 13 | LeetSpeak |
+
+## Design Goals
+
+- Modular conversion strategies
+- Easy extensibility
+- Modern C++ memory safety
+- Test-driven validation
+- Cross-platform build support
+
+## Future Enhancements
+
+- Unicode support
+- Plugin-based conversions
+- REST API integration
+- Performance benchmarks
+
+---
+
+
 ## Running the Application
 
 A convenient script `run.sh` is provided to build the project and run both the main application and tests.
