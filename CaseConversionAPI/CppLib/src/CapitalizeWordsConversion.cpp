@@ -1,5 +1,5 @@
 /*********************************************************************/
-/* $Header: CapitalizeWordsConversion.cpp                            */
+/* $File: CapitalizeWordsConversion.cpp                            */
 /*                                                                   */
 /* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
 /* This material may be reproduced for teaching and learning         */
@@ -12,10 +12,13 @@
 /*               with an uppercase letter followed by lowercase      */
 /*               characters.                                         */
 /*                                                                   */
-/* Notes       - Reuses LowerCaseConversion and                     */
+/* Notes       - Reuses LowerCaseConversion and                      */
 /*               UpperCaseConversion                                 */
 /*                                                                   */
 /* $Log: CapitalizeWordsConversion.cpp                               */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of CapitalizeWordsConversion.             */
 /*********************************************************************/
 
 /*********************************************************************/
@@ -31,15 +34,17 @@ std::string CapitalizeWordsConversion::convert(const std::string& input) const {
     UpperCaseConversion upperConv;
 
     std::istringstream iss(input);
-    std::string word, result;
+    std::string word;
+    std::string result;
 
     while (iss >> word) {
-        if (!result.empty()) result += " ";
+        if (!result.empty())
+            result += " ";
 
-        // make whole word lowercase first
+        // Convert whole word to lowercase first
         word = lowerConv.convert(word);
 
-        // capitalize first letter using UpperCaseConversion
+        // Capitalize first letter using UpperCaseConversion
         std::string firstChar(1, word[0]);
         firstChar = upperConv.convert(firstChar);
         word[0] = firstChar[0];

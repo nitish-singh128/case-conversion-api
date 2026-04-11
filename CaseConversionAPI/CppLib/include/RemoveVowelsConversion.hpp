@@ -6,19 +6,16 @@
 /* purposes only. It is not to be used in industry or for            */
 /* commercial purposes.                                              */
 /*                                                                   */
-/* File        - RemoveVowelsConversion.hpp                           */
+/* Class       - RemoveVowelsConversion                              */
 /*                                                                   */
-/* Description - Concrete implementation of IStringConversion that   */
-/*               removes all vowels from a string.                   */
-/*               This class implements the IStringConversion         */
-/*               interface and eliminates all vowel characters       */
-/*               (a, e, i, o, u, both uppercase and lowercase).     */
-/*               Useful for creating compact identifiers or          */
-/*               stylized text where vowels are omitted.             */
+/* Description - Removes all vowels from the input string.           */
 /*                                                                   */
-/* Notes       - Removes all vowels from the input string.           */
+/* Notes       - Implements IStringConversion interface.             */
 /*                                                                   */
 /* $Log: RemoveVowelsConversion.hpp                                  */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of RemoveVowelsConversion class.          */
 /*********************************************************************/
 
 #ifndef REMOVEVOWELSCONVERSION_HPP
@@ -32,17 +29,11 @@
 
 /**
  * @class RemoveVowelsConversion
- * @brief Concrete implementation of IStringConversion that removes all vowels from a string.
+ * @brief Concrete implementation of IStringConversion that removes vowels.
  *
- * This class transforms input strings by eliminating all vowel characters,
- * producing a string without vowels.
- *
- * Example usage:
- * @code
- * RemoveVowelsConversion conv;
- * std::string result = conv.convert("Hello World");
- * // result == "Hll Wrld"
- * @endcode
+ * Example:
+ * Input  : "Hello World"
+ * Output : "Hll Wrld"
  */
 class RemoveVowelsConversion : public IStringConversion {
 public:

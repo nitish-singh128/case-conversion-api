@@ -6,16 +6,16 @@
 /* purposes only. It is not to be used in industry or for            */
 /* commercial purposes.                                              */
 /*                                                                   */
-/* File        - SentenceCaseConversion.hpp                           */
+/* Class       - SentenceCaseConversion                              */
 /*                                                                   */
-/* Description - Concrete implementation of IStringConversion that   */
-/*               converts a string to sentence case.                */
-/*               Capitalizes the first character of the string      */
-/*               and converts the remaining characters to lowercase.*/
+/* Description - Converts input string to sentence case.             */
 /*                                                                   */
-/* Notes       - Useful for formatting text in proper sentence style*/
+/* Notes       - Implements IStringConversion interface.             */
 /*                                                                   */
 /* $Log: SentenceCaseConversion.hpp                                  */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of SentenceCaseConversion class.          */
 /*********************************************************************/
 
 #ifndef SENTENCECASECONVERSION_HPP
@@ -29,25 +29,18 @@
 
 /**
  * @class SentenceCaseConversion
- * @brief Concrete implementation of IStringConversion that converts a string to sentence case.
+ * @brief Concrete implementation of IStringConversion that converts to sentence case.
  *
- * This class transforms input strings by capitalizing the first character
- * and converting the remaining characters to lowercase.
- *
- * Example usage:
- * @code
- * SentenceCaseConversion conv;
- * std::string result = conv.convert("hELLO WORLD");
- * // result == "Hello world"
- * @endcode
+ * Example:
+ * Input  : "hELLO WORLD"
+ * Output : "Hello world"
  */
 class SentenceCaseConversion : public IStringConversion {
 public:
     /**
      * @brief Converts the input string to sentence case.
      * @param input The string to convert.
-     * @return The converted string with the first letter capitalized
-     *         and remaining letters in lowercase.
+     * @return The converted string with first letter capitalized.
      */
     std::string convert(const std::string& input) const override;
 };

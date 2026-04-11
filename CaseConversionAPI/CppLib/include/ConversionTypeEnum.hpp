@@ -10,12 +10,15 @@
 /*                                                                   */
 /* Description - Enumerates supported string conversion strategies   */
 /*               used by the C++ conversion engine and exposed       */
-/*               through the DLL interface.                         */
+/*               through the DLL interface.                          */
 /*                                                                   */
 /* Notes       - Values map directly to integer choices passed       */
 /*               into processStringDLL for conversion selection.     */
 /*                                                                   */
 /* $Log: ConversionTypeEnum.hpp                                      */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of ConversionChoice enum.                 */
 /*********************************************************************/
 
 #ifndef CONVERSIONTYPEENUM_HPP

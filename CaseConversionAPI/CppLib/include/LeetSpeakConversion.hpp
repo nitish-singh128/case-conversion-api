@@ -6,17 +6,18 @@
 /* purposes only. It is not to be used in industry or for            */
 /* commercial purposes.                                              */
 /*                                                                   */
-/* Class       - LeetSpeakConversion                                  */
+/* Class       - LeetSpeakConversion                                 */
 /*                                                                   */
-/* Description - Concrete implementation of IStringConversion that   */
-/*               converts strings into leet speak (1337). Certain    */
-/*               alphabetic characters are replaced with numbers or */
-/*               symbols, e.g., 'a' -> '4', 'e' -> '3', 'o' -> '0'.*/
+/* Description - Converts input string into leet speak (1337).       */
+/*               Certain alphabetic characters are replaced with     */
+/*               numbers or symbols.                                 */
 /*                                                                   */
-/* Notes       - Implements IStringConversion interface. Handles     */
-/*               basic leet speak transformations.                  */
+/* Notes       - Implements IStringConversion interface.             */
 /*                                                                   */
 /* $Log: LeetSpeakConversion.hpp                                     */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of LeetSpeakConversion class.             */
 /*********************************************************************/
 
 #ifndef LEETSPEAKCONVERSION_HPP
@@ -32,15 +33,9 @@
  * @class LeetSpeakConversion
  * @brief Concrete implementation of IStringConversion that converts strings into leet speak.
  *
- * This class transforms input strings by replacing certain alphabetic
- * characters with leet speak equivalents.
- *
  * Example:
- * @code
- * LeetSpeakConversion conv;
- * std::string result = conv.convert("Hello World");
- * // result == "H3ll0 W0rld"
- * @endcode
+ * Input  : "Hello World"
+ * Output : "H3ll0 W0rld"
  */
 class LeetSpeakConversion : public IStringConversion {
 public:

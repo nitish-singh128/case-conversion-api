@@ -6,30 +6,18 @@
 /* purposes only. It is not to be used in industry or for            */
 /* commercial purposes.                                              */
 /*                                                                   */
-/* File        - ProcessString.hpp                                    */
+/* File        - ProcessString.hpp                                   */
 /*                                                                   */
 /* Description - Provides a client interface function to process a   */
 /*               string using a chosen conversion strategy.          */
-/*               Internally, this function uses a Client class and   */
-/*               StringConversionFactory to select the appropriate  */
-/*               string conversion implementation.                   */
 /*                                                                   */
-/* Notes       - Supports multiple conversion strategies:           */
-/*               1: Alternating case                                  */
-/*               2: Capitalize words                                  */
-/*               3: Lowercase                                        */
-/*               4: Uppercase                                        */
-/*               5: Sentence case                                    */
-/*               6: Toggle case                                      */
-/*               7: Reverse                                          */
-/*               8: Remove vowels                                     */
-/*               9: Remove spaces                                     */
-/*              10: Invert words                                      */
-/*              11: Snake case                                        */
-/*              12: Kebab case                                        */
-/*              13: Leet speak                                        */
+/* Notes       - Uses Client and factory to select appropriate       */
+/*               conversion implementation.                          */
 /*                                                                   */
 /* $Log: ProcessString.hpp                                           */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of processString interface.               */
 /*********************************************************************/
 
 #ifndef PROCESSSTRING_HPP
@@ -41,30 +29,11 @@
 #include <string>
 
 /**
- * @brief Process a string using the specified conversion strategy.
+ * @brief Processes a string using the specified conversion strategy.
  *
- * This function acts as a client interface to apply a string
- * conversion based on the user's choice.
- *
- * @param input The input string to be converted.
- * @param choice An integer representing the desired conversion type:
- *               1: Alternating case
- *               2: Capitalize words
- *               3: Lowercase
- *               4: Uppercase
- *               5: Sentence case
- *               6: Toggle case
- *               7: Reverse
- *               8: Remove vowels
- *               9: Remove spaces
- *              10: Invert words
- *              11: Snake case
- *              12: Kebab case
- *              13: Leet speak
- * @return The converted string according to the chosen strategy.
- *
- * @example
- * std::string result = processString("Hello World", 3); // "hello world" (Lowercase)
+ * Example:
+ * Input  : ("Hello World", 3)
+ * Output : "hello world"
  */
 std::string processString(const std::string& input, int choice);
 

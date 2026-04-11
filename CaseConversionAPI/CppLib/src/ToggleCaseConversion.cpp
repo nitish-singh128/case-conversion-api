@@ -1,5 +1,5 @@
 /*********************************************************************/
-/* $Header: ToggleCaseConversion.cpp                                 */
+/* $File: ToggleCaseConversion.cpp                                 */
 /*                                                                   */
 /* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
 /* This material may be reproduced for teaching and learning         */
@@ -15,6 +15,9 @@
 /*               Non-alphabetic characters unchanged                 */
 /*                                                                   */
 /* $Log: ToggleCaseConversion.cpp                                    */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of ToggleCaseConversion.                  */
 /*********************************************************************/
 
 /*********************************************************************/
@@ -31,18 +34,17 @@ std::string ToggleCaseConversion::convert(const std::string& input) const {
     std::string result;
 
     for (char c : input) {
-        if ((c >= 'a' && c <= 'z')) {
+        if (c >= 'a' && c <= 'z') {
             std::string temp(1, c);
             result += upperConv.convert(temp);
         }
-        else if ((c >= 'A' && c <= 'Z')) {
+        else if (c >= 'A' && c <= 'Z') {
             std::string temp(1, c);
             result += lowerConv.convert(temp);
         }
-        else {
+        else
             result += c;
-        }
     }
-
+    
     return result;
 }

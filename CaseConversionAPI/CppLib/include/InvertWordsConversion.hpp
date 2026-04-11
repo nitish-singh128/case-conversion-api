@@ -14,6 +14,9 @@
 /* Notes       - Implements IStringConversion interface              */
 /*                                                                   */
 /* $Log: InvertWordsConversion.hpp                                   */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of InvertWordsConversion class.           */
 /*********************************************************************/
 
 #ifndef INVERTWORDSCONVERSION_HPP

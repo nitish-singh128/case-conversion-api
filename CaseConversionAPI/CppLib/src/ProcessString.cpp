@@ -1,5 +1,5 @@
 /*********************************************************************/
-/* $Header: ProcessString.cpp                                        */
+/* $File: ProcessString.cpp                                        */
 /*                                                                   */
 /* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
 /* This material may be reproduced for teaching and learning         */
@@ -8,14 +8,17 @@
 /*                                                                   */
 /* Class       - ProcessString                                       */
 /*                                                                   */
-/* Description : Core dispatcher selecting conversion strategies     */
+/* Description - Core dispatcher selecting conversion strategies     */
 /*               using Factory and Strategy design patterns.         */
 /*               Shared by DLL and CLI applications.                 */
 /*                                                                   */
-/* Notes       : Uses Strategy and Factory design patterns           */
-/*               Returns original input for invalid choice             */
+/* Notes       - Uses Strategy and Factory design patterns           */
+/*               Returns original input for invalid choice           */
 /*                                                                   */
 /* $Log: ProcessString.cpp                                           */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of ProcessString dispatcher.              */
 /*********************************************************************/
 
 /*********************************************************************/
@@ -28,44 +31,49 @@
 
 static ConversionType mapChoiceToType(ConversionChoice choice) {
     switch (choice) {
-        case ConversionChoice::Alternating:   
+        case ConversionChoice::Alternating:
             return ConversionType::Alternating;
-        case ConversionChoice::Capitalize:    
+        case ConversionChoice::Capitalize:
             return ConversionType::Capitalize;
-        case ConversionChoice::Lower:         
+        case ConversionChoice::Lower:
             return ConversionType::Lower;
-        case ConversionChoice::Upper:         
+        case ConversionChoice::Upper:
             return ConversionType::Upper;
-        case ConversionChoice::Sentence:      
+        case ConversionChoice::Sentence:
             return ConversionType::Sentence;
-        case ConversionChoice::Toggle:        
+        case ConversionChoice::Toggle:
             return ConversionType::Toggle;
-        case ConversionChoice::Reverse:       
+        case ConversionChoice::Reverse:
             return ConversionType::Reverse;
-        case ConversionChoice::RemoveVowels:  
+        case ConversionChoice::RemoveVowels:
             return ConversionType::RemoveVowels;
-        case ConversionChoice::RemoveSpaces:  
+        case ConversionChoice::RemoveSpaces:
             return ConversionType::RemoveSpaces;
-        case ConversionChoice::InvertWords:   
+        case ConversionChoice::InvertWords:
             return ConversionType::InvertWords;
-        case ConversionChoice::SnakeCase:     
+        case ConversionChoice::SnakeCase:
             return ConversionType::SnakeCase;
-        case ConversionChoice::KebabCase:     
+        case ConversionChoice::KebabCase:
             return ConversionType::KebabCase;
-        case ConversionChoice::LeetSpeak:     
+        case ConversionChoice::LeetSpeak:
             return ConversionType::LeetSpeak;
-        default:                              
-            return ConversionType::Lower; // safe fallback
+        default:
+            return ConversionType::Lower;  // safe fallback
     }
 }
 
 std::string processString(const std::string& input, int choiceInt) {
     Client client;
-    ConversionChoice choice = static_cast<ConversionChoice>(choiceInt);
+
+    ConversionChoice choice =
+        static_cast<ConversionChoice>(choiceInt);
 
     // Map enum to ConversionType
     ConversionType type = mapChoiceToType(choice);
 
-    client.setStrategy(StringConversionFactory::create(type));
+    client.setStrategy(
+        StringConversionFactory::create(type)
+    );
+
     return client.execute(input);
 }

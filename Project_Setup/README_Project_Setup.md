@@ -169,7 +169,6 @@ Reload VS Code
 
 You can now manage containers, images, volumes directly from VS Code.
 
-
 ### 3. Verify Docker is Running
 
 Open a terminal inside VS Code:

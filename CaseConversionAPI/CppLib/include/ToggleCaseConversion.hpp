@@ -6,18 +6,18 @@
 /* purposes only. It is not to be used in industry or for            */
 /* commercial purposes.                                              */
 /*                                                                   */
-/* File        - ToggleCaseConversion.hpp                             */
+/* Class       - ToggleCaseConversion                                */
 /*                                                                   */
-/* Description - Concrete implementation of IStringConversion that  */
-/*               toggles the case of each character in a string.    */
-/*               Lowercase characters become uppercase, uppercase  */
-/*               characters become lowercase. Non-alphabetic       */
-/*               characters remain unchanged.                       */
+/* Description - Concrete implementation of IStringConversion that   */
+/*               toggles the case of each character in a string.     */
 /*                                                                   */
-/* Notes       - Useful for case inversion strategies in text       */
-/*               formatting or testing string manipulation.         */
+/* Notes       - Lowercase becomes uppercase and vice versa.         */
+/*               Non-alphabetic characters remain unchanged.         */
 /*                                                                   */
-/* $Log: ToggleCaseConversion.hpp                                     */
+/* $Log: ToggleCaseConversion.hpp                                    */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of ToggleCaseConversion class.            */
 /*********************************************************************/
 
 #ifndef TOGGLECASECONVERSION_HPP
@@ -31,24 +31,18 @@
 
 /**
  * @class ToggleCaseConversion
- * @brief Converts a string by toggling the case of each character.
+ * @brief Converts a string by toggling character case.
  *
- * Implements the IStringConversion interface.
- * Non-alphabetic characters remain unchanged.
- *
- * Example usage:
- * @code
- * ToggleCaseConversion toggle;
- * std::string result = toggle.convert("HeLLo");
- * // result == "hEllO"
- * @endcode
+ * Example:
+ * Input  : "HeLLo"
+ * Output : "hEllO"
  */
 class ToggleCaseConversion : public IStringConversion {
 public:
     /**
      * @brief Toggles the case of each character in the input string.
      * @param input The string to convert.
-     * @return std::string The converted string with toggled case.
+     * @return Converted string with toggled case.
      */
     std::string convert(const std::string& input) const override;
 };

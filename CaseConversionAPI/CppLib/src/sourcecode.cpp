@@ -1,5 +1,5 @@
 /*********************************************************************/
-/* $Header: main.cpp                                                 */
+/* $File: main.cpp                                                 */
 /*                                                                   */
 /* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
 /* This material may be reproduced for teaching and learning         */
@@ -10,13 +10,16 @@
 /*                                                                   */
 /* Description : Console application for local testing of string     */
 /*               conversion engine. Uses ProcessString dispatcher.   */
-/*               Accepts user input and conversion choice, then     */
-/*               displays the converted result.                     */
+/*               Accepts user input and conversion choice, then      */
+/*               displays the converted result.                      */
 /*                                                                   */
 /* Notes       : Uses ProcessString dispatcher                       */
 /*               Demonstrates runtime selection of conversions       */
 /*                                                                   */
 /* $Log: main.cpp                                                    */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of console test application.              */
 /*********************************************************************/
 
 /*********************************************************************/
@@ -25,7 +28,8 @@
 #include <iostream>
 #include "ProcessString.hpp"
 
-int main() {
+int main()
+{
     std::string input;
 
     std::cout << "Enter string: ";

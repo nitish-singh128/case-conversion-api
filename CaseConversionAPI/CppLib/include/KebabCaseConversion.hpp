@@ -6,16 +6,19 @@
 /* purposes only. It is not to be used in industry or for            */
 /* commercial purposes.                                              */
 /*                                                                   */
-/* Class       - KebabCaseConversion                                  */
+/* Class       - KebabCaseConversion                                 */
 /*                                                                   */
-/* Description - Concrete implementation of IStringConversion that   */
-/*               converts strings to kebab-case. Words are separated */
-/*               by hyphens and all characters are lowercase.       */
+/* Description - Converts input string to kebab-case format. Words   */
+/*               are separated by hyphens and all characters are     */
+/*               lowercase.                                          */
 /*                                                                   */
 /* Notes       - Implements IStringConversion interface. Handles     */
-/*               consecutive spaces, removes trailing hyphens.      */
+/*               consecutive spaces and removes trailing hyphens.    */
 /*                                                                   */
 /* $Log: KebabCaseConversion.hpp                                     */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of KebabCaseConversion class.             */
 /*********************************************************************/
 
 #ifndef KEBABCASECONVERSION_HPP
@@ -31,18 +34,9 @@
  * @class KebabCaseConversion
  * @brief Concrete implementation of IStringConversion that converts strings to kebab-case.
  *
- * This class transforms input strings so that:
- *   - Words are separated by hyphens (`-`)
- *   - All characters are lowercase
- *   - Consecutive spaces are replaced by a single hyphen
- *   - Leading/trailing hyphens are removed
- *
  * Example:
- * @code
- * KebabCaseConversion conv;
- * std::string result = conv.convert("Hello World Example");
- * // result == "hello-world-example"
- * @endcode
+ * Input  : "Hello World Example"
+ * Output : "hello-world-example"
  */
 class KebabCaseConversion : public IStringConversion {
 public:

@@ -6,17 +6,16 @@
 /* purposes only. It is not to be used in industry or for            */
 /* commercial purposes.                                              */
 /*                                                                   */
-/* File        - SnakeCaseConversion.hpp                               */
+/* Class       - SnakeCaseConversion                                 */
 /*                                                                   */
-/* Description - Concrete implementation of IStringConversion that   */
-/*               converts strings to snake_case.                    */
-/*               Words are separated by underscores (_) and all      */
-/*               characters are lowercase.                           */
+/* Description - Converts input string to snake_case format.         */
 /*                                                                   */
-/* Notes       - Useful for programming identifiers, file names,     */
-/*               and variable naming conventions.                    */
+/* Notes       - Implements IStringConversion interface.             */
 /*                                                                   */
-/* $Log: SnakeCaseConversion.hpp                                      */
+/* $Log: SnakeCaseConversion.hpp                                     */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of SnakeCaseConversion class.             */
 /*********************************************************************/
 
 #ifndef SNAKECASECONVERSION_HPP
@@ -30,17 +29,11 @@
 
 /**
  * @class SnakeCaseConversion
- * @brief Concrete implementation of IStringConversion that converts strings to snake_case.
+ * @brief Concrete implementation of IStringConversion that converts to snake_case.
  *
- * This class transforms input strings by replacing spaces or word boundaries
- * with underscores and converting all characters to lowercase.
- *
- * Example usage:
- * @code
- * SnakeCaseConversion conv;
- * std::string result = conv.convert("Hello World Example");
- * // result == "hello_world_example"
- * @endcode
+ * Example:
+ * Input  : "Hello World Example"
+ * Output : "hello_world_example"
  */
 class SnakeCaseConversion : public IStringConversion {
 public:

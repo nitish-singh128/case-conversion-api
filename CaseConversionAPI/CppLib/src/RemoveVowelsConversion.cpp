@@ -1,5 +1,5 @@
 /*********************************************************************/
-/* $Header: RemoveVowelsConversion.cpp                               */
+/* $File: RemoveVowelsConversion.cpp                               */
 /*                                                                   */
 /* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
 /* This material may be reproduced for teaching and learning         */
@@ -14,6 +14,9 @@
 /*               Preserves non-vowel characters                      */
 /*                                                                   */
 /* $Log: RemoveVowelsConversion.cpp                                  */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of RemoveVowelsConversion.                */
 /*********************************************************************/
 
 /*********************************************************************/
@@ -25,17 +28,13 @@
 std::string RemoveVowelsConversion::convert(const std::string& input) const {
     LowerCaseConversion lowerConv;
     std::string lower = lowerConv.convert(input);
-
     std::string result;
-
     for (size_t i = 0; i < input.size(); ++i) {
         char ch = lower[i];
-
         if (ch != 'a' && ch != 'e' && ch != 'i' &&
             ch != 'o' && ch != 'u') {
             result += input[i];
         }
     }
-
     return result;
 }

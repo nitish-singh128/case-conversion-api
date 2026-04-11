@@ -6,17 +6,17 @@
 /* purposes only. It is not to be used in industry or for            */
 /* commercial purposes.                                              */
 /*                                                                   */
-/* File        - UpperCaseConversion.hpp                              */
+/* Class       - UpperCaseConversion                                 */
 /*                                                                   */
-/* Description - Concrete implementation of IStringConversion that  */
-/*               converts all alphabetic characters of a string to  */
-/*               uppercase. Non-alphabetic characters remain        */
-/*               unchanged.                                          */
+/* Description - Concrete implementation of IStringConversion that   */
+/*               converts characters in a string to uppercase.       */
 /*                                                                   */
-/* Notes       - Useful for formatting text in all-uppercase style  */
-/*               or normalizing string data for comparisons.        */
+/* Notes       - Non-alphabetic characters remain unchanged.         */
 /*                                                                   */
-/* $Log: UpperCaseConversion.hpp                                      */
+/* $Log: UpperCaseConversion.hpp                                     */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of UpperCaseConversion class.             */
 /*********************************************************************/
 
 #ifndef UPPERCASECONVERSION_HPP
@@ -32,22 +32,16 @@
  * @class UpperCaseConversion
  * @brief Converts a string to uppercase.
  *
- * Implements the IStringConversion interface.
- * Non-alphabetic characters remain unchanged.
- *
- * Example usage:
- * @code
- * UpperCaseConversion upper;
- * std::string result = upper.convert("Hello World!");
- * // result == "HELLO WORLD!"
- * @endcode
+ * Example:
+ * Input  : "Hello World!"
+ * Output : "HELLO WORLD!"
  */
 class UpperCaseConversion : public IStringConversion {
 public:
     /**
      * @brief Converts the input string to uppercase.
      * @param input The string to convert.
-     * @return std::string The converted string in uppercase.
+     * @return Converted string in uppercase.
      */
     std::string convert(const std::string& input) const override;
 };

@@ -15,6 +15,9 @@
 /* Notes       - Implements IStringConversion interface              */
 /*                                                                   */
 /* $Log: AlternatingCaseConversion.hpp                               */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of AlternatingCaseConversion class.       */
 /*********************************************************************/
 
 #ifndef ALTERNATINGCASECONVERSION_HPP

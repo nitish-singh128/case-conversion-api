@@ -15,6 +15,9 @@
 /* Notes       - Implements IStringConversion interface              */
 /*                                                                   */
 /* $Log: CapitalizeWordsConversion.hpp                               */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of CapitalizeWordsConversion class.       */
 /*********************************************************************/
 
 #ifndef CAPITALIZEWORDSCONVERSION_HPP

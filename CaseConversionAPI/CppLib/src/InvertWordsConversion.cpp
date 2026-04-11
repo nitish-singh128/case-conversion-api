@@ -1,5 +1,5 @@
 /*********************************************************************/
-/* $Header: InvertWordsConversion.cpp                                */
+/* $File: InvertWordsConversion.cpp                                */
 /*                                                                   */
 /* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
 /* This material may be reproduced for teaching and learning         */
@@ -15,6 +15,9 @@
 /*               Uses std::reverse for in-place word reversal        */
 /*                                                                   */
 /* $Log: InvertWordsConversion.cpp                                   */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of InvertWordsConversion.                 */
 /*********************************************************************/
 
 /*********************************************************************/
@@ -32,7 +35,10 @@ std::string InvertWordsConversion::convert(const std::string& input) const {
 
     while (iss >> word) {
         std::reverse(word.begin(), word.end());
-        if (!first) oss << ' ';
+
+        if (!first)
+            oss << ' ';
+
         oss << word;
         first = false;
     }

@@ -6,17 +6,17 @@
 /* purposes only. It is not to be used in industry or for            */
 /* commercial purposes.                                              */
 /*                                                                   */
-/* File        - TestHelpers.hpp                                      */
+/* Class       - TestHelpers                                         */
 /*                                                                   */
-/* Description - Provides utility functions for logging string      */
-/*               conversions during tests. Used to visualize        */
-/*               input/output for various IStringConversion         */
-/*               strategies in unit tests.                           */
+/* Description - Provides helper utilities for logging string        */
+/*               conversion results during testing.                  */
 /*                                                                   */
-/* Notes       - Contains inline helper functions for GoogleTest    */
-/*               or other test frameworks.                           */
+/* Notes       - Contains inline helper functions for test output.   */
 /*                                                                   */
 /* $Log: TestHelpers.hpp                                             */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of test helper utilities.                 */
 /*********************************************************************/
 
 #ifndef TEST_HELPERS_HPP
@@ -31,22 +31,14 @@
 /**
  * @brief Logs the result of a string conversion.
  *
- * Prints the conversion name, input string, and output string
- * to the standard output stream in a structured format.
- *
  * Example:
- * @code
- * logConversion("LowerCase", "HELLO", "hello");
- * // Output: [LowerCase] Input: "HELLO" => Output: "hello"
- * @endcode
- *
- * @param name   The name of the conversion strategy.
- * @param input  The original input string.
- * @param output The converted output string.
+ * Input  : "HELLO"
+ * Output : "hello"
  */
 inline void logConversion(const std::string& name,
                           const std::string& input,
-                          const std::string& output) {
+                          const std::string& output)
+{
     std::cout << "[" << name << "] Input: \"" << input
               << "\" => Output: \"" << output << "\"" << std::endl;
 }

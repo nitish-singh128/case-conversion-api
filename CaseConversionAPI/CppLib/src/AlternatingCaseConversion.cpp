@@ -1,5 +1,5 @@
 /*********************************************************************/
-/* $Header: AlternatingCaseConversion.cpp                            */
+/* $File:: AlternatingCaseConversion.cpp                            */
 /*                                                                   */
 /* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
 /* This material may be reproduced for teaching and learning         */
@@ -9,14 +9,16 @@
 /* Class       - AlternatingCaseConversion                           */
 /*                                                                   */
 /* Description - Converts input string into alternating case format  */
-/*               (uppercase/lowercase alternation starting with      */
-/*               uppercase).                                         */
+/*               starting with uppercase for each word.              */
 /*                                                                   */
-/* Notes       - Reuses LowerCaseConversion and                     */
+/* Notes       - Reuses LowerCaseConversion and                      */
 /*               UpperCaseConversion                                 */
-/*               Resets alternation after spaces                     */
+/*               Alternation resets after spaces                     */
 /*                                                                   */
 /* $Log: AlternatingCaseConversion.cpp                               */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of AlternatingCaseConversion.             */
 /*********************************************************************/
 
 /*********************************************************************/
@@ -26,16 +28,18 @@
 #include "LowerCaseConversion.hpp"
 #include "UpperCaseConversion.hpp"
 
-std::string AlternatingCaseConversion::convert(const std::string& input) const {
+std::string AlternatingCaseConversion::convert(const std::string& input) const
+{
     LowerCaseConversion lowerConv;
     UpperCaseConversion upperConv;
 
     std::string result;
     bool upper = true;
 
-    for (char c : input) {
-        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
-
+    for (char c : input)
+    {
+        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
+        {
             std::string temp(1, c);
 
             if (upper)
@@ -46,9 +50,12 @@ std::string AlternatingCaseConversion::convert(const std::string& input) const {
             result += temp;
             upper = !upper;
         }
-        else {
+        else
+        {
             result += c;
-            if (c == ' ') {
+
+            if (c == ' ')
+            {
                 upper = true;
             }
         }

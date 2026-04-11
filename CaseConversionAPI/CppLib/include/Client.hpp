@@ -8,13 +8,16 @@
 /*                                                                   */
 /* Class       - Client                                              */
 /*                                                                   */
-/* Description - Context class implementing Strategy design pattern */
+/* Description - Context class implementing Strategy design pattern  */
 /*               to execute string conversion strategies.            */
 /*                                                                   */
 /* Notes       - Delegates conversion logic to IStringConversion     */
 /*               implementations.                                    */
 /*                                                                   */
 /* $Log: Client.hpp                                                  */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of Client context class.                  */
 /*********************************************************************/
 
 #ifndef CLIENT_HPP

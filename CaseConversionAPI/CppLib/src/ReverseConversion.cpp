@@ -1,5 +1,5 @@
 /*********************************************************************/
-/* $Header: ReverseConversion.cpp                                    */
+/* $File: ReverseConversion.cpp                                    */
 /*                                                                   */
 /* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
 /* This material may be reproduced for teaching and learning         */
@@ -13,6 +13,9 @@
 /* Notes       - Uses std::reverse for in-place reversal             */
 /*                                                                   */
 /* $Log: ReverseConversion.cpp                                       */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of ReverseConversion.                     */
 /*********************************************************************/
 
 /*********************************************************************/
@@ -23,8 +26,6 @@
 
 std::string ReverseConversion::convert(const std::string& input) const {
     std::string result = input;
-
     std::reverse(result.begin(), result.end());
-
     return result;
 }

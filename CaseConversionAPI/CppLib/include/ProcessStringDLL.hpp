@@ -6,11 +6,25 @@
 /* purposes only. It is not to be used in industry or for            */
 /* commercial purposes.                                              */
 /*                                                                   */
-/* Description - Header for ProcessStringDLL.dll                     */
-/*               Declares exported function for C# interop.          */
+/* File        - ProcessStringDLL.hpp                                */
+/*                                                                   */
+/* Description - Declares exported DLL function for string           */
+/*               conversion used for C# interop.                     */
+/*                                                                   */
+/* Notes       - Provides C-style interface for unmanaged access.    */
+/*                                                                   */
+/* $Log: ProcessStringDLL.hpp                                        */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of DLL export interface.                  */
 /*********************************************************************/
 
-#pragma once
+#ifndef PROCESSSTRINGDLL_HPP
+#define PROCESSSTRINGDLL_HPP
+
+/*********************************************************************/
+/* Dependencies                                                      */
+/*********************************************************************/
 
 #ifdef _WIN32
     #ifdef PROCESSSTRING_EXPORTS
@@ -25,11 +39,14 @@
 extern "C" {
 
 /**
- * C-style exported function for C# interop
- * @param input C-string input
- * @param choice integer conversion choice
- * @return C-string result (valid until next call)
+ * @brief C-style exported function for C# interop.
+ *
+ * @param input  C-string input.
+ * @param choice Integer conversion choice.
+ * @return C-string result (valid until next call).
  */
 PROCESSSTRING_API const char* processStringDLL(const char* input, int choice);
 
 } // extern "C"
+
+#endif // PROCESSSTRINGDLL_HPP

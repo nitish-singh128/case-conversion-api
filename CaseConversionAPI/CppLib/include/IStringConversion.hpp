@@ -15,6 +15,9 @@
 /*               implementations (e.g., lower, upper, toggle case).  */
 /*                                                                   */
 /* $Log: IStringConversion.hpp                                       */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of IStringConversion interface.           */
 /*********************************************************************/
 
 #ifndef ISTRINGCONVERSION_HPP

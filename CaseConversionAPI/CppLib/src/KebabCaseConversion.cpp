@@ -1,5 +1,5 @@
 /*********************************************************************/
-/* $Header: KebabCaseConversion.cpp                                  */
+/* $File: KebabCaseConversion.cpp                                  */
 /*                                                                   */
 /* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
 /* This material may be reproduced for teaching and learning         */
@@ -16,6 +16,9 @@
 /*               Multiple spaces converted to multiple hyphens       */
 /*                                                                   */
 /* $Log: KebabCaseConversion.cpp                                     */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of KebabCaseConversion.                   */
 /*********************************************************************/
 
 /*********************************************************************/
@@ -31,12 +34,10 @@ std::string KebabCaseConversion::convert(const std::string& input) const {
     std::string result;
 
     for (char ch : lower) {
-        if (ch == ' ') {
+        if (ch == ' ') 
             result += '-';
-        } else {
+        else
             result += ch;
-        }
     }
-
     return result;
 }

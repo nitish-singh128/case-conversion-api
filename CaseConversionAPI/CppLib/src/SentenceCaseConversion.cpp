@@ -1,5 +1,5 @@
 /*********************************************************************/
-/* $Header: SentenceCaseConversion.cpp                               */
+/* $File: SentenceCaseConversion.cpp                               */
 /*                                                                   */
 /* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
 /* This material may be reproduced for teaching and learning         */
@@ -16,6 +16,9 @@
 /*               Handles empty input safely                          */
 /*                                                                   */
 /* $Log: SentenceCaseConversion.cpp                                  */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of SentenceCaseConversion.                */
 /*********************************************************************/
 
 /*********************************************************************/
@@ -26,15 +29,15 @@
 #include "UpperCaseConversion.hpp"
 
 std::string SentenceCaseConversion::convert(const std::string& input) const {
-    if (input.empty()) return input;
+    if (input.empty())
+        return input;
 
     LowerCaseConversion lowerConv;
     UpperCaseConversion upperConv;
 
     std::string result = lowerConv.convert(input);
-
     std::string first(1, result[0]);
     result[0] = upperConv.convert(first)[0];
 
     return result;
-}
+ }

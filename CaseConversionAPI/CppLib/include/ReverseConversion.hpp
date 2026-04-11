@@ -1,23 +1,21 @@
 /*********************************************************************/
-/* $Header: ReverseConversion.hpp                                     */
+/* $Header: ReverseConversion.hpp                                    */
 /*                                                                   */
 /* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
 /* This material may be reproduced for teaching and learning         */
 /* purposes only. It is not to be used in industry or for            */
 /* commercial purposes.                                              */
 /*                                                                   */
-/* File        - ReverseConversion.hpp                                 */
+/* Class       - ReverseConversion                                   */
 /*                                                                   */
-/* Description - Concrete implementation of IStringConversion that   */
-/*               reverses the characters in a string.               */
-/*               This class implements the IStringConversion         */
-/*               interface and returns the reversed version of       */
-/*               the input string.                                   */
+/* Description - Reverses all characters in the input string.        */
 /*                                                                   */
-/* Notes       - Useful for palindromes, reversing text for          */
-/*               formatting, or testing string algorithms.           */
+/* Notes       - Implements IStringConversion interface.             */
 /*                                                                   */
-/* $Log: ReverseConversion.hpp                                        */
+/* $Log: ReverseConversion.hpp                                       */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of ReverseConversion class.               */
 /*********************************************************************/
 
 #ifndef REVERSECONVERSION_HPP
@@ -33,20 +31,14 @@
  * @class ReverseConversion
  * @brief Concrete implementation of IStringConversion that reverses a string.
  *
- * This class overrides the convert() method from IStringConversion
- * to return a new string with characters in reverse order.
- *
- * Example usage:
- * @code
- * ReverseConversion converter;
- * std::string result = converter.convert("Hello");
- * // result == "olleH"
- * @endcode
+ * Example:
+ * Input  : "Hello"
+ * Output : "olleH"
  */
 class ReverseConversion : public IStringConversion {
 public:
     /**
-     * @brief Reverse the input string.
+     * @brief Reverses the input string.
      * @param input The string to be reversed.
      * @return A new string with characters in reverse order.
      */

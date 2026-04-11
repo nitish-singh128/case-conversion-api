@@ -6,18 +6,16 @@
 /* purposes only. It is not to be used in industry or for            */
 /* commercial purposes.                                              */
 /*                                                                   */
-/* File        - RemoveSpacesConversion.hpp                           */
+/* Class       - RemoveSpacesConversion                              */
 /*                                                                   */
-/* Description - Concrete implementation of IStringConversion that   */
-/*               removes all spaces from a string.                   */
-/*               This class implements the IStringConversion         */
-/*               interface and produces a continuous string without  */
-/*               spaces. Useful for compact identifiers, filenames,  */
-/*               or cases where spacing is not desired.             */
+/* Description - Removes all spaces from the input string.           */
 /*                                                                   */
-/* Notes       - Removes all whitespace characters from the string.  */
+/* Notes       - Implements IStringConversion interface.             */
 /*                                                                   */
 /* $Log: RemoveSpacesConversion.hpp                                  */
+/*                                                                   */
+/*  Revision 1.0  2026/04/11  Nitish Singh                           */
+/*  Initial implementation of RemoveSpacesConversion class.          */
 /*********************************************************************/
 
 #ifndef REMOVESPACECONVERSION_HPP
@@ -31,17 +29,11 @@
 
 /**
  * @class RemoveSpacesConversion
- * @brief Concrete implementation of IStringConversion that removes all spaces from a string.
+ * @brief Concrete implementation of IStringConversion that removes spaces.
  *
- * This class transforms input strings by eliminating all whitespace characters,
- * producing a continuous string without spaces.
- *
- * Example usage:
- * @code
- * RemoveSpacesConversion conv;
- * std::string result = conv.convert("Hello World Example");
- * // result == "HelloWorldExample"
- * @endcode
+ * Example:
+ * Input  : "Hello World Example"
+ * Output : "HelloWorldExample"
  */
 class RemoveSpacesConversion : public IStringConversion {
 public:
