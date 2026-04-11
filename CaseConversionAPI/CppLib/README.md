@@ -15,12 +15,14 @@ A C++ library and application for converting strings into various cases, includi
 
 CaseConversionAPI/
 ├── CppLib/
-│ ├── include/ # Header files
-│ ├── src/ # Source files
-│ ├── tests/CppTests/ # GoogleTest unit tests
-│ ├── CMakeLists.txt
-│ └── run.sh # Script to build and run app/tests
+│   ├── include/          # Public headers
+│   ├── src/              # Implementation
+│   ├── CMakeLists.txt    # Library build
+│   └── run.sh            # Local build script
+├── tests/
+│   └── CppTests/         # Unit tests (GoogleTest)
 └── README.md
+
 
 ```
 
