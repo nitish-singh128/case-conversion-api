@@ -216,7 +216,7 @@ REST API
 ## Architecture View
 
 ```Bash
-                      +---------------------+
+                +---------------------+
                 |   Frontend (React)  |
                 |   Vite + TypeScript |
                 +----------+----------+
