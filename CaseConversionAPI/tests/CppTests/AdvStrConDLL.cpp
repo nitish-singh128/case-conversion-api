@@ -1,4 +1,27 @@
+/*********************************************************************/
+
+
 #include <gtest/gtest.h>
+
+// ---------------------------
+// Core Includes
+// ---------------------------
+#include "TestHelpers.hpp"
+#include "IStringConversion.hpp"
+#include "LowerCaseConversion.hpp"
+#include "UpperCaseConversion.hpp"
+#include "CapitalizeWordsConversion.hpp"
+#include "SentenceCaseConversion.hpp"
+#include "ToggleCaseConversion.hpp"
+#include "AlternatingCaseConversion.hpp"
+#include "ReverseConversion.hpp"
+
+// ---------------------------
+// Design Pattern / Framework
+// ---------------------------
+#include "StringConversionFactory.hpp"
+#include "Client.hpp"
+#include "ProcessString.hpp"
 
 extern "C" {
     char* processStringDLL(const char* input, int choice);
@@ -173,7 +196,7 @@ TEST(ProcessStringDLL, MultipleCalls)
 }
 
 // ============================================================
-// 5. MEM
+// 5. MEMORY MANAGEMENT TESTS FOR DLL
 // ============================================================
 
 
