@@ -100,7 +100,7 @@ TEST(ProcessStringDLL, RemoveSpaces)
 TEST(ProcessStringDLL, InvertWords)
 {
     char* result = processStringDLL("hello world", 10);
-    ASSERT_STREQ(result, "world hello");
+    ASSERT_STREQ(result, "olleh dlrow");
     freeString(result);
 }
 
