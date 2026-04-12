@@ -49,4 +49,6 @@ PROCESSSTRING_API const char* processStringDLL(const char* input, int choice);
 
 } // extern "C"
 
-#endif // PROCESSSTRINGDLL_HPP
+extern "C" void freeString(char* str);
+
+#endif // PROCESSSTRINGDLL_HP

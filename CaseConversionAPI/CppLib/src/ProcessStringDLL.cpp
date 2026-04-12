@@ -115,3 +115,7 @@ PROCESSSTRING_API const char* processStringDLL(
 }
 
 } // extern "C"
+
+extern "C" void freeString(char* str) {
+    free(str);
+}

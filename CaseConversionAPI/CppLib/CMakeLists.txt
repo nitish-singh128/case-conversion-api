@@ -9,6 +9,26 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # -----------------------------
 include_directories(include)
 
+
+# ---------------------------
+# GoogleTest Setup
+# ---------------------------
+include(FetchContent)
+
+# Force GoogleTest to use the same runtime on Windows
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/main.zip
+)
+
+# Make GoogleTest available
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
+
 # -----------------------------
 # Build the static library first
 # -----------------------------
@@ -54,3 +74,24 @@ set_target_properties(ProcessStringDLL PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
 )
+
+# -----------------------------
+# DLL Tests
+# -----------------------------
+add_executable(ProcessStringDLLTests
+    ../tests/CppTests/AdvStrConDLL.cpp
+)
+
+# Link against DLL + gtest
+target_link_libraries(ProcessStringDLLTests
+    PRIVATE
+    ProcessStringDLL
+    gtest
+    gtest_main
+)
+
+# Include headers
+target_include_directories(ProcessStringDLLTests PRIVATE include)
+
+# Register test
+add_test(NAME DLLTests COMMAND ProcessStringDLLTests)
