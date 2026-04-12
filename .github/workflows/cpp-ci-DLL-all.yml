@@ -1,4 +1,4 @@
-name: C++ CI ProcessStringDLL - All Platforms
+name: C++ CI ProcessStringDLL - All Platforms with tests
 
 on:
   push:
@@ -41,6 +41,12 @@ jobs:
         run: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' --yes
 
       # -------------------------------
+      # Use TEST-enabled CMakeLists
+      # -------------------------------
+      - name: Use test CMakeLists
+        run: cp CaseConversionAPI/CppLib/CMakeListsLocalApp.txt CaseConversionAPI/CppLib/CMakeLists.txt
+
+      # -------------------------------
       # Clean build folder
       # -------------------------------
       - name: Clean build folder (Linux/macOS)
@@ -52,26 +58,49 @@ jobs:
         run: Remove-Item -Recurse -Force "CaseConversionAPI\CppLib\build_dll" -ErrorAction SilentlyContinue
 
       # -------------------------------
-      # Configure DLL project
+      # Configure
       # -------------------------------
-      - name: Configure DLL (Linux/macOS)
+      - name: Configure (Linux/macOS)
         if: runner.os != 'Windows'
         run: cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build_dll -DCMAKE_BUILD_TYPE=Release
 
-      - name: Configure DLL (Windows)
+      - name: Configure (Windows)
         if: runner.os == 'Windows'
         run: cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build_dll -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 17 2022" -A x64
 
       # -------------------------------
-      # Build DLL
+      # Build (DLL + Tests)
       # -------------------------------
-      - name: Build DLL (Linux/macOS)
+      - name: Build (Linux/macOS)
         if: runner.os != 'Windows'
         run: cmake --build CaseConversionAPI/CppLib/build_dll --parallel
 
-      - name: Build DLL (Windows)
+      - name: Build (Windows)
         if: runner.os == 'Windows'
         run: cmake --build CaseConversionAPI/CppLib/build_dll --config Release --parallel
+
+      # -------------------------------
+      # Run Tests with Logs
+      # -------------------------------
+      - name: Run Tests (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          cd CaseConversionAPI/CppLib/build_dll
+          export LD_LIBRARY_PATH=$PWD
+          ./runTests --gtest_output=console --gtest_brief=0
+
+      - name: Run Tests (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          cd CaseConversionAPI/CppLib/build_dll
+          export DYLD_LIBRARY_PATH=$PWD
+          ./runTests --gtest_output=console --gtest_brief=0
+
+      - name: Run Tests (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cd CaseConversionAPI\CppLib\build_dll\Release
+          .\runTests.exe --gtest_output=console --gtest_brief=0
 
       # -------------------------------
       # Upload DLL artifact
