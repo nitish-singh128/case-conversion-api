@@ -80,9 +80,13 @@ jobs:
       - name: Run Tests (Windows)
         if: runner.os == 'Windows'
         run: |
-          Get-ChildItem -Recurse -Filter ProcessStringDLLTests.exe
           $test = Get-ChildItem -Recurse -Filter ProcessStringDLLTests.exe | Select-Object -First 1
-          & $test.FullName --gtest_output=console --gtest_brief=0
+          if (-not $test) {
+            Write-Error "ProcessStringDLLTests.exe not found"
+            exit 1
+          }
+          & $test.FullName --gtest_brief=0
+
       
           # Upload artifacts
       - name: Upload DLL (Linux/macOS)
