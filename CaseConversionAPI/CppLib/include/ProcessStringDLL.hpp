@@ -27,28 +27,27 @@
 /*********************************************************************/
 
 #ifdef _WIN32
-    #ifdef PROCESSSTRING_EXPORTS
-        #define PROCESSSTRING_API __declspec(dllexport)
-    #else
-        #define PROCESSSTRING_API __declspec(dllimport)
-    #endif
+  #ifdef PROCESSSTRING_EXPORTS
+    #define API __declspec(dllexport)
+  #else
+    #define API __declspec(dllimport)
+  #endif
 #else
-    #define PROCESSSTRING_API
+  #define API
 #endif
 
 extern "C" {
 
-/**
- * @brief C-style exported function for C# interop.
- *
- * @param input  C-string input.
- * @param choice Integer conversion choice.
- * @return C-string result (valid until next call).
- */
-PROCESSSTRING_API const char* processStringDLL(const char* input, int choice);
+    /**
+     * @brief C-style exported function for C# interop.
+     *
+     * @param input  C-string input.
+     * @param choice Integer conversion choice.
+     * @return C-string result (valid until next call).
+     */
+    API const char* processStringDLL(const char* input, int choice);
+    API void freeString(char* str);
 
 } // extern "C"
-
-extern "C" void freeString(char* str);
 
 #endif // PROCESSSTRINGDLL_HP
