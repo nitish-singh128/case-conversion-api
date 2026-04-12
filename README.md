@@ -169,6 +169,33 @@ This enables the REST API to use native C++ performance-critical logic.
 - Executed via GitHub Actions
 - Cross-platform validation (Windows, macOS, Linux)
 
+## Automated Testing (xUnit + ASP.NET Core Integration Tests)
+
+This project uses xUnit for automated testing of the .NET REST API.
+
+What is being tested?
+The tests validate the full API flow:
+
+- ✔ HTTP request → API endpoint
+- ✔ DTO model binding (JSON input)
+- ✔ Business logic execution
+- ✔ Response validation
+
+### Test Architecture
+
+```Bash
+      xUnit Test Runner
+            ↓
+      HttpClient (WebApplicationFactory)
+            ↓
+      In-Memory ASP.NET Core API
+            ↓
+      Controller / Minimal API Endpoint
+            ↓
+      C# Business Logic Execution
+            ↓
+      Response Validation
+```
 
 ### Architecture Overview
 
