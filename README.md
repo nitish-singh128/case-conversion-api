@@ -216,7 +216,7 @@ REST API
 ## Architecture View
 
 ```Bash
-                 +---------------------+
+                      +---------------------+
                 |   Frontend (React)  |
                 |   Vite + TypeScript |
                 +----------+----------+
@@ -245,11 +245,13 @@ REST API
 |  main.cpp CLI   |               | Google Tests (Core Logic) |
 |  Local testing  |               | Unit testing              |
 +-----------------+               +---------------------------+
-                                              |
-                                      +-------v--------+
-                                      | AdvStrTestDLL  |
-                                      | DLL Test Layer |
-                                      +----------------+
+                           |
+                +----------v----------+
+                |  xUnit Tests        |
+                | (API Integration)   |
+                | HttpClient + API    |
+                | In-memory host      |
+                +---------------------+
          
 ```
 
