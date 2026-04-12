@@ -19,15 +19,10 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      # -------------------------------
-      # Checkout repository
-      # -------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # -------------------------------
       # Install dependencies
-      # -------------------------------
       - name: Install compiler & CMake (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y build-essential cmake
@@ -40,15 +35,7 @@ jobs:
         if: runner.os == 'Windows'
         run: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' --yes
 
-      # -------------------------------
-      # Use TEST-enabled CMakeLists
-      # -------------------------------
-      - name: Use test CMakeLists
-        run: cp CaseConversionAPI/CppLib/CMakeListsLocalApp.txt CaseConversionAPI/CppLib/CMakeLists.txt
-
-      # -------------------------------
-      # Clean build folder
-      # -------------------------------
+      # Clean build
       - name: Clean build folder (Linux/macOS)
         if: runner.os != 'Windows'
         run: rm -rf CaseConversionAPI/CppLib/build_dll
@@ -57,9 +44,7 @@ jobs:
         if: runner.os == 'Windows'
         run: Remove-Item -Recurse -Force "CaseConversionAPI\CppLib\build_dll" -ErrorAction SilentlyContinue
 
-      # -------------------------------
       # Configure
-      # -------------------------------
       - name: Configure (Linux/macOS)
         if: runner.os != 'Windows'
         run: cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build_dll -DCMAKE_BUILD_TYPE=Release
@@ -68,9 +53,7 @@ jobs:
         if: runner.os == 'Windows'
         run: cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build_dll -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 17 2022" -A x64
 
-      # -------------------------------
-      # Build (DLL + Tests)
-      # -------------------------------
+      # Build
       - name: Build (Linux/macOS)
         if: runner.os != 'Windows'
         run: cmake --build CaseConversionAPI/CppLib/build_dll --parallel
@@ -79,32 +62,28 @@ jobs:
         if: runner.os == 'Windows'
         run: cmake --build CaseConversionAPI/CppLib/build_dll --config Release --parallel
 
-      # -------------------------------
-      # Run Tests with Logs
-      # -------------------------------
+      # Run tests
       - name: Run Tests (Linux)
         if: runner.os == 'Linux'
         run: |
           cd CaseConversionAPI/CppLib/build_dll
           export LD_LIBRARY_PATH=$PWD
-          ./runTests --gtest_output=console --gtest_brief=0
+          ./ProcessStringDLLTests --gtest_output=console --gtest_brief=0
 
       - name: Run Tests (macOS)
         if: runner.os == 'macOS'
         run: |
           cd CaseConversionAPI/CppLib/build_dll
           export DYLD_LIBRARY_PATH=$PWD
-          ./runTests --gtest_output=console --gtest_brief=0
+          ./ProcessStringDLLTests --gtest_output=console --gtest_brief=0
 
       - name: Run Tests (Windows)
         if: runner.os == 'Windows'
         run: |
           cd CaseConversionAPI\CppLib\build_dll\Release
-          .\runTests.exe --gtest_output=console --gtest_brief=0
+          .\ProcessStringDLLTests.exe --gtest_output=console --gtest_brief=0
 
-      # -------------------------------
-      # Upload DLL artifact
-      # -------------------------------
+      # Upload artifacts
       - name: Upload DLL (Linux/macOS)
         if: runner.os != 'Windows'
         uses: actions/upload-artifact@v4
