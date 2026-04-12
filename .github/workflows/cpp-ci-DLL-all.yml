@@ -1,4 +1,4 @@
-name: C++ CI ProcessStringDLL - All Platforms with tests
+name: C++ CI CaseConversionAPI - All Platforms (Local App)
 
 on:
   push:
@@ -11,94 +11,92 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-dll:
+  build-and-test:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
 
+    env:
+      BUILD_DIR: CaseConversionAPI/CppLib/build
+
     steps:
+      # -------------------------------
+      # Checkout repository
+      # -------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # -------------------------------
       # Install dependencies
+      # -------------------------------
       - name: Install compiler & CMake (Linux)
-        if: runner.os == 'Linux'
+        if: runner.os != 'Windows' && runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y build-essential cmake
 
       - name: Install CMake (macOS)
-        if: runner.os == 'macOS'
+        if: runner.os != 'Windows' && runner.os == 'macOS'
         run: brew install cmake
 
       - name: Install CMake (Windows)
         if: runner.os == 'Windows'
-        run: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' --yes
+        run: choco install cmake ninja --installargs 'ADD_CMAKE_TO_PATH=System' --yes
 
-      # Clean build
-      - name: Clean build folder (Linux/macOS)
+      # -------------------------------
+      # Clean build directory (UNIFORM)
+      # -------------------------------
+      - name: Clean build directory (Non-Windows)
         if: runner.os != 'Windows'
-        run: rm -rf CaseConversionAPI/CppLib/build_dll
+        run: rm -rf $BUILD_DIR
 
-      - name: Clean build folder (Windows)
+      - name: Clean build directory (Windows)
         if: runner.os == 'Windows'
-        run: Remove-Item -Recurse -Force "CaseConversionAPI\CppLib\build_dll" -ErrorAction SilentlyContinue
+        run: |
+          if (Test-Path "$env:BUILD_DIR") {
+            Remove-Item -Recurse -Force "$env:BUILD_DIR"
+          }
 
-      # Configure
-      - name: Configure (Linux/macOS)
+      # -------------------------------
+      # Use local app CMakeLists
+      # -------------------------------
+      - name: Use local app CMakeLists
+        run: cp CaseConversionAPI/CppLib/CMakeListsLocalApp.txt CaseConversionAPI/CppLib/CMakeLists.txt
+
+      # -------------------------------
+      # Configure project
+      # -------------------------------
+      - name: Configure (Non-Windows)
         if: runner.os != 'Windows'
-        run: cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build_dll -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S CaseConversionAPI/CppLib -B $BUILD_DIR -DCMAKE_BUILD_TYPE=Release
 
       - name: Configure (Windows)
         if: runner.os == 'Windows'
-        run: cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build_dll -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 17 2022" -A x64
+        run: cmake -S CaseConversionAPI/CppLib -B $env:BUILD_DIR -G "Visual Studio 17 2022" -A x64
 
-      # Build
-      - name: Build (Linux/macOS)
-        if: runner.os != 'Windows'
-        run: cmake --build CaseConversionAPI/CppLib/build_dll --parallel
+      # -------------------------------
+      # Build project
+      # -------------------------------
+      - name: Build project
+        run: cmake --build ${{ env.BUILD_DIR }} --config Release --parallel
 
-      - name: Build (Windows)
-        if: runner.os == 'Windows'
-        run: cmake --build CaseConversionAPI/CppLib/build_dll --config Release --parallel
-
+      # -------------------------------
       # Run tests
-      - name: Run Tests (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          cd CaseConversionAPI/CppLib/build_dll
-          export LD_LIBRARY_PATH=$PWD
-          ./ProcessStringDLLTests --gtest_output=console --gtest_brief=0
-
-      - name: Run Tests (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          cd CaseConversionAPI/CppLib/build_dll
-          export DYLD_LIBRARY_PATH=$PWD
-          ./ProcessStringDLLTests --gtest_output=console --gtest_brief=0
-
-      - name: Run Tests (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          $test = Get-ChildItem -Recurse -Filter ProcessStringDLLTests.exe | Select-Object -First 1
-          if (-not $test) {
-            Write-Error "ProcessStringDLLTests.exe not found"
-            exit 1
-          }
-          & $test.FullName --gtest_brief=0
-
-      
-          # Upload artifacts
-      - name: Upload DLL (Linux/macOS)
+      # -------------------------------
+      - name: Run tests (Non-Windows)
         if: runner.os != 'Windows'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ProcessStringDLL-${{ matrix.os }}
-          path: CaseConversionAPI/CppLib/build_dll/lib/
+        run: ctest --output-on-failure --test-dir $BUILD_DIR
 
-      - name: Upload DLL (Windows)
+      - name: Run tests (Windows)
         if: runner.os == 'Windows'
+        run: ctest --output-on-failure -C Release --test-dir $env:BUILD_DIR
+
+      # -------------------------------
+      # Upload test logs
+      # -------------------------------
+      - name: Upload test logs
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ProcessStringDLL-${{ matrix.os }}
-          path: CaseConversionAPI/CppLib/build_dll/Release/
+          name: test-logs-${{ matrix.os }}
+          path: ${{ env.BUILD_DIR }}/Testing/Temporary/LastTest.log
