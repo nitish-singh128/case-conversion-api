@@ -1,6 +1,6 @@
 # Case Conversion API
 
-This project demonstrates a full-stack architecture where a native C++ string conversion engine is exposed through a .NET REST API and consumed by a modern frontend UI. It adheres to production-grade deployment standards, including environment isolation and artifact promotion workflows.
+This project showcases a full-stack architecture in which a native C++ string processing engine is integrated with a .NET REST API and delivered through a modern frontend interface. It follows production-grade deployment practices, including environment isolation and structured artifact promotion. Overall, it serves as a rapid prototype highlighting system design and cross-language interoperability.
 
 ---
 
@@ -10,9 +10,9 @@ This project demonstrates a full-stack architecture where a native C++ string co
 
 - Implements multiple string conversion strategies (Alternating Case, Capitalize Words, Snake Case, etc.).
 - Built as a shared library using **CMake**:
-  - Windows → `ProcessString.dll`
-  - macOS → `libProcessString.dylib`
-  - Linux → `libProcessString.so`
+  - Windows → `libProcessStringDLL.dll`
+  - macOS → `libProcessStringDLL.dylib`
+  - Linux → `libProcessStringDLL.so`
 
 ### 2. .NET REST API Wrapper
 
@@ -130,9 +130,9 @@ Converted String
 
 The C++ project builds a shared library:
 
-- Windows → `ProcessString.dll`
-- macOS → `libProcessString.dylib`
-- Linux → `libProcessString.so`
+- Windows → `libProcessStringDLL.dll`
+- macOS → `libProcessStringDLL.dylib`
+- Linux → `libProcessStringDLL.so`
 
 This library is loaded by the C# service using P/Invoke.
 
@@ -141,11 +141,34 @@ This library is loaded by the C# service using P/Invoke.
 The .NET service calls the DLL:
 
 ```csharp
-[DllImport("ProcessString")]
+[DllImport("libProcessStringDLL")]
 private static extern IntPtr processStringDLL(string input, int choice);
 ```
 
 This enables the REST API to use native C++ performance-critical logic.
+
+## Testing Strategy
+
+### 1. Core Testing (C++)
+
+- Google Test framework
+- Validates:
+  - Strategy implementations
+  - Factory logic
+
+### 2. DLL Integration Testing
+
+- Tests exported function `processStringDLL`
+- Ensures:
+  - Correct interop behavior
+  - Memory safety
+  - End-to-end conversion
+
+### 3. CI Testing
+
+- Executed via GitHub Actions
+- Cross-platform validation (Windows, macOS, Linux)
+
 
 ### Architecture Overview
 
@@ -166,7 +189,7 @@ REST API
 ## Architecture View
 
 ```Bash
-                +---------------------+
+                 +---------------------+
                 |   Frontend (React)  |
                 |   Vite + TypeScript |
                 +----------+----------+
@@ -191,10 +214,15 @@ REST API
                            |
          +-----------------+-----------------+
          |                                   |
-+--------v--------+               +----------v--------+
-|  main.cpp CLI   |               | Google Tests      |
-|  Local testing  |               | Unit testing      |
-+-----------------+               +-------------------+
++--------v--------+               +----------v----------------+
+|  main.cpp CLI   |               | Google Tests (Core Logic) |
+|  Local testing  |               | Unit testing              |
++-----------------+               +---------------------------+
+                                              |
+                                      +-------v--------+
+                                      | AdvStrTestDLL    
+                                      | DLL Test Layer |
+                                      +----------------+
          
 ```
 
@@ -211,7 +239,6 @@ REST API
 1. Create Dockerfile (Project Root)
 
 ```Bash
-# ---------- Build C++ ----------
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 RUN apt-get update && apt-get install -y \
@@ -269,14 +296,14 @@ docker run -p 8080:8080 case-conversion-api
 
 You should see:
 
-```
+```Bash
 Now listening on: http://[::]:8080
 ```
 
 5.Open Swagger UI
 Open in browser:
 
-```
+```Bash
 http://localhost:8080/
 ```
 
@@ -488,7 +515,7 @@ Developer → Dev Build → Docker Image
                            |
                 +----------v----------+
                 |  C++ Shared Library |
-                |  libProcessString   |
+                |  libProcessStringDLL   |
                 +----------+----------+
                            |
                 +----------v----------+

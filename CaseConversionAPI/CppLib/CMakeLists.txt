@@ -79,7 +79,7 @@ set_target_properties(ProcessStringDLL PROPERTIES
 # DLL Tests
 # -----------------------------
 add_executable(ProcessStringDLLTests
-    ../tests/CppTests/AdvStrConDLL.cpp
+    ../tests/CppTests/AdvStrTestDLL.cpp
 )
 
 # Link against DLL + gtest
