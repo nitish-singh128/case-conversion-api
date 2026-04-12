@@ -218,39 +218,39 @@ REST API
 ```Bash
                 +---------------------+
                 |   Frontend (React)  |
-                |   Vite + TypeScript |
+                |   Vite + TS         |
                 +----------+----------+
                            |
                        REST API call
                            |
                 +----------v----------+
                 |   REST API (C#)     |
-                |   WordCaseController|
+                | Controller Layer    |
                 +----------+----------+
                            |
                        P/Invoke
                            |
                 +----------v----------+
-                |  ProcessStringDLL   |  <-- DLL wrapper
+                |  ProcessStringDLL   |
                 +----------+----------+
                            |
                 +----------v----------+
                 |   Core C++ Logic    |
-                | (Factory + Strategy)|
+                | Factory + Strategy  |
                 +----------+----------+
                            |
          +-----------------+-----------------+
          |                                   |
-+--------v--------+               +----------v----------------+
-|  main.cpp CLI   |               | Google Tests (Core Logic) |
-|  Local testing  |               | Unit testing              |
-+-----------------+               +---------------------------+
++--------v--------+               +---------------------------+
+|  main.cpp CLI   |               | Google Tests (ALL C++)    |
+|  Local testing  |               | Includes DLL function     |
++-----------------+               | + Core logic              |
+                                  +---------------------------+
                            |
                 +----------v----------+
                 |  xUnit Tests        |
                 | (API Integration)   |
-                | HttpClient + API    |
-                | In-memory host      |
+                | HTTP + Controller   |
                 +---------------------+
          
 ```
