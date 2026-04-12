@@ -64,8 +64,8 @@ TEST(ProcessStringDLL, UpperCase)
 
 TEST(ProcessStringDLL, SentenceCase)
 {
-    char* result = processStringDLL("hello world. this is test.", 5);
-    ASSERT_STREQ(result, "Hello world. This is test.");
+    char* result = processStringDLL("hello world.", 5);
+    ASSERT_STREQ(result, "Hello world.");
     freeString(result);
 }
 

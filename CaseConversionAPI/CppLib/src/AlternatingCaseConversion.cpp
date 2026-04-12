@@ -51,7 +51,14 @@ std::string AlternatingCaseConversion::convert(const std::string& input) const
             upper = !upper;
         }
         else
+        {
             result += c;
+
+            if (c == ' ')
+            {
+                upper = true;
+            }
+        }
     }
 
     return result;
