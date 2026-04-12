@@ -35,9 +35,26 @@ std::string SentenceCaseConversion::convert(const std::string& input) const {
     LowerCaseConversion lowerConv;
     UpperCaseConversion upperConv;
 
+    // Step 1: convert entire string to lowercase
     std::string result = lowerConv.convert(input);
-    std::string first(1, result[0]);
-    result[0] = upperConv.convert(first)[0];
+
+    bool capitalizeNext = true;
+
+    for (size_t i = 0; i < result.size(); ++i) {
+        char& c = result[i];
+
+        if (std::isalpha(static_cast<unsigned char>(c))) {
+            if (capitalizeNext) {
+                std::string temp(1, c);
+                c = upperConv.convert(temp)[0];
+                capitalizeNext = false;
+            }
+        }
+
+        if (c == '.' || c == '!' || c == '?') {
+            capitalizeNext = true;
+        }
+    }
 
     return result;
- }
+}
