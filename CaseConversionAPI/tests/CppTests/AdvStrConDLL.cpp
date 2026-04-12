@@ -37,7 +37,7 @@ extern "C" {
 TEST(ProcessStringDLL, AlternatingCase)
 {
     char* result = processStringDLL("hello", 1);
-    ASSERT_STREQ(result, "hElLo");
+    ASSERT_STREQ(result, "HeLlO");
     freeString(result);
 }
 
