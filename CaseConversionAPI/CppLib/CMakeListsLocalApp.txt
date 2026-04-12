@@ -63,6 +63,7 @@ FetchContent_MakeAvailable(googletest)
 add_executable(runTests
     ${PROJECT_SOURCE_DIR}/../tests/CppTests/StringConversionTests.cpp
     ${PROJECT_SOURCE_DIR}/../tests/CppTests/AdvancedStringConversionTests.cpp
+    $(PROJECT_SOURCE_DIR)/../tests/CppTests/AdvStrConDLL.cpp
 )
 
 # Link the library and GoogleTest
