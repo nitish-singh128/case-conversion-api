@@ -81,7 +81,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           Get-ChildItem -Recurse -Filter ProcessStringDLLTests.exe
-          .test = Get-ChildItem -Recurse -Filter ProcessStringDLLTests.exe | Select-Object -First 1
+          $test = Get-ChildItem -Recurse -Filter ProcessStringDLLTests.exe | Select-Object -First 1
           & $test.FullName --gtest_output=console --gtest_brief=0
       
           # Upload artifacts
