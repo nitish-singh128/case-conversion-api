@@ -202,7 +202,11 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
 
     //
     // ======================================================
-    // 4. INVALID INPUT (IMPORTANT CONTRACT)
+    // 4. INVALID INPUT (IMPORTANT CONTRACT): 
+    // Return original string for invalid choice
+    // This is different from C++ CLI application
+    // which returns the lower case for invalid choices. 
+    // We want to preserve the original string
     // ======================================================
     //
 
