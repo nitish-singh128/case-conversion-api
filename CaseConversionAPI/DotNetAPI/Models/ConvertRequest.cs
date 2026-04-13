@@ -19,6 +19,7 @@
 /*      Initial revision.                                            */
 /*********************************************************************/
 
+using StringConversionAPI.Models;
 namespace StringConversionAPI.Models
 {
     public class ConvertRequest

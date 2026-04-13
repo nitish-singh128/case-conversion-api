@@ -70,4 +70,11 @@ app.UseSwaggerUI(c =>
 app.UseAuthorization();
 app.MapControllers();
 
-app.Run();
+// Only run when NOT testing
+if (app.Environment.EnvironmentName != "Testing")
+{
+    app.Run();
+}
+
+// Required for tests
+public partial class Program { }
