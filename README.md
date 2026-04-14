@@ -4,7 +4,7 @@
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)
 ![CI/CD](https://img.shields.io/badge/Pipeline-Verified-green.svg)
 
-# Breaking Language Barriers: From C++ Pointers to React Components
+# Polyglot String Conversion Engine & API
 
 A high-performance system demonstrating a Native C++17 engine seamlessly integrated into a .NET 8 managed ecosystem. This project serves as a blueprint for handling manual memory management across the ABI boundary, implementing extensible Strategy patterns, and maintaining an immutable Docker promotion pipeline from development to production.
 
