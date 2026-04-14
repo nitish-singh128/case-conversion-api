@@ -47,11 +47,8 @@
 
 #include "ProcessStringDLL.hpp"
 
-extern "C" {
-
-
 //===================================================================
-//#region Helper Utilities
+// Helper Utilities (internal, not exported - C++ only)
 //===================================================================
 
 /**
@@ -67,9 +64,8 @@ static char* allocateCString(const std::string& str) {
 
 //#endregion
 
-
 //===================================================================
-//#region Conversion Mapping
+// Conversion Mapping (Internal - C++ only)
 //===================================================================
 
 /**
@@ -98,12 +94,13 @@ static bool mapConversionType(ConversionChoice choice, ConversionType& type) {
     }
 }
 
-//#endregion
+//===================================================================
+// Exported DLL API (Extern "C" for C# interop)
+//===================================================================
+
+extern "C" {
 
 
-//===================================================================
-//#region Exported DLL API
-//===================================================================
 
 /**
  * @brief Main DLL entry point for C# string conversion
