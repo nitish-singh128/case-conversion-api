@@ -274,7 +274,8 @@ REST API
 
 ## Engineering Deep Dive
 
-1.High-Level Data Flow
+1. High-Level Data Flow
+
 The following diagram illustrates the request-to-response journey, highlighting the transition from managed memory in .NET to the unmanaged heap in C++.
 
 Data Flow Sequence:
@@ -284,7 +285,7 @@ Data Flow Sequence:
   -Execution: The C++ Engine resolves the strategy via the Factory and processes the string on the unmanaged heap.
   -Ownership Transfer: The C++ Engine returns a pointer to a newly allocated C-string. .NET reads the data and immediately calls back into the DLL to free the unmanaged memory, preventing leaks.
 
-2.Concurrency & Thread-Safety
+2. Concurrency & Thread-Safety
 
 In a high-throughput REST environment, thread-safety is paramount. The integration layer has been engineered with the following principles:
 
@@ -294,7 +295,7 @@ In a high-throughput REST environment, thread-safety is paramount. The integrati
 
 - Thread-Safe Marshalling: All data passed across the ABI boundary is deep-copied, ensuring that memory used by one thread is never modified by another.
 
-3.Design Patterns Used (Expanded)
+3. Design Patterns Used (Expanded)
 
 - Strategy Pattern: Encapsulates conversion algorithms, allowing for runtime algorithm selection.
 
