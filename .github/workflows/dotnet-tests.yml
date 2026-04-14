@@ -22,6 +22,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 1. Build the Native C++ Library first
       - name: Build C++ Library
         working-directory: CaseConversionAPI/CppLib
         run: |
@@ -30,24 +31,36 @@ jobs:
             cmake ..
             cmake --build . --config Release
 
-      - name: Verify native library exists
-        run: |
-            find CaseConversionAPI/CppLib -name "*.dylib" -o -name "*.so" -o -name "*.dll"
-
+      # 2. Setup .NET Environment
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
 
-      # test folder
-      - name: Restore tests
+      # 3. Restore and Build the Test Project
+      - name: Build .NET Tests
         working-directory: CaseConversionAPI/tests/DotNetTests
-        run: dotnet restore
+        run: |
+            dotnet restore
+            dotnet build --configuration Release
 
-      - name: Build tests
-        working-directory: CaseConversionAPI/tests/DotNetTests
-        run: dotnet build --no-restore --configuration Release
+      # 4. CRITICAL: Inject Native Artifact into Test Execution Context
+      # This ensures the P/Invoke layer can resolve the .so library
+      - name: Inject Native Library to Test Folder
+        run: |
+            # Find the compiled .so file
+            LIB_PATH=$(find CaseConversionAPI/CppLib/build -name "libProcessStringDLL.so")
+            
+            # Destination: The bin folder where the test dll lives
+            DEST_PATH="CaseConversionAPI/tests/DotNetTests/bin/Release/net8.0/"
+            
+            echo "Moving $LIB_PATH to $DEST_PATH"
+            cp $LIB_PATH $DEST_PATH
+            
+            # Also copy to the test project root as a fallback for the runner
+            cp $LIB_PATH CaseConversionAPI/tests/DotNetTests/
 
-      - name: Run tests
+      # 5. Execute Tests
+      - name: Run Integration Tests
         working-directory: CaseConversionAPI/tests/DotNetTests
         run: dotnet test --no-build --configuration Release --verbosity normal
