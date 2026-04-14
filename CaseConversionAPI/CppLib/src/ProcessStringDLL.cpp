@@ -98,9 +98,52 @@ static bool mapConversionType(ConversionChoice choice, ConversionType& type) {
 // Exported DLL API (Extern "C" for C# interop)
 //===================================================================
 
+/*
+*   Important Notes on DLL API Design:
+*   1. C-style interface: Extern "C" is used to prevent name
+*      mangling and ensure compatibility with C# P/Invoke. 
+*      Ensures the exported function has a predictable name and calling convention.
+*      (e.g., "ProcessStringDLL" instead of a mangled C++ name like "_Z15ProcessStringDLLPKc").
+*
+*   2. Memory management: The DLL allocates memory for the output
+*      string, and the caller (C#) is responsible for freeing it
+*      using the provided freeString function. This is a common pattern
+*      for C-style interop where the callee allocates memory and the
+*      caller is responsible for freeing it.
+*
+*   3. Input validation: The function checks for null input and handles
+*      invalid conversion choices gracefully by returning a copy of the
+*      original string. This ensures that the API is robust and does not
+*      crash on invalid input.
+*
+*   4. Enum mapping: The mapConversionType function isolates the logic for
+*      mapping external conversion choices (from C#) to internal types
+*      used by the C++ engine. This separation of concerns improves maintainability.
+*
+/*
+*   Why this is required:
+*   The C++ string conversion engine is designed with modern C++ features
+*   and patterns (e.g., unique_ptr, std::string, strategy pattern).
+*   However, C# cannot directly call C++ functions that use these features
+*   due to differences in memory management and calling conventions.
+*   By providing a C-style interface (processStringDLL), we create a bridge
+*   that allows C# to leverage the powerful C++ engine while maintaining a simple and safe API contract.
+*
+*   This design allows us to keep the core C++ code clean and modern, while still providing interoperability with C#. 
+*   It also ensures that we can handle memory management correctly across the language boundary, which is crucial for 
+*   preventing leaks and crashes.
+*
+*
+*   Note:
+*     - Only C-style types (e.g., const char*) are used in the exported function signature to ensure compatibility with C#.
+*     - The function returns a newly allocated C-string that the caller must free using freeString to avoid memory leaks.
+*     - The internal logic of the function delegates to the existing C++ string conversion engine, ensuring that we do 
+*        not duplicate code and maintain a single source of truth for conversion
+*        logic.
+*     - Helper functions (allocateCString and mapConversionType) are defined as static and are not exposed outside this file, 
+*       keeping the API surface clean.
+*/
 extern "C" {
-
-
 
 /**
  * @brief Main DLL entry point for C# string conversion
@@ -137,6 +180,13 @@ API const char* processStringDLL(const char* input, int choiceInt) {
 
 /**
  * @brief Frees memory allocated by processStringDLL
+ * 
+ * Important: C# must call this to avoid memory leaks since DLL allocates 
+ * memory on the heap.
+ * 
+ * This is a common pattern for C-style interop where the callee allocates 
+ * memory and the caller is responsible for freeing it.
+ *  
  */
 API void freeString(char* str) {
     free(str);

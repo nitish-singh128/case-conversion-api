@@ -36,18 +36,33 @@
   #define API
 #endif
 
+#ifdef __cplusplus
 extern "C" {
+#endif
 
     /**
-     * @brief C-style exported function for C# interop.
+     * @brief COnverts input string based on choice and returns a newly allocated C-string.
      *
      * @param input  C-string input.
      * @param choice Integer conversion choice.
-     * @return C-string result (valid until next call).
+     * @return C-string result (valid until next call). Caller must free using freeString.
      */
     API const char* processStringDLL(const char* input, int choice);
+
+    /**
+     * @brief Frees memory allocated by processStringDLL
+     * 
+     * Important: C# must call this to avoid memory leaks since DLL allocates 
+     * memory on the heap.
+     * 
+     * This is a common pattern for C-style interop where the callee allocates 
+     * memory and the caller is responsible for freeing it.
+     *  
+     */
     API void freeString(char* str);
 
+#ifdef __cplusplus
 } // extern "C"
+#endif
 
-#endif // PROCESSSTRINGDLL_HP
+#endif // PROCESSSTRINGDLL_HPP
