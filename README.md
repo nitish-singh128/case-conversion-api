@@ -1,12 +1,12 @@
-![C++](https://img.shields.io/badge/C++-17-blue.svg) 
-![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg) 
-![React](https://img.shields.io/badge/React-2024-61DAFB.svg) 
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg) 
+![C++](https://img.shields.io/badge/C++-17-blue.svg)
+![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)
+![React](https://img.shields.io/badge/React-2024-61DAFB.svg)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)
 ![CI/CD](https://img.shields.io/badge/Pipeline-Verified-green.svg)
 
-# Breaking Language Barriers: From C++ Pointers to React Components.
+# Breaking Language Barriers: From C++ Pointers to React Components
 
-This project showcases a full-stack architecture in which a native C++ string processing engine is integrated with a .NET REST API and delivered through a modern frontend interface. It follows production-grade deployment practices, including environment isolation and structured artifact promotion. Overall, it serves as a rapid prototype highlighting system design and cross-language interoperability.
+A high-performance system demonstrating a Native C++17 engine seamlessly integrated into a .NET 8 managed ecosystem. This project serves as a blueprint for handling manual memory management across the ABI boundary, implementing extensible Strategy patterns, and maintaining an immutable Docker promotion pipeline from development to production.
 
 ## System Architecture
 
@@ -48,7 +48,7 @@ This project is an exercise in Cross-Language Interoperability and Architectural
 
 The project is designed to be built in sequence:
 
-1.Build C++ DLL
+1. Native Layer: Compile the C++ Shared Library.
 
 ```bash
 mkdir -p CaseConversionAPI/CppLib/build
@@ -58,7 +58,7 @@ cmake --build . --config Release
 
 ```
 
-2.Build .NET API
+2.Managed Layer: Restore and Publish the .NET API, injecting the native .so/.dll into the publish artifact.
 
 ```Bash
 dotnet restore CaseConversionAPI/DotNetAPI
@@ -66,7 +66,7 @@ dotnet publish CaseConversionAPI/DotNetAPI -c Release -o ./publish
 cp CaseConversionAPI/CppLib/build/libProcessString.* ./publish/
 ```
 
-3.Build Frontend
+3.Frontend Layer: Build the optimized static assets via Vite.
 
 ```Bash
 cd string-conversion-ui
@@ -157,8 +157,9 @@ This library is loaded by the C# service using P/Invoke.
 The .NET service calls the DLL:
 
 ```csharp
-[DllImport("libProcessStringDLL")]
-private static extern IntPtr processStringDLL(string input, int choice);
+// Updated for Production Grade Interop
+[DllImport("libProcessStringDLL", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+private static extern IntPtr processStringDLL([MarshalAs(UnmanagedType.LPStr)] string input, int choice);
 ```
 
 This enables the REST API to use native C++ performance-critical logic.
@@ -270,6 +271,41 @@ REST API
                 +---------------------+
          
 ```
+
+## Engineering Deep Dive
+
+1.High-Level Data Flow
+
+The following diagram illustrates the request-to-response journey, highlighting the transition from managed memory in .NET to the unmanaged heap in C++.
+
+Data Flow Sequence:
+  
+  -Ingress: React UI sends a JSON payload to the ASP.NET Core endpoint.
+  -Marshalling: The .NET Service layer pins the managed string and passes a pointer to the Native ABI.
+  -Execution: The C++ Engine resolves the strategy via the Factory and processes the string on the unmanaged heap.
+  -Ownership Transfer: The C++ Engine returns a pointer to a newly allocated C-string. .NET reads the data and immediately calls back into the DLL to free the unmanaged memory, preventing leaks.
+
+2.Concurrency & Thread-Safety
+
+In a high-throughput REST environment, thread-safety is paramount. The integration layer has been engineered with the following principles:
+
+- Stateless Execution: The native C++ engine is entirely Stateless. Every call to processStringDLL operates on its own stack and heap allocations, ensuring that the .NET ThreadPool can safely execute concurrent P/Invoke calls.
+
+- Reentrancy: The library is fully reentrant. There are no global variables or shared static states within the conversion logic, eliminating the risk of race conditions or shared-state contention.
+
+- Thread-Safe Marshalling: All data passed across the ABI boundary is deep-copied, ensuring that memory used by one thread is never modified by another.
+
+3.Design Patterns Used (Expanded)
+
+- Strategy Pattern: Encapsulates conversion algorithms, allowing for runtime algorithm selection.
+
+- Factory Pattern: Decouples the client from the specific strategy implementation.
+
+- Client Dispatcher: Manages the lifecycle of the strategy and handles the execution pipeline.
+
+- RAII (Resource Acquisition Is Initialization): Employed in C++ to manage internal resources and in C# via IDisposable to ensure native library handles are released.
+
+Note on Thread-Safety: The native C++ engine is designed to be Stateless and Thread-Safe, allowing the .NET pool to safely execute concurrent P/Invoke calls without shared-state contention.
 
 ## Tech Stack
 
@@ -599,3 +635,7 @@ Developer → Dev Build → Docker Image
          Response back to UI
 
 ```
+
+## Summary
+
+Developed a cross-platform string conversion ecosystem utilizing a high-performance C++17 engine integrated into a .NET 8 microservice via P/Invoke. Engineered a Zero-Leak memory management policy across the ABI boundary and implemented a multi-stage Docker CI/CD pipeline supporting immutable artifact promotion across Dev, Staging, and Production environments.
