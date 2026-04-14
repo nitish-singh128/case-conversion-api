@@ -275,7 +275,6 @@ REST API
 ## Engineering Deep Dive
 
 1.High-Level Data Flow
-
 The following diagram illustrates the request-to-response journey, highlighting the transition from managed memory in .NET to the unmanaged heap in C++.
 
 Data Flow Sequence:
