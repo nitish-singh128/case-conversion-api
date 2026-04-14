@@ -24,7 +24,7 @@ This project is an exercise in Cross-Language Interoperability and Architectural
 
 ### 1. C++ Conversion Engine
 
-- Implements multiple string conversion strategies (Alternating Case, Capitalize Words, Snake Case, etc.).
+- Implements multiple string conversion strategies.
 - Built as a shared library using **CMake**:
   - Windows → `libProcessStringDLL.dll`
   - macOS → `libProcessStringDLL.dylib`
@@ -74,6 +74,8 @@ npm install
 npm run build
 ```
 
+---
+
 ## C++ DLL Interop (ProcessStringDLL)
 
 The project exposes a **C++ string conversion engine** to the .NET REST API using a DLL and P/Invoke.
@@ -104,6 +106,8 @@ extern "C" PROCESSSTRING_API const char* processStringDLL(const char* input, int
 - Converted string (C-style pointer)
 - Returns original input if invalid choice
 
+---
+
 ### Supported Conversion Choices
 
 | Choice | Conversion       |
@@ -121,6 +125,8 @@ extern "C" PROCESSSTRING_API const char* processStringDLL(const char* input, int
 | 11     | Snake Case       |
 | 12     | Kebab Case       |
 | 13     | Leet Speak       |
+
+---
 
 ### Design Patterns Used
 
@@ -142,16 +148,6 @@ Factory → Strategy → Client
 Converted String
 ```
 
-### Build Output
-
-The C++ project builds a shared library:
-
-- Windows → `libProcessStringDLL.dll`
-- macOS → `libProcessStringDLL.dylib`
-- Linux → `libProcessStringDLL.so`
-
-This library is loaded by the C# service using P/Invoke.
-
 ### Integration Layer (C#)
 
 The .NET service calls the DLL:
@@ -163,6 +159,8 @@ private static extern IntPtr processStringDLL([MarshalAs(UnmanagedType.LPStr)] s
 ```
 
 This enables the REST API to use native C++ performance-critical logic.
+
+---
 
 ## Testing Strategy
 
@@ -214,22 +212,6 @@ The tests validate the full API flow:
       Response Validation
 ```
 
-### Architecture Overview
-
-```Bash
-C++ Conversion Engine
-        ↑
-   DLL Export Layer
-        ↑
-C# P/Invoke Wrapper
-        ↑
-ProcessStringService
-        ↑
-WordCaseController
-        ↑
-REST API
-```
-
 ## Architecture View
 
 ```Bash
@@ -272,6 +254,8 @@ REST API
          
 ```
 
+---
+
 ## Engineering Deep Dive
 
 1. High-Level Data Flow
@@ -307,13 +291,7 @@ In a high-throughput REST environment, thread-safety is paramount. The integrati
 
 Note on Thread-Safety: The native C++ engine is designed to be Stateless and Thread-Safe, allowing the .NET pool to safely execute concurrent P/Invoke calls without shared-state contention.
 
-## Tech Stack
-
-- C++ (conversion logic, built with CMake)
-- .NET 8 (REST API wrapper, P/Invoke)
-- React + Vite + TypeScript (frontend UI)
-- GitHub Actions (CI/CD pipeline)
-- Azure App Service + GitHub Pages (deployment targets)
+---
 
 ## Run Backend using Docker
 
@@ -635,6 +613,8 @@ Developer → Dev Build → Docker Image
          Response back to UI
 
 ```
+
+---
 
 ## Summary
 
