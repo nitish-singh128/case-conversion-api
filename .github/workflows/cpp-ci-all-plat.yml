@@ -1,3 +1,22 @@
+#*********************************************************************/
+#  CI Pipeline - Cross-Platform Native C++ Engine                    */
+#                                                                    */
+# Purpose   : Validates the Core C++17 engine and CLI local app      */
+#             across Linux, Windows, and macOS environments.        */
+# Trigger   : Push to main / Pull Request to main                   */
+# Runtime   : Matrix Build (Ubuntu, Windows, macOS)                 */
+#                                                                    */
+# Notes     : - Enforces ABI compatibility across OS platforms.      */
+#             - Utilizes CMake for platform-agnostic build logic.    */
+#             - Executes GoogleTest suites and CLI sanity checks.    */
+#                                                                    */
+# Revision History:                                                  */
+# ------------------------------------------------------------------ */
+# Version    Date        Author          Description                 */
+# ------------------------------------------------------------------ */
+# 1.0        2026-04-14  Nitish Singh    Initial multi-OS workflow   */
+#*********************************************************************/
+
 name: C++ CI CaseConversionAPI - All Platforms (Local App)
 
 on:
@@ -19,15 +38,13 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      # -------------------------------
-      # Checkout repository
-      # -------------------------------
+      # ======================================================
+      # 1. ENVIRONMENT INITIALIZATION
+      # ======================================================
+      
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # -------------------------------
-      # Install dependencies
-      # -------------------------------
       - name: Install compiler & CMake (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y build-essential cmake
@@ -40,9 +57,10 @@ jobs:
         if: runner.os == 'Windows'
         run: choco install cmake ninja --installargs 'ADD_CMAKE_TO_PATH=System' --yes
 
-      # -------------------------------
-      # Clean build directory (Windows only)
-      # -------------------------------
+      # ======================================================
+      # 2. PRE-BUILD ORCHESTRATION
+      # ======================================================
+
       - name: Clean build directory (Windows)
         if: runner.os == 'Windows'
         run: |
@@ -50,27 +68,23 @@ jobs:
             Remove-Item -Recurse -Force "CaseConversionAPI\CppLib\build"
           }
 
-      # -------------------------------
-      # Use local app CMakeLists
-      # -------------------------------
       - name: Use local app CMakeLists
         run: cp CaseConversionAPI/CppLib/CMakeListsLocalApp.txt CaseConversionAPI/CppLib/CMakeLists.txt
 
-      # -------------------------------
-      # Configure project
-      # -------------------------------
+      # ======================================================
+      # 3. COMPILATION LAYER
+      # ======================================================
+
       - name: Configure project
         run: cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build -DCMAKE_BUILD_TYPE=Release
 
-      # -------------------------------
-      # Build project
-      # -------------------------------
       - name: Build project
         run: cmake --build CaseConversionAPI/CppLib/build --parallel
 
-      # -------------------------------
-      # Run the main application
-      # -------------------------------
+      # ======================================================
+      # 4. EXECUTION & VALIDATION (CLI APP)
+      # ======================================================
+
       - name: Run app (Linux/macOS)
         if: runner.os != 'Windows'
         run: ./CaseConversionAPI/CppLib/build/app
@@ -81,9 +95,10 @@ jobs:
             cd CaseConversionAPI\CppLib\build
             & .\Debug\app.exe
 
-      # -------------------------------
-      # Run tests
-      # -------------------------------
+      # ======================================================
+      # 5. TEST SUITE (CTEST / GOOGLETEST)
+      # ======================================================
+
       - name: Run tests (Linux/macOS)
         if: runner.os != 'Windows'
         run: ctest --output-on-failure --test-dir CaseConversionAPI/CppLib/build
@@ -92,9 +107,10 @@ jobs:
         if: runner.os == 'Windows'
         run: ctest --output-on-failure -C Debug --test-dir CaseConversionAPI/CppLib/build
 
-      # -------------------------------
-      # Upload test logs
-      # -------------------------------
+      # ======================================================
+      # 6. ARTIFACT & LOG GOVERNANCE
+      # ======================================================
+
       - name: Upload test logs
         if: always()
         uses: actions/upload-artifact@v4

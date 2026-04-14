@@ -1,30 +1,35 @@
-/*********************************************************************/
-/* File: AdvancedConversionTests.cs                                  */
-/*                                                                   */
-/* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
-/* This material may be reproduced for teaching and learning         */
-/* purposes only. It is not to be used in industry or for            */
-/* commercial purposes.                                              */
-/*                                                                   */
-/* Description - Integration test suite for advanced Word Case       */
-/*               REST API conversion scenarios.                     */
-/*               Extends base API test infrastructure to validate   */
-/*               complex string transformation cases including      */
-/*               word inversion, case conversion, and formatting.    */
-/*                                                                   */
-/* Notes       - Inherits ApiTestBase for shared HTTP client setup   */
-/*               Ensures consistency with core API contract tests    */
-/*               Covers advanced conversion strategies only          */
-/*                                                                   */
-/* $Log: AdvancedConversionTests.cs                                  */
-/* 1.0  14-Apr-2026  Nitish Singh                                    */
-/*      Initial revision.                                            */
-/*********************************************************************/
+/**************************************************************************************************
+ * File        : AdvancedConversionTests.cs
+ *
+ * Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.
+ *               This material may be reproduced for teaching and learning purposes only.
+ *               It is not to be used in industry or for commercial purposes.
+ *
+ * Class       : AdvancedConversionTests
+ *
+ * Description : Integration test suite for advanced Word Case REST API conversion scenarios.
+ *               Extends the base API infrastructure to validate complex native transformations
+ *               including SnakeCase, LeetSpeak, and algorithmic word inversion.
+ *
+ * Notes       : - Utilizes WebApplicationFactory for in-memory integration testing.
+ *               - Validates the full execution path from JSON DTO binding to C++ strategy layer.
+ *
+ * Revision History:
+ * ------------------------------------------------------------------------------------------------
+ * Version     Date        Author          Description
+ * ------------------------------------------------------------------------------------------------
+ * 1.0         2026-04-14  Nitish Singh    Initial implementation of advanced conversion tests
+ *
+ **************************************************************************************************/
 
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
+/// <summary>
+/// Validates high-complexity conversion strategies that involve character 
+/// replacement, delimiter injection, and structural string manipulation.
+/// </summary>
 public class AdvancedConversionTests : ApiTestBase
 {
     public AdvancedConversionTests(WebApplicationFactory<Program> factory)
@@ -32,33 +37,45 @@ public class AdvancedConversionTests : ApiTestBase
     {
     }
 
-    //
-    // ======================================================
-    // 1. ADVANCED CONVERSION TESTS
-    // ======================================================
-    //
+    //===================================================================
+    // Advanced Structural Conversions
+    //===================================================================
 
     [Fact]
-    public async Task Convert_InvertWords()
+    [Trait("Category", "Structural")]
+    public async Task Convert_InvertWords_ReturnsReversedWords()
         => Assert.Equal("olleH dlroW", await ConvertAsync("Hello World", 10));
 
     [Fact]
-    public async Task Convert_SnakeCase()
+    [Trait("Category", "Formatting")]
+    public async Task Convert_SnakeCase_ReturnsUnderscoreSeparated()
         => Assert.Equal("hello_world_example", await ConvertAsync("Hello World Example", 11));
 
     [Fact]
-    public async Task Convert_KebabCase()
+    [Trait("Category", "Formatting")]
+    public async Task Convert_KebabCase_ReturnsHyphenSeparated()
         => Assert.Equal("hello-world-example", await ConvertAsync("Hello World Example", 12));
 
+    //===================================================================
+    // Content Filtering & Optimization
+    //===================================================================
+
     [Fact]
-    public async Task Convert_RemoveSpaces()
+    [Trait("Category", "Filtering")]
+    public async Task Convert_RemoveSpaces_ReturnsJoinedString()
         => Assert.Equal("HelloWorld", await ConvertAsync("Hello World", 9));
 
     [Fact]
-    public async Task Convert_RemoveVowels()
+    [Trait("Category", "Filtering")]
+    public async Task Convert_RemoveVowels_ReturnsConsonantsOnly()
         => Assert.Equal("Hll Wrld", await ConvertAsync("Hello World", 8));
 
+    //===================================================================
+    // Algorithmic Substitutions
+    //===================================================================
+
     [Fact]
-    public async Task Convert_LeetSpeak()
+    [Trait("Category", "Encoding")]
+    public async Task Convert_LeetSpeak_ReturnsNumericSubstitutions()
         => Assert.Equal("7357", await ConvertAsync("Test", 13));
 }

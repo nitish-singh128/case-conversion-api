@@ -1,24 +1,26 @@
-/*********************************************************************/
-/* File: Program.cs                                                  */
-/*                                                                   */
-/* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
-/* This material may be reproduced for teaching and learning         */
-/* purposes only. It is not to be used in industry or for            */
-/* commercial purposes.                                              */
-/*                                                                   */
-/* Description - Application entry point configuring ASP.NET Core    */
-/*               pipeline, dependency injection, CORS, and Swagger   */
-/*               for the Word Case REST API. Registers services and  */
-/*               maps controller endpoints.                          */
-/*                                                                   */
-/* Notes       - Enables Swagger UI at root                          */
-/*               Configures CORS for cross-origin requests           */
-/*               Registers ProcessStringService for DI               */
-/*                                                                   */
-/* $Log: Program.cs                                                  */
-/* 1.0  11-Apr-2026  Nitish Singh                                    */
-/*      Initial revision.                                            */
-/*********************************************************************/
+/**************************************************************************************************
+ * File        : Program.cs
+ *
+ * Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.
+ *               This material may be reproduced for teaching and learning purposes only.
+ *               It is not to be used in industry or for commercial purposes.
+ *
+ * Description : Application entry point for the Word Case REST API.
+ *               Configures ASP.NET Core middleware pipeline, dependency injection,
+ *               CORS policies, and API documentation via Swagger.
+ *
+ * Notes       : - Registers controllers and application services for DI.
+ *               - Enables Swagger UI at root for API exploration.
+ *               - Configures permissive CORS policy for cross-origin access.
+ *               - Skips application run during integration testing.
+ *
+ * Revision History:
+ * ------------------------------------------------------------------------------------------------
+ * Version     Date        Author          Description
+ * ------------------------------------------------------------------------------------------------
+ * 1.0         2026-04-11  Nitish Singh    Initial implementation of application bootstrap
+ *
+ **************************************************************************************************/
 
 using Microsoft.OpenApi.Models;
 using StringConversionAPI.Services;

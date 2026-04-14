@@ -1,9 +1,21 @@
 #*********************************************************************/
 #  CI Pipeline - .NET + API Integration Tests                        */
 #                                                                    */
-# Purpose   : Build and run all unit + integration tests             */
-# Trigger   : Push / Pull Request                                    */
-# Runtime   : Ubuntu latest                                          */
+# Purpose   : Orchestrates the compilation of native C++ assets and  */
+#             executes the .NET integration test suite.              */
+# Trigger   : Push to main/develop | Pull Request to main            */
+# Runtime   : Ubuntu Latest                                          */
+#                                                                    */
+# Notes     : - Manages the critical injection of .so artifacts into */
+#               the .NET bin directory for P/Invoke resolution.      */
+#             - Enforces 'No-Build' execution to ensure testing is   */
+#               performed on exact Release artifacts.                */
+#                                                                    */
+# Revision History:                                                  */
+# ------------------------------------------------------------------ */
+# Version    Date        Author          Description                 */
+# ------------------------------------------------------------------ */
+# 1.0        2026-04-14  Nitish Singh    Initial .NET Integration CI */
 #*********************************************************************/
 
 name: .NET Tests
@@ -19,10 +31,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # ======================================================
+      # 1. REPOSITORY & NATIVE TOOLCHAIN
+      # ======================================================
+
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 1. Build the Native C++ Library first
       - name: Build C++ Library
         working-directory: CaseConversionAPI/CppLib
         run: |
@@ -31,36 +46,43 @@ jobs:
             cmake ..
             cmake --build . --config Release
 
-      # 2. Setup .NET Environment
-      - name: Setup .NET
+      # ======================================================
+      # 2. MANAGED ENVIRONMENT SETUP
+      # ======================================================
+
+      - name: Setup .NET Environment
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
 
-      # 3. Restore and Build the Test Project
       - name: Build .NET Tests
         working-directory: CaseConversionAPI/tests/DotNetTests
         run: |
             dotnet restore
             dotnet build --configuration Release
 
-      # 4. CRITICAL: Inject Native Artifact into Test Execution Context
-      # This ensures the P/Invoke layer can resolve the .so library
+      # ======================================================
+      # 3. ARTIFACT INJECTION (P/INVOKE PREPARATION)
+      # ======================================================
+
       - name: Inject Native Library to Test Folder
         run: |
-            # Find the compiled .so file
+            # Locate the native binary
             LIB_PATH=$(find CaseConversionAPI/CppLib/build -name "libProcessStringDLL.so")
             
-            # Destination: The bin folder where the test dll lives
+            # Destination path within the .NET build output
             DEST_PATH="CaseConversionAPI/tests/DotNetTests/bin/Release/net8.0/"
             
-            echo "Moving $LIB_PATH to $DEST_PATH"
+            echo "[INFO] Injecting $LIB_PATH into $DEST_PATH"
             cp $LIB_PATH $DEST_PATH
             
-            # Also copy to the test project root as a fallback for the runner
+            # Secondary copy for runner root fallback
             cp $LIB_PATH CaseConversionAPI/tests/DotNetTests/
 
-      # 5. Execute Tests
+      # ======================================================
+      # 4. TEST EXECUTION (INTEGRATION LAYER)
+      # ======================================================
+
       - name: Run Integration Tests
         working-directory: CaseConversionAPI/tests/DotNetTests
         run: dotnet test --no-build --configuration Release --verbosity normal

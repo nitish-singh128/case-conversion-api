@@ -1,24 +1,28 @@
-/*********************************************************************/
-/* File: WordCaseController.cs                                       */
-/*                                                                   */
-/* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
-/* This material may be reproduced for teaching and learning         */
-/* purposes only. It is not to be used in industry or for            */
-/* commercial purposes.                                              */
-/*                                                                   */
-/* Class       - WordCaseController                                  */
-/*                                                                   */
-/* Description - REST API controller that exposes string case        */
-/*               conversion operations. Uses ProcessStringService    */
-/*               to delegate conversion logic based on user choice.  */
-/*                                                                   */
-/* Notes       - Supports multiple conversion strategies including   */
-/*               Alternating Case via native C++ interop.            */
-/*                                                                   */
-/* $Log: WordCaseController.cs                                       */
-/* 1.0  11-Apr-2026  Nitish Singh                                   */
-/*      Initial revision.                                            */
-/*********************************************************************/
+/**************************************************************************************************
+ * File        : WordCaseController.cs
+ *
+ * Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.
+ *               This material may be reproduced for teaching and learning purposes only.
+ *               It is not to be used in industry or for commercial purposes.
+ *
+ * Class       : WordCaseController
+ *
+ * Description : REST API controller exposing string case conversion operations.
+ *               Delegates processing to the service layer, which interfaces with
+ *               the native C++ conversion engine.
+ *
+ * Notes       : - Implements HTTP POST endpoint for conversion requests.
+ *               - Uses dependency injection for ProcessStringService.
+ *               - Supports multiple transformation strategies via native interop.
+ *               - Ensures consistent API contract for request/response payloads.
+ *
+ * Revision History:
+ * ------------------------------------------------------------------------------------------------
+ * Version     Date        Author          Description
+ * ------------------------------------------------------------------------------------------------
+ * 1.0         2026-04-11  Nitish Singh    Initial implementation of API controller
+ *
+ **************************************************************************************************/
 
 using Microsoft.AspNetCore.Mvc;
 using StringConversionAPI.Models;

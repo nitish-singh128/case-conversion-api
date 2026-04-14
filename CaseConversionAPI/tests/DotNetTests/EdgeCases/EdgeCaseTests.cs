@@ -1,29 +1,35 @@
-/*********************************************************************/
-/* File: EdgeCaseTests.cs                                            */
-/*                                                                   */
-/* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
-/* This material may be reproduced for teaching and learning         */
-/* purposes only. It is not to be used in industry or for            */
-/* commercial purposes.                                              */
-/*                                                                   */
-/* Description - Integration test suite for edge case handling in    */
-/*               Word Case REST API. Validates system behavior for  */
-/*               boundary inputs such as empty strings, whitespace,  */
-/*               numeric-only inputs, and special character cases.   */
-/*                                                                   */
-/* Notes       - Inherits ApiTestBase for shared HTTP client setup   */
-/*               Ensures robustness of transformation engine under   */
-/*               boundary and non-standard inputs                    */
-/*                                                                   */
-/* $Log: EdgeCaseTests.cs                                             */
-/* 1.0  14-Apr-2026  Nitish Singh                                    */
-/*      Initial revision.                                            */
-/*********************************************************************/
+/**************************************************************************************************
+ * File        : EdgeCaseTests.cs
+ *
+ * Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.
+ *               This material may be reproduced for teaching and learning purposes only.
+ *               It is not to be used in industry or for commercial purposes.
+ *
+ * Class       : EdgeCaseTests
+ *
+ * Description : Integration test suite for boundary condition validation in the Word Case REST API.
+ *               Ensures system stability when processing empty, non-standard, and symbolic inputs.
+ *
+ * Notes       : - Validates native C++ engine behavior for zero-length buffers.
+ *               - Ensures safe handling of non-alphabetic and special characters.
+ *               - Guards against memory access violations and logical inconsistencies.
+ *
+ * Revision History:
+ * ------------------------------------------------------------------------------------------------
+ * Version     Date        Author          Description
+ * ------------------------------------------------------------------------------------------------
+ * 1.0         2026-04-14  Nitish Singh    Initial implementation of edge case and boundary tests
+ *
+ **************************************************************************************************/
 
 using System.Threading.Tasks;
 using Xunit;
 using Microsoft.AspNetCore.Mvc.Testing;
 
+/// <summary>
+/// Exhaustive validation of non-standard inputs to ensure no regression 
+/// in logic for boundary conditions.
+/// </summary>
 public class EdgeCaseTests : ApiTestBase
 {
     public EdgeCaseTests(WebApplicationFactory<Program> factory)
@@ -31,33 +37,45 @@ public class EdgeCaseTests : ApiTestBase
     {
     }
 
-    //
-    // ======================================================
-    // 1. EDGE CASE TESTS
-    // ======================================================
-    //
+    //===================================================================
+    // Null & Whitespace Boundaries
+    //===================================================================
 
     [Fact]
-    public async Task Convert_EmptyString()
+    [Trait("Category", "Boundary")]
+    public async Task Convert_EmptyString_ReturnsEmptyResponse()
         => Assert.Equal("", await ConvertAsync("", 3));
 
     [Fact]
-    public async Task Convert_OnlySpaces_RemoveSpaces()
+    [Trait("Category", "Boundary")]
+    public async Task Convert_OnlySpaces_RemoveSpaces_ReturnsEmptyResponse()
         => Assert.Equal("", await ConvertAsync("   ", 9));
 
+    //===================================================================
+    // Character Set Boundaries (Non-Alpha)
+    //===================================================================
+
     [Fact]
-    public async Task Convert_NumbersOnly()
+    [Trait("Category", "NonAlpha")]
+    public async Task Convert_NumbersOnly_MaintainsNumericIntegrity()
         => Assert.Equal("12345", await ConvertAsync("12345", 4));
 
     [Fact]
-    public async Task Convert_SpecialCharacters_Reverse()
+    [Trait("Category", "NonAlpha")]
+    public async Task Convert_SpecialCharacters_Reverse_HandlesSymbolsCorrectly()
         => Assert.Equal("$#@!", await ConvertAsync("!@#$", 7));
 
+    //===================================================================
+    // Domain-Specific Logic Boundaries (Filtering)
+    //===================================================================
+
     [Fact]
-    public async Task Convert_OnlyVowels_RemoveVowels()
+    [Trait("Category", "Filtering")]
+    public async Task Convert_OnlyVowels_RemoveVowels_ReturnsEmptyString()
         => Assert.Equal("", await ConvertAsync("aeiouAEIOU", 8));
 
     [Fact]
-    public async Task Convert_NoVowels()
+    [Trait("Category", "Filtering")]
+    public async Task Convert_NoVowels_ReturnsOriginalConsonants()
         => Assert.Equal("bcdfg", await ConvertAsync("bcdfg", 8));
 }

@@ -76,7 +76,6 @@ npm run build
 
 ---
 
-
 ### Integration Layer (C#)
 
 The .NET service calls the DLL:

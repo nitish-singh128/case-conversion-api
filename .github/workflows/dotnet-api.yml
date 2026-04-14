@@ -1,3 +1,24 @@
+#*********************************************************************/
+#  CI Pipeline - macOS Native Bridge & REST Integration              */
+#                                                                    */
+# Purpose   : Validates the end-to-end integration between the       */
+#             C++ Native Engine (dylib) and the .NET 8 REST API      */
+#             specifically on macOS runners.                         */
+# Trigger   : Push to main / Pull Request to main                   */
+# Runtime   : macOS Latest                                          */
+#                                                                    */
+# Notes     : - Verifies P/Invoke symbol resolution for .dylib files.*/
+#             - Executes a live 'Smoke Test' using background        */
+#               process orchestration and Curl.                      */
+#             - Confirms binary compatibility on Apple infrastructure.*/
+#                                                                    */
+# Revision History:                                                  */
+# ------------------------------------------------------------------ */
+# Version    Date        Author          Description                 */
+# ------------------------------------------------------------------ */
+# 1.0        2026-04-14  Nitish Singh    Initial macOS integration   */
+#*********************************************************************/
+
 name: C++ DLL + .NET REST API CI
 
 on:
@@ -11,6 +32,10 @@ jobs:
     runs-on: macos-latest
 
     steps:
+    # ======================================================
+    # 1. ENVIRONMENT & TOOLCHAIN SETUP
+    # ======================================================
+
     - name: Checkout repository
       uses: actions/checkout@v4
 
@@ -19,6 +44,10 @@ jobs:
     # -------------------------------
     - name: Install CMake
       run: brew install cmake
+
+    # ======================================================
+    # 2. NATIVE LAYER: C++ DYNAMIC LIBRARY (.dylib)
+    # ======================================================
 
     - name: Build C++ DLL
       run: |
@@ -32,9 +61,10 @@ jobs:
       run: |
         ls -l CaseConversionAPI/CppLib/build/lib
 
-    # -------------------------------
-    # Setup .NET
-    # -------------------------------
+    # ======================================================
+    # 3. MANAGED LAYER: .NET 8 REST API
+    # ======================================================
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
@@ -49,9 +79,10 @@ jobs:
     - name: Build .NET
       run: dotnet build CaseConversionAPI/DotNetAPI --no-restore
 
-    # -------------------------------
-    # Run API
-    # -------------------------------
+    # ======================================================
+    # 4. SERVICE ORCHESTRATION & VALIDATION
+    # ======================================================
+
     - name: Run API
       run: |
         cd CaseConversionAPI/DotNetAPI

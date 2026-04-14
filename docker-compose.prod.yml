@@ -1,6 +1,26 @@
+#*********************************************************************/
+#  File        : docker-compose.prod.yml                             */
+#                                                                    */
+#  Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.   */
+#                                                                    */
+#  Description : Production orchestration for the Word Case          */
+#                Conversion platform. Deploys containerized versions  */
+#                of the .NET/C++ Backend and the React Frontend.     */
+#                                                                    */
+#  Services    : 1. backend  - Production-ready .NET 8 API           */
+#                2. frontend - Production-ready React Web App        */
+#                                                                    */
+#  Notes       : - Implements container health monitoring.           */
+#                - Configured for high availability (auto-restart).  */
+#                - Isolated internal network with service discovery.  */
+#*********************************************************************/
+
 version: "3.9"
 
 services:
+  # ======================================================
+  # BACKEND: Production API Gateway (Managed + Native)
+  # ======================================================
   backend:
     image: nitishhsinghhh/case-api:latest
     container_name: case-api-prod
@@ -8,21 +28,27 @@ services:
       - "8080:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+    # Reliability: Automatically restarts if the native engine crashes
     restart: always
     networks:
       - case-network
+    # Self-Healing: Periodically validates service responsiveness
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
 
+  # ======================================================
+  # FRONTEND: Production UI (React/Vite)
+  # ======================================================
   frontend:
     image: nitishhsinghhh/case-ui:latest
     container_name: case-ui-prod
     ports:
       - "5173:5173"
     environment:
+      # Internal Discovery: Frontend talks to 'backend' service name
       - VITE_API_URL=http://backend:8080
     depends_on:
       - backend
@@ -30,6 +56,9 @@ services:
     networks:
       - case-network
 
+# ======================================================
+# NETWORK INFRASTRUCTURE
+# ======================================================
 networks:
   case-network:
     driver: bridge

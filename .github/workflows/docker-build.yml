@@ -1,3 +1,22 @@
+#*********************************************************************/
+#  CI Pipeline - Docker Orchestration & Image Distribution           */
+#                                                                    */
+# Purpose   : Packages the CaseConversionAPI ecosystem into a        */
+#             multi-stage Docker image and pushes to DockerHub.      */
+# Trigger   : Push to main / Pull Request to main                   */
+# Runtime   : Ubuntu Latest                                         */
+#                                                                    */
+# Notes     : - Utilizes Docker Buildx for optimized layer caching.  */
+#             - Requires DOCKER_USERNAME and DOCKER_PASSWORD secrets. */
+#             - Produces an immutable artifact tagged as 'latest'.    */
+#                                                                    */
+# Revision History:                                                  */
+# ------------------------------------------------------------------ */
+# Version    Date        Author          Description                 */
+# ------------------------------------------------------------------ */
+# 1.0        2026-04-14  Nitish Singh    Initial Docker Hub Workflow */
+#*********************************************************************/
+
 name: Build and Push Docker Image
 
 on:
@@ -11,25 +30,42 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repository
+      # ======================================================
+      # 1. WORKSPACE PREPARATION
+      # ======================================================
+      
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # Setup Docker buildx
+      # ======================================================
+      # 2. VIRTUALIZED BUILDER SETUP
+      # ======================================================
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          install: true
 
-      # Login to DockerHub
+      # ======================================================
+      # 3. REGISTRY AUTHENTICATION
+      # ======================================================
+
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Build and Push Docker Image
+      # ======================================================
+      # 4. COMPILATION, TAGGING, & DISTRIBUTION
+      # ======================================================
+
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: ./Dockerfile  # Explicitly defined for architectural clarity
           push: true
           tags: nitishhsinghhh/case-conversion-api:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

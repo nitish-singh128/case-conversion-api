@@ -1,32 +1,29 @@
-/*********************************************************************/
-/* $File: ProcessStringService.cs                                    */
-/*                                                                   */
-/* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
-/* This material may be reproduced for teaching and learning         */
-/* purposes only. It is not to be used in industry or for            */
-/* commercial purposes.                                              */
-/*                                                                   */
-/* Class       - ProcessStringService                                */
-/*                                                                   */
-/* Description - Managed service wrapper for the native C++ string   */
-/* conversion engine. Manages platform-specific DLL                  */
-/* loading, symbol resolution, and unmanaged memory                  */
-/* lifecycle using P/Invoke and NativeLibrary.                       */
-/*                                                                   */
-/* Notes       - Implements IDisposable to ensure the native library */
-/* handle is released.                                               */
-/* Uses the "Callee-Allocates, Caller-Frees" pattern                 */
-/* to prevent memory leaks across the ABI boundary.                  */
-/*                                                                   */
-/* $Log: ProcessStringService.cs                                     */
-/*                                                                   */
-/* Revision 1.0  2026/04/11  Nitish Singh                            */
-/* Initial implementation of dynamic DLL loading and conversion.     */
-/*                                                                   */
-/* Revision 1.1  2026/04/13  Nitish Singh                            */
-/* Refactored for memory safety. Added freeString delegate to handle */
-/* unmanaged deallocation and implemented IDisposable for cleanup.   */
-/*********************************************************************/
+/**************************************************************************************************
+ * File        : ProcessStringService.cs
+ *
+ * Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.
+ *               This material may be reproduced for teaching and learning purposes only.
+ *               It is not to be used in industry or for commercial purposes.
+ *
+ * Class       : ProcessStringService
+ *
+ * Description : Managed service wrapper for the native C++ string conversion engine.
+ *               Handles platform-specific library loading, symbol resolution, and
+ *               interop execution using P/Invoke and NativeLibrary APIs.
+ *
+ * Notes       : - Implements IDisposable to ensure proper release of native resources.
+ *               - Uses "Callee-Allocates, Caller-Frees" pattern for safe memory handling.
+ *               - Performs runtime OS detection to load appropriate shared library.
+ *               - Bridges managed (.NET) and unmanaged (C++) execution layers.
+ *
+ * Revision History:
+ * ------------------------------------------------------------------------------------------------
+ * Version     Date        Author          Description
+ * ------------------------------------------------------------------------------------------------
+ * 1.0         2026-04-11  Nitish Singh    Initial implementation of native interop layer
+ * 1.1         2026-04-13  Nitish Singh    Added memory safety, freeString delegate, IDisposable
+ *
+ **************************************************************************************************/
 
 using System;
 using System.Runtime.InteropServices;

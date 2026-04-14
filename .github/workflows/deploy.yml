@@ -1,3 +1,22 @@
+#*********************************************************************/
+#  CI Pipeline - Full Stack Project (Core, API, & Frontend)          */
+#                                                                    */
+# Purpose   : Orchestrates a comprehensive multi-platform build of   */
+#             the C++ Native Layer, .NET 8 API, and React Frontend.  */
+# Trigger   : Push to main                                          */
+# Runtime   : Matrix Build (Ubuntu, Windows, macOS)                 */
+#                                                                    */
+# Notes     : - Manages the complex ABI artifact injection process.  */
+#             - Enforces environmental parity across all layers.     */
+#             - Produces deployment-ready artifacts for all tiers.    */
+#                                                                    */
+# Revision History:                                                  */
+# ------------------------------------------------------------------ */
+# Version    Date        Author          Description                 */
+# ------------------------------------------------------------------ */
+# 1.0        2026-04-14  Nitish Singh    Initial Full-Project CI     */
+#*********************************************************************/
+
 name: Build Full Project - All Platforms
 
 on:
@@ -15,15 +34,13 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      # -------------------------------
-      # 1. Checkout repository
-      # -------------------------------
+      # ======================================================
+      # 1. REPOSITORY & TOOLCHAIN INITIALIZATION
+      # ======================================================
+      
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # -------------------------------
-      # 2. Setup compilers / CMake
-      # -------------------------------
       - name: Setup CMake (Linux/macOS)
         if: runner.os != 'Windows'
         uses: jwlawson/actions-setup-cmake@v1.14
@@ -42,9 +59,9 @@ jobs:
         if: runner.os == 'Windows'
         run: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' --yes
 
-      # -------------------------------
-      # 3. Build C++ DLL
-      # -------------------------------
+      # ======================================================
+      # 2. NATIVE LAYER COMPILATION (C++ DLL/SO)
+      # ======================================================
       
       - name: Clean build folder (Unix)
         if: runner.os != 'Windows'
@@ -76,9 +93,10 @@ jobs:
         shell: powershell
         run: cmake --build CaseConversionAPI/CppLib/build_dll --config Release --parallel
 
-      # -------------------------------
-      # 4. Setup .NET
-      # -------------------------------
+      # ======================================================
+      # 3. MANAGED LAYER PUBLICATION (.NET 8)
+      # ======================================================
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
@@ -87,15 +105,12 @@ jobs:
       - name: Restore .NET dependencies
         run: dotnet restore CaseConversionAPI/DotNetAPI
 
-      # -------------------------------
-      # 5. Publish .NET API
-      # -------------------------------
       - name: Build and publish .NET API
         run: dotnet publish CaseConversionAPI/DotNetAPI -c Release -o ./publish
 
-     # -------------------------------
-     # 6. Copy correct DLL for platform
-     # -------------------------------
+      # ======================================================
+      # 4. ARTIFACT INJECTION (ABI BRIDGE)
+      # ======================================================
 
       - name: Copy Linux .so
         if: runner.os == 'Linux'
@@ -114,9 +129,10 @@ jobs:
              $dll = Get-ChildItem -Recurse -Filter ProcessStringDLL.dll CaseConversionAPI\CppLib\build_dll | Select-Object -First 1
              Copy-Item $dll.FullName -Destination ".\publish\"
 
-      # -------------------------------
-      # 7. Build Frontend
-      # -------------------------------
+      # ======================================================
+      # 5. FRONTEND LAYER BUILD (REACT/VITE)
+      # ======================================================
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -132,9 +148,10 @@ jobs:
           cd string-conversion-ui
           npm run build
 
-      # -------------------------------
-      # 8. Upload artifacts
-      # -------------------------------
+      # ======================================================
+      # 6. GLOBAL ARTIFACT GOVERNANCE
+      # ======================================================
+
       - name: Upload API + DLL artifact
         uses: actions/upload-artifact@v4
         with:

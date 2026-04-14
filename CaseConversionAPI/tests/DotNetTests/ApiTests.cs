@@ -1,23 +1,27 @@
-/*********************************************************************/
-/* File: ApiTests.cs                                                 */
-/*                                                                   */
-/* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
-/* This material may be reproduced for teaching and learning         */
-/* purposes only. It is not to be used in industry or for            */
-/* commercial purposes.                                              */
-/*                                                                   */
-/* Description - Integration test suite for Word Case REST API.      */
-/*               Mirrors C++ test suite behavior to ensure           */
-/*               cross-layer consistency between API and core        */
-/*               string processing engine.                           */
-/*                                                                   */
-/* Notes       - Uses canonical outputs from C++ tests               */
-/*               Covers basic, advanced, edge, and invalid cases     */
-/*                                                                   */
-/* $Log: ApiTests.cs                                                 */
-/* 1.2  14-Apr-2026  Nitish Singh                                    */
-/*      Synced with C++ test expectations.                           */
-/*********************************************************************/
+/**************************************************************************************************
+ * File        : ApiTests.cs
+ *
+ * Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.
+ *               This material may be reproduced for teaching and learning purposes only.
+ *               It is not to be used in industry or for commercial purposes.
+ *
+ * Class       : ApiTests
+ *
+ * Description : Comprehensive integration test suite for the Word Case REST API.
+ *               Mirrors the C++ test suite to ensure cross-layer consistency between
+ *               the API layer and the native string processing engine.
+ *
+ * Notes       : - Uses canonical outputs derived from the C++ test suite.
+ *               - Covers basic, advanced, edge, and invalid input scenarios.
+ *               - Validates full request lifecycle including serialization and native execution.
+ *
+ * Revision History:
+ * ------------------------------------------------------------------------------------------------
+ * Version     Date        Author          Description
+ * ------------------------------------------------------------------------------------------------
+ * 1.2         2026-04-14  Nitish Singh    Synced with C++ test expectations and API contract
+ *
+ **************************************************************************************************/
 
 using System.Net.Http;
 using System.Net.Http.Json;
