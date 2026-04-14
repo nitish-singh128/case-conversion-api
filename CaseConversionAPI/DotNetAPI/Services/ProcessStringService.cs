@@ -1,5 +1,5 @@
 /*********************************************************************/
-/* File: ProcessStringService.cs                                     */
+/* $File: ProcessStringService.cs                                    */
 /*                                                                   */
 /* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
 /* This material may be reproduced for teaching and learning         */
@@ -8,19 +8,24 @@
 /*                                                                   */
 /* Class       - ProcessStringService                                */
 /*                                                                   */
-/* Description - Service responsible for invoking native C++ string  */
-/*               conversion logic via platform-specific shared       */
-/*               libraries. Dynamically loads the appropriate        */
-/*               library and calls exported function using           */
-/*               delegates.                                          */
+/* Description - Managed service wrapper for the native C++ string   */
+/* conversion engine. Manages platform-specific DLL                  */
+/* loading, symbol resolution, and unmanaged memory                  */
+/* lifecycle using P/Invoke and NativeLibrary.                       */
 /*                                                                   */
-/* Notes       - Uses P/Invoke with NativeLibrary                    */
-/*               Supports Windows, Linux, and macOS                  */
-/*               Delegates conversion based on choice parameter      */
+/* Notes       - Implements IDisposable to ensure the native library */
+/* handle is released.                                               */
+/* Uses the "Callee-Allocates, Caller-Frees" pattern                 */
+/* to prevent memory leaks across the ABI boundary.                  */
 /*                                                                   */
 /* $Log: ProcessStringService.cs                                     */
-/* 1.0  11-Apr-2026  Nitish Singh                                    */
-/*      Initial revision.                                            */
+/*                                                                   */
+/* Revision 1.0  2026/04/11  Nitish Singh                            */
+/* Initial implementation of dynamic DLL loading and conversion.     */
+/*                                                                   */
+/* Revision 1.1  2026/04/13  Nitish Singh                            */
+/* Refactored for memory safety. Added freeString delegate to handle */
+/* unmanaged deallocation and implemented IDisposable for cleanup.   */
 /*********************************************************************/
 
 using System;
@@ -29,44 +34,112 @@ using System.IO;
 
 namespace StringConversionAPI.Services
 {
-    public class ProcessStringService
+    /// <summary>
+    /// Service to facilitate communication between .NET and the native C++ 
+    /// conversion library.
+    /// </summary>
+    public class ProcessStringService : IDisposable
     {
-        private delegate IntPtr ProcessStringDelegate(string input, int choice);
-        private readonly ProcessStringDelegate processString;
+        #region Native Delegates
 
+        private delegate IntPtr ProcessStringDelegate([MarshalAs(UnmanagedType.LPStr)] string input, int choice);
+        private delegate void FreeStringDelegate(IntPtr ptr);
+
+        #endregion
+
+        #region Private Members
+
+        private readonly ProcessStringDelegate _processString;
+        private readonly FreeStringDelegate _freeStringDelegate;
+        private readonly IntPtr _libraryHandle;
+        private bool _disposed = false;
+
+        #endregion
+
+        /// <summary>
+        /// Initializes the service by dynamically loading the platform-specific 
+        /// native library and mapping required function exports.
+        /// </summary>
         public ProcessStringService()
         {
-            string dllName;
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                dllName = "ProcessStringDLL.dll";
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                dllName = "libProcessStringDLL.so";
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                dllName = "libProcessStringDLL.dylib";
-            else
-                throw new PlatformNotSupportedException();
+            string dllName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "ProcessStringDLL.dll" :
+                             RuntimeInformation.IsOSPlatform(OSPlatform.Linux)   ? "libProcessStringDLL.so" :
+                             RuntimeInformation.IsOSPlatform(OSPlatform.OSX)     ? "libProcessStringDLL.dylib" :
+                             throw new PlatformNotSupportedException("Unsupported OS platform.");
 
             string fullPath = Path.Combine(AppContext.BaseDirectory, dllName);
-            Console.WriteLine("Loading native library from: " + fullPath);
 
-            IntPtr handle = NativeLibrary.Load(fullPath);
-            IntPtr symbol = NativeLibrary.GetExport(handle, "processStringDLL");
+            // 1. Load the native library
+            _libraryHandle = NativeLibrary.Load(fullPath);
+            if (_libraryHandle == IntPtr.Zero)
+                throw new DllNotFoundException($"Unable to load native library at: {fullPath}");
+            
+            // 2. Resolve function pointers
+            IntPtr procAddr = NativeLibrary.GetExport(_libraryHandle, "processStringDLL");
+            IntPtr freeProcAddr = NativeLibrary.GetExport(_libraryHandle, "freeString");
 
-            processString = Marshal.GetDelegateForFunctionPointer<ProcessStringDelegate>(symbol);
+            // 3. Map to managed delegates
+            _processString = Marshal.GetDelegateForFunctionPointer<ProcessStringDelegate>(procAddr);
+            _freeStringDelegate = Marshal.GetDelegateForFunctionPointer<FreeStringDelegate>(freeProcAddr);   
         }
 
+        /// <summary>
+        /// Converts the input string using the specified strategy choice via 
+        /// the native engine.
+        /// </summary>
         public string Convert(string input, int choice)
         {
             if (string.IsNullOrEmpty(input))
                 return input;
 
-            IntPtr ptr = processString(input, choice);
+            IntPtr resultPtr = IntPtr.Zero;
 
-            if (ptr == IntPtr.Zero)
-                return string.Empty;
+            try
+            {
+                // Dispatch call to C++
+                resultPtr = _processString(input, choice);
+                
+                if (resultPtr == IntPtr.Zero)
+                    return string.Empty;
 
-            return Marshal.PtrToStringAnsi(ptr) ?? string.Empty;
+                // Marshal unmanaged C-string back to managed string (System.String)
+                return Marshal.PtrToStringAnsi(resultPtr) ?? string.Empty;
+            }
+            finally
+            {
+                // CRITICAL: Call the native free() via our exported freeString function
+                if (resultPtr != IntPtr.Zero)
+                {
+                    _freeStringDelegate(resultPtr);
+                }
+            }
         }
+
+        #region Disposal Pattern
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (_libraryHandle != IntPtr.Zero)
+                {
+                    NativeLibrary.Free(_libraryHandle);
+                }
+                _disposed = true;
+            }
+        }
+
+        ~ProcessStringService()
+        {
+            Dispose(false);
+        }
+
+        #endregion
     }
 }
