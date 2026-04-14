@@ -18,6 +18,8 @@ This project is an exercise in Cross-Language Interoperability and Architectural
 - The UI: A type-safe React/TypeScript frontend built on Vite for sub-second developer turnaround.
 - The DevOps: A multi-stage Docker orchestration supporting Artifact Promotion (Dev → Staging → Prod) to ensure environmental parity.
 
+![alt text](image.png)
+
 ---
 
 ## Components
