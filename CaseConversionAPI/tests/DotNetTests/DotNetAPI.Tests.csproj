@@ -23,7 +23,8 @@
 
   <ItemGroup>
   <None Include="../../CppLib/build/lib/libProcessStringDLL.dylib"
-        CopyToOutputDirectory="Always" />
+        Condition="Exists('../../CppLib/build/lib/libProcessStringDLL.dylib')"
+        CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

@@ -33,7 +33,6 @@ jobs:
       - name: Verify native library exists
         run: |
             find CaseConversionAPI/CppLib -name "*.dylib" -o -name "*.so" -o -name "*.dll"
-       
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
