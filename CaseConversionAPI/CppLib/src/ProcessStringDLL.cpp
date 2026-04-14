@@ -36,6 +36,7 @@
 /*********************************************************************/
 /* Dependencies                                                      */
 /*********************************************************************/
+
 #include "ProcessString.hpp"
 #include "Client.hpp"
 #include "StringConversionFactory.hpp"
@@ -46,6 +47,25 @@
 #include <cstdlib>
 
 #include "ProcessStringDLL.hpp"
+
+//===================================================================
+// Constrants: 2 MB Buffer Limit
+//===================================================================
+
+/*
+*  Note: The 2 MB buffer limit is an arbitrary choice to prevent excessive memory usage in the DLL.
+*  In a production scenario, you may want to implement a more robust solution for handling large inputs,
+*  such as streaming processing or dynamic buffer resizing. For the purposes of this example, 
+*  we will simply return an error message if the input exceeds this limit.
+*
+*  Secruity Gate: 2MB Buffer Limit
+*  Prevents Heap Exhaustion attacks and protects the Dcoker sidecar's
+*  memory footprint from malicious or accidental large inputs. 
+*  This is a common best practice for C-style APIs that allocate memory based on input size.
+*/
+
+#define MAX_INPUT_SIZE (2 * 1024 * 1024) // 2 MB
+
 
 //===================================================================
 // Helper Utilities (internal, not exported - C++ only)
@@ -150,11 +170,19 @@ extern "C" {
  */
 API const char* processStringDLL(const char* input, int choiceInt) {
 
+    // Fundamental safety check
     if (!input)
         return nullptr;
 
-    Client client;
+    size_t inputLength = std::strlen(input);
 
+    // Check for input size limit
+    if (inputLength > MAX_INPUT_SIZE) {
+        // Deterministic error string that the .NET layer can identify
+        return allocateCString("ERROR_BUFFER_OVERFLOW_LIMIT_2MB");
+    }
+
+    Client client;
     ConversionChoice choice =
         static_cast<ConversionChoice>(choiceInt);
 

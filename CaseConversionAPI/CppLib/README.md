@@ -1,13 +1,35 @@
-# Case Conversion API
+# Native Conversion Engine (C++17)
 
-A C++ library and application for converting strings into various cases, including Alternating, Capitalize, Lower, Upper, Sentence, Toggle, Reverse, RemoveVowels, RemoveSpaces, InvertWords, SnakeCase, KebabCase, and LeetSpeak.
+The "Source of Truth" for the system. A stateless, high-performance library designed for zero-overhead string manipulation.
 
-## Features
+## Architectural Principles
 
-- Modular C++ library for string conversions
-- Main application to interactively test conversions
-- Unit tests using GoogleTest framework
-- Supports multiple conversion strategies
+- Decoupled Logic: Utilizes the Strategy Pattern to isolate conversion algorithms and the Factory Pattern for runtime selection.
+
+- Binary Compatibility: Uses a C-style ABI (extern "C") to ensure the shared library is consumable by any runtime (.NET, Python, Go) without name mangling issues.
+
+- Memory Governance: Implements an explicit Ownership Transfer model. Since C++ allocates on the unmanaged heap, it exports a freeString function to ensure the calling environment can signal resource reclamation, achieving a "Zero-Leak" lifecycle.
+
+- Performance & Complexity: The engine achieves O(n) time complexity and O(n) space complexity for all transformations. String processing is performed in a single pass where possible to minimize cache misses and optimize CPU cycles.
+
+- Security & Input Sanitization: The API utilizes strict Buffer Bounds Checking. Input strings exceeding a specific threshold (e.g., 2MB) are rejected at the boundary to prevent heap exhaustion or Buffer Overflow attempts.
+
+## Operational Setup
+
+```Bash
+# Production Build Sequence
+    mkdir -p build && cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release
+    cmake --build . --config Release --parallel $(nproc)
+```
+
+## Quality Assurance
+
+Comprehensive validation via GoogleTest covering edge cases (empty strings, special characters, and maximum buffer sizes).
+
+```Bash
+./runTests --gtest_repeat=10 --gtest_break_on_failure
+```
 
 ## Project Structure
 
@@ -37,14 +59,10 @@ The project follows a modular design using:
 - DLL wrapper for interoperability
 
 Flow:
+
+```Bash
 CLI / API → ProcessString → Factory → Strategy → Result`
-
-## Requirements
-
-- C++17 or later
-- CMake 3.15+
-- GCC / Clang / MSVC
-- GoogleTest (auto-fetched via CMake)
+```
 
 ## Using as Library
 
@@ -56,7 +74,7 @@ std::string result = processString("hello world", 11);
 
 ---
 
-## 6. Conversion Table
+## Conversion Table
 
 ```markdown
 ## Supported Conversions
@@ -160,6 +178,8 @@ Unit tests are built with GoogleTest. Running ./runTests will execute all test s
 [  PASSED  ] 34 tests.
 ```
 
+---
+
 ## Git Setup and .gitignore
 
 To properly manage this project with Git:
@@ -222,3 +242,5 @@ git push -u origin main
 ```
 
 After this, Git will ignore all the files and folders specified in .gitignore, keeping your repository clean and only tracking source and configuration files.
+
+---

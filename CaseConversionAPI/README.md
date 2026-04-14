@@ -1,71 +1,98 @@
-# Run the .NET REST API
+# .NET 8 API Gateway: Native Interop Service
 
-Follow these steps to build and run the ASP.NET Core API.
+This module serves as the managed gateway for the Case Conversion ecosystem. It provides a robust, thread-safe ASP.NET Core REST API that orchestrates communication with the high-performance C++ native engine via Dynamic P/Invoke.
 
-## 1. Navigate to API project
+## Architectural Overview
 
-```bash
+The .NET layer is designed as a stateless "Thin Wrapper" around the native binary. It handles the critical bridge between Managed (System.String) and Unmanaged (char*) memory.
+
+## Key Design Patterns
+
+- Callee-Allocates / Caller-Frees: Implements an explicit memory ownership contract. The .NET layer invokes the native freeString export immediately after string marshalling to ensure a Zero-Leak heap profile.
+
+- Dynamic DLL Loading: Uses System.Runtime.InteropServices.NativeLibrary for platform-agnostic symbol resolution (Windows .dll, Linux .so, macOS .dylib).
+
+- Dependency Injection (DI): Registered as a Scoped or Singleton service to manage the lifecycle of the native library handle.
+
+- Hardened Guardrails: Integrates with the native engine's 2MB buffer limit to prevent Heap Exhaustion or DoS attacks.
+
+## Getting Started
+
+### Prerequisites
+
+- .NET 8.0 SDK
+
+- Compiled C++ Shared Library (libProcessStringDLL) present in the project root or build output.
+
+1. Automated Execution
+
+Use the provided shell script to handle the entire lifecycle (Restore → Build → Publish → Run).
+
+```Bash
+chmod +x run-dotnet.sh
+./run-dotnet.sh
+```
+
+2. Manual Development Workflow
+
+```Bash
+# Navigate to project
 cd CaseConversionAPI/DotNetAPI
-```
 
-### 2. Restore dependencies
-
-```bash
+# Restore and Build
 dotnet restore
+dotnet build -c Release
+
+# Execute
+dotnet run --project DotNetAPI.csproj
 ```
 
-### 3. Build the project
+## Testing Infrastructure
 
-```bash
-dotnet build
-```
+The project includes an extensive Integration Test Suite using Microsoft.AspNetCore.Mvc.Testing. This validates the full request-to-native-execution pipeline.
 
-### 4. Run the application
+### Test Categories
 
-```bash
-dotnet run
-```
+- Basic: Core case transformations (Upper, Lower, Reverse).
 
-You should see output similar to:
+- Advanced: Complex logic (SnakeCase, LeetSpeak, InvertWords).
+
+- Edge Cases: Boundary validation for empty strings and whitespace.
+
+- Contractual Safety: Validation of out-of-range choices and large input handling.
 
 ```Bash
-Now listening on: http://localhost:5000
-Application started. Press Ctrl+C to shut down.
+# Run the xUnit suite
+dotnet test
 ```
 
-### 5. Open Swagger UI
+## API Contract
 
-Open your browser and go to:
-
-```Bash
-http://localhost:5000/swagger
-```
-
-### 6. Test the API
-
-Use the **POST** endpoint:
-
-```Bash
 POST /api/WordCase/convert
-```
 
-Example request body:
+Request Body:
 
-```json
+```Bash
 {
-  "text": "Hello World",
-  "choice": 1
+  "text": "The quick brown fox",
+  "choice": 11
 }
 ```
 
-Example response:
+Successful Response (200 OK):
 
 ```Bash
-HeLlO WoRlD
+{
+  "output": "the_quick_brown_fox",
+  "processedAt": "2026-04-14T20:45:00Z"
+}
 ```
 
-### Notes
+## Security & Memory Governance
 
-* Ensure `libProcessStringDLL.dylib` is copied to `bin/Debug/net8.0`
-* The API dynamically loads the native C++ shared library at runtime
-* Works on macOS, Linux, and Windows (with respective DLL/SO/DYLIB)
+| Feature              | Implementation                    | Architectural Justification |
+|---------------------|----------------------------------|-----------------------------|
+| Memory Cleanup      | `IDisposable` & `freeString`     | Implements the "Callee-Allocates, Caller-Frees" contract. Ensures unmanaged heap memory is reclaimed immediately after marshalling, achieving a zero-leak profile. |
+| ABI Safety          | `Marshal.PtrToStringAnsi`        | Performs a deep-copy of native memory into the managed garbage-collected (GC) heap. This decouples the .NET string lifecycle from the native buffer. |
+| Boundary Protection | Strict O(n) Length Checks        | Enforces a 2MB security gate at the native entry point. Prevents heap exhaustion and buffer overflow attacks before memory is allocated for strategies. |
+| Thread Safety       | Stateless Reentrancy             | The native engine is entirely stateless and stack-allocated, allowing the .NET ThreadPool to execute concurrent P/Invoke calls without mutex contention. |
