@@ -1,6 +1,22 @@
-# Case Conversion API
+![C++](https://img.shields.io/badge/C++-17-blue.svg) 
+![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg) 
+![React](https://img.shields.io/badge/React-2024-61DAFB.svg) 
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg) 
+![CI/CD](https://img.shields.io/badge/Pipeline-Verified-green.svg)
+
+# Breaking Language Barriers: From C++ Pointers to React Components.
 
 This project showcases a full-stack architecture in which a native C++ string processing engine is integrated with a .NET REST API and delivered through a modern frontend interface. It follows production-grade deployment practices, including environment isolation and structured artifact promotion. Overall, it serves as a rapid prototype highlighting system design and cross-language interoperability.
+
+## System Architecture
+
+This project is an exercise in Cross-Language Interoperability and Architectural Rigor. It solves the challenge of exposing high-performance, unmanaged C++ logic to a modern, managed web stack.
+
+- The Core: A C++17 engine utilizing the Strategy and Factory patterns for extensible string processing.
+- The Bridge: A custom C-style ABI wrapper with explicit memory ownership management (allocate/free contract).
+- The Gateway: A .NET 8 REST API utilizing Dynamic P/Invoke via NativeLibrary for platform-agnostic service execution.
+- The UI: A type-safe React/TypeScript frontend built on Vite for sub-second developer turnaround.
+- The DevOps: A multi-stage Docker orchestration supporting Artifact Promotion (Dev → Staging → Prod) to ensure environmental parity.
 
 ---
 
