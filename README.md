@@ -1,8 +1,14 @@
+![C++ CI](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/cpp-ci-case-conversion.yml?branch=main&label=C%2B%2B%20Core&style=flat-square)
+![Full Project Build](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/build-full-project.yml?branch=main&label=Full%20Stack%20Build&style=flat-square)
+![Docker Push](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/docker-push.yml?branch=main&label=Docker%20Registry&style=flat-square)
+
 ![C++](https://img.shields.io/badge/C++-17-blue.svg)
 ![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)
 ![React](https://img.shields.io/badge/React-2024-61DAFB.svg)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)
 ![CI/CD](https://img.shields.io/badge/Pipeline-Verified-green.svg)
+
+---
 
 # Polyglot String Conversion Engine & API
 
