@@ -94,9 +94,13 @@ This enables the REST API to use native C++ performance-critical logic.
 
 ## Testing Strategy
 
-- C++: GoogleTest for core logic and edge cases  
-- .NET: xUnit integration tests validating full request → execution → response flow  
-- CI: Cross-platform validation (Windows, macOS, Linux)
+- Native: GoogleTest suite for algorithmic validation.
+
+- Managed: xUnit integration tests utilizing WebApplicationFactory.
+
+- Stress: Validation of 2MB+ large object payloads across the language boundary.
+
+- CI: GitHub Actions Matrix builds enforcing cross-platform parity on every push.
 
 ---
 
