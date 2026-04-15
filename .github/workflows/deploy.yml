@@ -1,21 +1,22 @@
 #*********************************************************************/
 #  CI Pipeline - Full Stack Project (Core, API, & Frontend)          */
-#                                                                     */
-# Purpose   : Orchestrates a comprehensive multi-platform build of    */
-#              the C++ Native Layer, .NET 8 API, and React Frontend.  */
-# Trigger   : Push to main                                            */
-# Runtime   : Matrix Build (Ubuntu, Windows, macOS)                   */
-#                                                                     */
-# Notes     : - Manages the complex ABI artifact injection process.   */
-#             - Updated for Monorepo (backend/ & frontend/ folders).  */
-#             - Produces deployment-ready artifacts for all tiers.    */
-#                                                                     */
-# Revision History:                                                   */
-# ------------------------------------------------------------------  */
-# Version    Date        Author          Description                  */
-# ------------------------------------------------------------------  */
-# 1.0        2026-04-14  Nitish Singh    Initial Full-Project CI      */
-# 1.1        2026-04-15  Nitish Singh    Updated for Monorepo Paths   */
+#                                                                    */
+# Purpose   : Orchestrates a comprehensive multi-platform build of   */
+#              the C++ Native Layer, .NET 8 API, and React Frontend. */
+# Trigger   : Push to main                                           */
+# Runtime   : Matrix Build (Ubuntu, Windows, macOS) + Independent UI */
+#                                                                    */
+# Notes     : - Parallelizes Backend and Frontend builds.            */
+#             - Manages the complex ABI artifact injection process.   */
+#             - Optimized to reduce CI minute consumption.           */
+#                                                                    */
+# Revision History:                                                  */
+# ------------------------------------------------------------------ */
+# Version    Date        Author          Description                 */
+# ------------------------------------------------------------------ */
+# 1.0        2026-04-14  Nitish Singh    Initial Full-Project CI     */
+# 1.1        2026-04-15  Nitish Singh    Updated for Monorepo Paths  */
+# 1.2        2026-04-15  Nitish Singh    Extracted Frontend Job      */
 #*********************************************************************/
 
 name: Build Full Project - All Platforms
@@ -26,6 +27,9 @@ on:
       - main
 
 jobs:
+  # ======================================================
+  # JOB 1: BACKEND (NATIVE C++ & .NET 8 INTEROP)
+  # ======================================================
   build-dll-api:
     strategy:
       fail-fast: false
@@ -35,13 +39,10 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      # ======================================================
-      # 1. REPOSITORY & TOOLCHAIN INITIALIZATION
-      # ======================================================
-      
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      # --- Toolchain Setup ---
       - name: Setup CMake (Linux/macOS)
         if: runner.os != 'Windows'
         uses: jwlawson/actions-setup-cmake@v1.14
@@ -60,19 +61,10 @@ jobs:
         if: runner.os == 'Windows'
         run: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' --yes
 
-      # ======================================================
-      # 2. NATIVE LAYER COMPILATION (C++ DLL/SO)
-      # ======================================================
-      
-      - name: Clean build folder (Unix)
-        if: runner.os != 'Windows'
+      # --- Native Layer (C++) ---
+      - name: Clean build folder
         shell: bash
-        run: rm -rf backend/CaseConversionAPI/CppLib/build_dll
-
-      - name: Clean build folder (Windows)
-        if: runner.os == 'Windows'
-        shell: powershell
-        run: Remove-Item -Recurse -Force "backend\CaseConversionAPI\CppLib\build_dll" -ErrorAction SilentlyContinue
+        run: rm -rf backend/CaseConversionAPI/CppLib/build_dll || true
 
       - name: Configure DLL (Unix)
         if: runner.os != 'Windows'
@@ -84,43 +76,27 @@ jobs:
         shell: powershell
         run: cmake -S backend/CaseConversionAPI/CppLib -B backend/CaseConversionAPI/CppLib/build_dll -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 17 2022" -A x64 
 
-      - name: Build DLL (Unix)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: cmake --build backend/CaseConversionAPI/CppLib/build_dll --parallel
-
-      - name: Build DLL (Windows)
-        if: runner.os == 'Windows'
-        shell: powershell
+      - name: Build DLL
         run: cmake --build backend/CaseConversionAPI/CppLib/build_dll --config Release --parallel
 
-      # ======================================================
-      # 3. MANAGED LAYER PUBLICATION (.NET 8)
-      # ======================================================
-
+      # --- Managed Layer (.NET 8) ---
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore .NET dependencies
-        run: dotnet restore backend/CaseConversionAPI/DotNetAPI
+      - name: Restore & Publish .NET API
+        run: |
+          dotnet restore backend/CaseConversionAPI/DotNetAPI
+          dotnet publish backend/CaseConversionAPI/DotNetAPI -c Release -o ./publish
 
-      - name: Build and publish .NET API
-        run: dotnet publish backend/CaseConversionAPI/DotNetAPI -c Release -o ./publish
-
-      # ======================================================
-      # 4. ARTIFACT INJECTION (ABI BRIDGE)
-      # ======================================================
-
+      # --- ABI Bridge (Artifact Injection) ---
       - name: Copy Linux .so
         if: runner.os == 'Linux'
-        shell: bash
         run: cp backend/CaseConversionAPI/CppLib/build_dll/lib/libProcessStringDLL.so ./publish/
 
       - name: Copy macOS .dylib
         if: runner.os == 'macOS'
-        shell: bash
         run: cp backend/CaseConversionAPI/CppLib/build_dll/lib/libProcessStringDLL.dylib ./publish/
 
       - name: Copy Windows .dll
@@ -130,37 +106,34 @@ jobs:
               $dll = Get-ChildItem -Recurse -Filter ProcessStringDLL.dll backend\CaseConversionAPI\CppLib\build_dll | Select-Object -First 1
               Copy-Item $dll.FullName -Destination ".\publish\"
 
-      # ======================================================
-      # 5. FRONTEND LAYER BUILD (REACT/VITE)
-      # ======================================================
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - name: Install frontend dependencies
-        run: |
-          cd frontend
-          npm install
-
-      - name: Build frontend
-        run: |
-          cd frontend
-          npm run build
-
-      # ======================================================
-      # 6. GLOBAL ARTIFACT GOVERNANCE
-      # ======================================================
-
       - name: Upload API + DLL artifact
         uses: actions/upload-artifact@v4
         with:
           name: DotNetAPI-${{ matrix.os }}
           path: ./publish/
 
-      - name: Upload frontend artifact
+  # ======================================================
+  # JOB 2: FRONTEND (REACT/VITE) - RUNS ONCE
+  # ======================================================
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm install
+          npm run build
+
+      - name: Upload Frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Frontend-${{ matrix.os }}
+          name: Frontend-Static-Assets
           path: frontend/dist/
