@@ -104,11 +104,11 @@ jobs:
 
       - name: Run tests (Non-Windows)
         if: runner.os != 'Windows'
-        run: ctest --output-on-failure --test-dir ${{ env.BUILD_DIR }}
+        run: ctest -V --output-on-failure --test-dir ${{ env.BUILD_DIR }}
 
       - name: Run tests (Windows)
         if: runner.os == 'Windows'
-        run: ctest --output-on-failure -C Release --test-dir $env:BUILD_DIR
+        run: ctest -V --output-on-failure -C Release --test-dir $env:BUILD_DIR
 
       # ======================================================
       # 5. POST-EXECUTION ARTIFACTS
