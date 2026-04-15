@@ -100,13 +100,15 @@ jobs:
       # 5. TEST SUITE (CTEST / GOOGLETEST)
       # ======================================================
 
-      - name: Run tests (Linux/macOS)
+      - name: Run tests with details (Linux/macOS)
         if: runner.os != 'Windows'
-        run: ctest --output-on-failure --test-dir backend/CaseConversionAPI/CppLib/build
+        # --verbose prints the GoogleTest [ RUN ], [ OK ], and [ FAIL ] logs
+        run: ctest --verbose --test-dir backend/CaseConversionAPI/CppLib/build
 
-      - name: Run tests (Windows)
+      - name: Run tests with details (Windows)
         if: runner.os == 'Windows'
-        run: ctest --output-on-failure -C Debug --test-dir backend/CaseConversionAPI/CppLib/build
+        # Windows requires -C Release to locate the .exe in the Release folder
+        run: ctest -C Release --verbose --test-dir backend/CaseConversionAPI/CppLib/build
 
       # ======================================================
       # 6. ARTIFACT & LOG GOVERNANCE
