@@ -102,13 +102,15 @@ jobs:
       # 4. NATIVE TEST EXECUTION (CTEST)
       # ======================================================
 
-      - name: Run tests (Non-Windows)
+      - name: Run tests (Linux/macOS)
         if: runner.os != 'Windows'
         run: ctest -V --output-on-failure --test-dir ${{ env.BUILD_DIR }}
 
       - name: Run tests (Windows)
         if: runner.os == 'Windows'
-        run: ctest -V --output-on-failure -C Release --test-dir $env:BUILD_DIR
+        # -C Release is the key—it tells CTest to look specifically 
+        # inside backend/CaseConversionAPI/CppLib/build/Release/
+        run: ctest -C Release -V --output-on-failure --test-dir ${{ env.BUILD_DIR }}
 
       # ======================================================
       # 5. POST-EXECUTION ARTIFACTS
