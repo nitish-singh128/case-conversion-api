@@ -100,7 +100,15 @@ namespace StringConversionAPI.Services
                     return string.Empty;
 
                 // Marshal unmanaged C-string back to managed string (System.String)
-                return Marshal.PtrToStringAnsi(resultPtr) ?? string.Empty;
+                string result = Marshal.PtrToStringAnsi(resultPtr) ?? string.Empty;
+
+                // 3. SENTINEL CHECK: Handle the 2MB Security Gate violation
+                if (result == "ERROR_BUFFER_OVERFLOW_LIMIT_2MB")
+                {
+                    throw new ArgumentException("Payload exceeds the native engine's 2MB security limit.");
+                }
+                    
+                return result;
             }
             finally
             {
