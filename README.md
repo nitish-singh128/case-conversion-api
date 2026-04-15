@@ -11,8 +11,6 @@
 
 ---
 
-![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=nitishhsinghhh&repo=case-conversion-api&layout=compact&theme=vision-friendly-dark)
-
 # Polyglot String Conversion Engine & API
 
 A high-performance system demonstrating a Native C++17 engine seamlessly integrated into a .NET 8 managed ecosystem. This project serves as a blueprint for handling manual memory management across the ABI boundary, implementing extensible Strategy patterns, and maintaining an immutable Docker promotion pipeline from development to production.
@@ -149,6 +147,26 @@ This will start:
 
 - Backend → http://localhost:8080
 - Frontend → http://localhost:5173
+
+---
+
+### Language Distribution
+
+> **Note:** This project is a native-first system centered around high-performance C++ processing.
+
+| Language | Percentage | Focus Area |
+| :--- | :--- | :--- |
+| **C++17** | `65.3%` | Core Conversion Engine & Native Logic |
+| **C# / .NET 8** | `22.0%` | Interop Layer, P/Invoke, & REST API |
+| **Shell** | `6.0%` | CI/CD Automation & Environment Setup |
+| **Web (TS/HTML)** | `4.3%` | React Frontend Dashboard |
+| **DevOps** | `2.4%` | CMake & Docker Containerization |
+
+### System Composition
+
+![C++ Core](https://geps.dev/progress/65?dangerColor=00599C&warningColor=00599C&successColor=00599C)
+![C# Interop](https://geps.dev/progress/22?dangerColor=239120&warningColor=239120&successColor=239120)
+![Automation](https://geps.dev/progress/6?dangerColor=89e051&warningColor=89e051&successColor=89e051)
 
 ---
 
