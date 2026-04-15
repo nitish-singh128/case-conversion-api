@@ -77,10 +77,12 @@ jobs:
       # ======================================================
 
       - name: Configure project
+        # Using -A x64 ensures 64-bit on Windows
         run: cmake -S backend/CaseConversionAPI/CppLib -B backend/CaseConversionAPI/CppLib/build -DCMAKE_BUILD_TYPE=Release
 
       - name: Build project
-        run: cmake --build backend/CaseConversionAPI/CppLib/build --parallel
+        # CRITICAL: Added --config Release to ensure Windows builds the right version
+        run: cmake --build backend/CaseConversionAPI/CppLib/build --config Release --parallel
 
       # ======================================================
       # 4. EXECUTION & VALIDATION (CLI APP)
@@ -92,9 +94,8 @@ jobs:
 
       - name: Run app (Windows)
         if: runner.os == 'Windows'
-        run: |
-            cd backend\CaseConversionAPI\CppLib\build
-            & .\Debug\app.exe
+        # Fixed path to point to Release folder
+        run: ./backend/CaseConversionAPI/CppLib/build/Release/app.exe
 
       # ======================================================
       # 5. TEST SUITE (CTEST / GOOGLETEST)
@@ -102,13 +103,12 @@ jobs:
 
       - name: Run tests with details (Linux/macOS)
         if: runner.os != 'Windows'
-        # --verbose prints the GoogleTest [ RUN ], [ OK ], and [ FAIL ] logs
         run: ctest --verbose --test-dir backend/CaseConversionAPI/CppLib/build
 
       - name: Run tests with details (Windows)
         if: runner.os == 'Windows'
-        # Windows requires -C Release to locate the .exe in the Release folder
-        run: ctest -C Release --verbose --test-dir backend/CaseConversionAPI/CppLib/build
+        # -C Release is mandatory here so CTest knows to look in the /Release subfolder
+        run: ctest -C Release --verbose --output-on-failure --test-dir backend/CaseConversionAPI/CppLib/build
 
       # ======================================================
       # 6. ARTIFACT & LOG GOVERNANCE
