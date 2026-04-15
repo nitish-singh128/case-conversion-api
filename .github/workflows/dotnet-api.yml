@@ -1,22 +1,23 @@
 #*********************************************************************/
 #  CI Pipeline - macOS Native Bridge & REST Integration              */
-#                                                                    */
-# Purpose   : Validates the end-to-end integration between the       */
-#             C++ Native Engine (dylib) and the .NET 8 REST API      */
-#             specifically on macOS runners.                         */
-# Trigger   : Push to main / Pull Request to main                   */
-# Runtime   : macOS Latest                                          */
-#                                                                    */
+#                                                                     */
+# Purpose   : Validates the end-to-end integration between the        */
+#              C++ Native Engine (dylib) and the .NET 8 REST API      */
+#              specifically on macOS runners.                         */
+# Trigger   : Push to main / Pull Request to main                     */
+# Runtime   : macOS Latest                                           */
+#                                                                     */
 # Notes     : - Verifies P/Invoke symbol resolution for .dylib files.*/
-#             - Executes a live 'Smoke Test' using background        */
-#               process orchestration and Curl.                      */
-#             - Confirms binary compatibility on Apple infrastructure.*/
-#                                                                    */
-# Revision History:                                                  */
-# ------------------------------------------------------------------ */
-# Version    Date        Author          Description                 */
-# ------------------------------------------------------------------ */
-# 1.0        2026-04-14  Nitish Singh    Initial macOS integration   */
+#             - Executes a live 'Smoke Test' using background         */
+#               process orchestration and Curl.                       */
+#             - Updated for Monorepo (backend/ subdirectory).         */
+#                                                                     */
+# Revision History:                                                   */
+# ------------------------------------------------------------------  */
+# Version    Date        Author          Description                  */
+# ------------------------------------------------------------------  */
+# 1.0        2026-04-14  Nitish Singh    Initial macOS integration    */
+# 1.1        2026-04-15  Nitish Singh    Updated for /backend path    */
 #*********************************************************************/
 
 name: C++ DLL + .NET REST API CI
@@ -51,7 +52,7 @@ jobs:
 
     - name: Build C++ DLL
       run: |
-        cd CaseConversionAPI/CppLib
+        cd backend/CaseConversionAPI/CppLib
         mkdir -p build
         cd build
         cmake ..
@@ -59,7 +60,7 @@ jobs:
 
     - name: Verify dylib
       run: |
-        ls -l CaseConversionAPI/CppLib/build/lib
+        ls -l backend/CaseConversionAPI/CppLib/build/lib
 
     # ======================================================
     # 3. MANAGED LAYER: .NET 8 REST API
@@ -74,10 +75,10 @@ jobs:
     # Build REST API (csproj copies dylib)
     # -------------------------------
     - name: Restore .NET
-      run: dotnet restore CaseConversionAPI/DotNetAPI
+      run: dotnet restore backend/CaseConversionAPI/DotNetAPI
 
     - name: Build .NET
-      run: dotnet build CaseConversionAPI/DotNetAPI --no-restore
+      run: dotnet build backend/CaseConversionAPI/DotNetAPI --no-restore
 
     # ======================================================
     # 4. SERVICE ORCHESTRATION & VALIDATION
@@ -85,9 +86,9 @@ jobs:
 
     - name: Run API
       run: |
-        cd CaseConversionAPI/DotNetAPI
+        cd backend/CaseConversionAPI/DotNetAPI
         dotnet run &
-        sleep 10
+        sleep 15
 
     # -------------------------------
     # Test endpoint

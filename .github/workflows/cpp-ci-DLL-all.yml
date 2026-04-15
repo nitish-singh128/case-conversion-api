@@ -1,21 +1,23 @@
 #*********************************************************************/
-#  CI Pipeline - Cross-Platform Native C++ Engine                    */
-#                                                                    */
-# Purpose   : Orchestrates a multi-OS build and test matrix for      */
-#             the CaseConversionAPI C++17 core.                      */
-# Trigger   : Push to main / Pull Request to main                   */
-# Runtime   : Matrix Build (Ubuntu, Windows, macOS)                 */
-#                                                                    */
-# Notes     : - Uses platform-specific cleanup and config logic.     */
-#             - Injects local app CMake configuration via copy.      */
-#             - Enforces Release configuration for performance.      */
-#                                                                    */
-# Revision History:                                                  */
-# ------------------------------------------------------------------ */
-# Version    Date        Author          Description                 */
-# ------------------------------------------------------------------ */
-# 1.0        2026-04-12  Nitish Singh    Initial multi-OS workflow   */
-# 1.1        2026-04-14  Nitish Singh    Refactored with Env vars    */
+#  CI Pipeline - Cross-Platform Native C++ Engine                     */
+#                                                                     */
+# Purpose   : Orchestrates a multi-OS build and test matrix for       */
+#              the CaseConversionAPI C++17 core.                      */
+# Trigger   : Push to main / Pull Request to main                     */
+# Runtime   : Matrix Build (Ubuntu, Windows, macOS)                   */
+#                                                                     */
+# Notes     : - Uses platform-specific cleanup and config logic.      */
+#             - Injects local app CMake configuration via copy.       */
+#             - Enforces Release configuration for performance.       */
+#             - Updated for Monorepo (backend/ subdirectory).         */
+#                                                                     */
+# Revision History:                                                   */
+# ------------------------------------------------------------------  */
+# Version    Date        Author          Description                  */
+# ------------------------------------------------------------------  */
+# 1.0        2026-04-12  Nitish Singh    Initial multi-OS workflow    */
+# 1.1        2026-04-14  Nitish Singh    Refactored with Env vars     */
+# 1.2        2026-04-15  Nitish Singh    Updated for /backend path    */
 #*********************************************************************/
 
 name: C++ CI CaseConversionAPI - All Platforms (Local App)
@@ -39,7 +41,9 @@ jobs:
     timeout-minutes: 60
 
     env:
-      BUILD_DIR: CaseConversionAPI/CppLib/build
+      # Updated path to reflect new backend directory
+      BUILD_DIR: backend/CaseConversionAPI/CppLib/build
+      CPP_ROOT: backend/CaseConversionAPI/CppLib
 
     steps:
       # ======================================================
@@ -77,7 +81,7 @@ jobs:
           }
 
       - name: Use local app CMakeLists
-        run: cp CaseConversionAPI/CppLib/CMakeListsLocalApp.txt CaseConversionAPI/CppLib/CMakeLists.txt
+        run: cp ${{ env.CPP_ROOT }}/CMakeListsLocalApp.txt ${{ env.CPP_ROOT }}/CMakeLists.txt
 
       # ======================================================
       # 3. BUILD ORCHESTRATION (PLATFORM SPECIFIC)
@@ -85,11 +89,11 @@ jobs:
 
       - name: Configure (Non-Windows)
         if: runner.os != 'Windows'
-        run: cmake -S CaseConversionAPI/CppLib -B ${{ env.BUILD_DIR }} -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S ${{ env.CPP_ROOT }} -B ${{ env.BUILD_DIR }} -DCMAKE_BUILD_TYPE=Release
 
       - name: Configure (Windows)
         if: runner.os == 'Windows'
-        run: cmake -S CaseConversionAPI/CppLib -B $env:BUILD_DIR -G "Visual Studio 17 2022" -A x64
+        run: cmake -S ${{ env.CPP_ROOT }} -B $env:BUILD_DIR -G "Visual Studio 17 2022" -A x64
 
       - name: Build project
         run: cmake --build ${{ env.BUILD_DIR }} --config Release --parallel

@@ -14,27 +14,21 @@ Deployment Flow:
 Development → Staging → Production
 ```
 
-- Build once in Deployment
-- Promote the same image formward
-- No rebuils across environments
+- Build Once: Images are built only during the Development/CI stage.
+- Promote Forward: The same immutable image is re-tagged and moved through the pipeline.
+- No Rebuilds: Eliminates "it worked on my machine" bugs by ensuring the exact same binary runs in Prod as in Staging.
 
 ## Docker Architecture
 
 ### Multi-Stage Build (Backend)
 
-```Bash
-# ---------- Build C++ ----------
-# Use the official .NET SDK image as the build environment
-# This stage compiles the C++ shared library and publishes the .NET API
-# The resulting artifacts are then copied to the runtime image in the next stage
-# The build stage includes the necessary tools to compile C++ code and build the .NET application
-# The final runtime image is based on the ASP.NET image, which is optimized for running .NET applications
-# The build stage ensures that all dependencies are resolved and the application is built in a clean environment
-# The build stage also includes a step to clean any old CMake cache to ensure a fresh build of the C++ library
-# The build stage compiles the C++ shared library using CMake and then publishes the .NET API to a specified output directory
+The backend utilizes a multi-stage build to ensure the final production image is lightweight and secure, containing only the runtime and the compiled binaries.
 
+```Bash
+# ---------- Stage 1: Build ----------
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
+# Install C++ toolchain
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake
@@ -42,90 +36,45 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /src
 COPY . .
 
-# Clean old CMake cache
-RUN rm -rf CaseConversionAPI/CppLib/build
-
-# Build C++ shared library
-RUN cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build -DCMAKE_BUILD_TYPE=Release
-RUN cmake --build CaseConversionAPI/CppLib/build --parallel
+# Clean and build C++ shared library
+RUN rm -rf CaseConversionAPI/CppLib/build && \
+    cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build -DCMAKE_BUILD_TYPE=Release && \
+    cmake --build CaseConversionAPI/CppLib/build --parallel
 
 # Publish .NET API
 RUN dotnet publish CaseConversionAPI/DotNetAPI -c Release -o /app/publish
 
-# Copy shared library
+# Copy compiled C++ binary to the publish folder
 RUN cp CaseConversionAPI/CppLib/build/lib/libProcessStringDLL.so /app/publish/
 
-# ---------- Runtime ----------
+# ---------- Stage 2: Runtime ----------
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
-
 WORKDIR /app
 COPY --from=build /app/publish .
 
 EXPOSE 8080
-
 ENTRYPOINT ["dotnet", "DotNetAPI.dll"]
 ```
 
-## Docker Compose (Full Stack)
+### Frontend UI (React + Vite + Nginx)
 
-```Bash
-version: "3.9"
+In Production/Staging, the frontend is served via Nginx for high performance. In Development, it uses the Vite Dev Server for hot-module replacement (HMR).
 
-services:
-  backend:
-    build: .
-    container_name: case-api
-    ports:
-      - "8080:8080"
-    restart: unless-stopped
+- Production Port: 80 (Standard HTTP)
 
-  frontend:
-    image: node:20
-    container_name: case-ui
-    working_dir: /app
-    volumes:
-      - ./string-conversion-ui:/app
-    ports:
-      - "5173:5173"
-    command: sh -c "npm install && npm run dev -- --host"
-    depends_on:
-      - backend
-```
+- Tech Stack: React 18, TypeScript, Vite.
 
-## Local Development
-
-Run the full stack locally:
-
-```Bash
-docker compose up --build
-```
-
-Services:
-
-- Backend → http://localhost:8080
-- Frontend → http://localhost:5173
+- Static Hosting: Nginx handles routing and serves the minified JS/CSS bundle.
 
 ## Environment Strategy
 
-The system supports three environments to ensure a smooth development, testing, and deployment lifecycle.
+Container images are tagged based on the stage of the pipeline.
 
-| Environment | Purpose                     |
-|------------|-----------------------------|
-| Dev        | Local development           |
-| Staging    | Pre-production testing      |
-| Production | Live deployment             |
-
-## Image Tagging Strategy
-
-Container images are tagged based on the deployment environment to ensure clear versioning and controlled releases.
-
-| Environment | Tag     |
-|------------|---------|
-| Dev        | dev     |
-| Staging    | staging |
-| Production | latest  |
-
-### Example
+| Environment | Tag      | Port (UI) | Port (API) | Purpose                          |
+|------------|----------|-----------|------------|----------------------------------|
+| Dev        | dev      | 5173      | 8080       | Active development & hot-reload  |
+| Staging    | staging  | 5174      | 8081       | Pre-prod validation & QA         |
+| Production | latest   | 80        | 8080       | Production deployment            |
 
 ```Bash
 nitishhsinghhh/case-api:dev
@@ -154,16 +103,14 @@ Features:
 
 Used for production-like validation.
 
-### Promote Image
+### Promote & Deploy Image: Staging
 
 ```Bash
+# Tag and Push
 docker tag nitishhsinghhh/case-api:dev nitishhsinghhh/case-api:staging
 docker push nitishhsinghhh/case-api:staging
-```
 
-### Run Staging
-
-```Bash
+# Deploy Staging
 docker compose -f docker-compose.staging.yml up -d
 ```
 
@@ -180,16 +127,14 @@ Features:
 
 Used for final deployment.
 
-### Promote Image
+### Promote & Deploy Image: Prod
 
 ```Bash
+# Tag and Push
 docker tag nitishhsinghhh/case-api:staging nitishhsinghhh/case-api:latest
 docker push nitishhsinghhh/case-api:latest
-```
 
-### Run Production
-
-```Bash
+# Deploy Production
 docker compose -f docker-compose.prod.yml up -d
 ```
 
@@ -202,23 +147,58 @@ Features:
 
 --
 
-## Full Deployment Flow
+## Troubleshooting & Lessons Learned
+
+During the initial infrastructure setup, the following critical points were identified:
+
+- Lean Runtime Images: The .NET 8 ASP.NET runtime image does not include curl. Avoid using curl in Docker Healthchecks unless you manually install it. Use TCP port checks or internal .NET probes instead.
+
+- Empty Config Files: .NET will crash on startup if appsettings.Staging.json or appsettings.Production.json exists but is empty. Ensure these files contain valid JSON {} or are deleted if not needed.
+
+- Port Conflicts: When running multiple environments on one host (MacBook), ensure ports (8080, 8081, 80) do not overlap across active containers.
+
+- Zsh Comments: When copy-pasting commands from this guide into Zsh, avoid pasting lines starting with # as they may trigger "command not found" errors depending on shell configuration.
+
+## Internal Architecture
 
 ```Bash
-# Step 1: Build in Dev
-docker compose -f docker-compose.dev.yml up --build -d
-docker push nitishhsinghhh/case-api:dev
-
-# Step 2: Promote to Staging
-docker tag nitishhsinghhh/case-api:dev nitishhsinghhh/case-api:staging
-docker push nitishhsinghhh/case-api:staging
-docker compose -f docker-compose.staging.yml up -d
-
-# Step 3: Promote to Production
-docker tag nitishhsinghhh/case-api:staging nitishhsinghhh/case-api:latest
-docker push nitishhsinghhh/case-api:latest
-docker compose -f docker-compose.prod.yml up -d
+[ Browser ]  ←── (HTTP/JSON) ──→  [ Nginx Container (Frontend) ]
+                                          │
+                                   (Internal Network)
+                                          │
+                                          ▼
+[ .NET 8 API Container (Backend) ] ←── (P/Invoke) ──→ [ C++ Shared Library ]
+          │                                                    │
+     (Controller)                                      (Strategy Pattern)
 ```
+
+--
+
+## Deployment & Environments
+
+This project follows a containerized deployment workflow using Docker. Ensure you are authenticated with Docker Hub before pushing images.
+
+1. Authentication
+
+If your session has expired or you are on a new device, authenticate via the Docker CLI:
+
+```Bash
+docker login
+```
+
+Follow the on-screen instructions to enter your device activation code at login.docker.com/activate.
+
+2. Promoting Images (Dev to Staging) then do Verification
+
+After pushing, verify the image exists in the registry:
+
+- Log in to Docker Hub.
+
+- Navigate to the nitishhsinghhh/case-api repository.
+
+- Check the Tags tab for the staging identifier.
+
+--
 
 ## Key Principles
 
@@ -227,27 +207,9 @@ docker compose -f docker-compose.prod.yml up -d
 - Environment isolation via configuration
 - Consistent runtime behavior across all stages
 
-## Architecture (Containerized)
-
-```Bash
-Frontend (React + Vite)
-        ↓
-REST API (.NET 8)
-        ↓
-P/Invoke Bridge
-        ↓
-C++ Shared Library
-        ↓
-Strategy + Factory Engine
-```
+--
 
 ## Summary
 
-This deployment model ensures:
-
-- Deterministic builds
-- Consistent environments
-- Scalable containerized execution
-- Production-grade CI/CD readiness
-
-The system adheres to modern DevOps best practices by separating build and runtime concerns while maintaining strict control over artifact promotion.
+Summary
+This deployment model ensures deterministic builds and consistent environments. By separating the heavy build-time dependencies (SDKs, C++ compilers) from the runtime, we maintain a secure, production-grade CI/CD readiness.

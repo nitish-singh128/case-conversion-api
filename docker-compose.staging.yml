@@ -1,51 +1,47 @@
 #*********************************************************************/
-#  File        : docker-compose.prod.yml                              */
+#  File        : docker-compose.staging.yml                           */
 #                                                                     */
 #  Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.    */
 #                                                                     */
-#  Description : Production orchestration for the Word Case           */
-#                Conversion platform. Hardened for high availability. */
+#  Description : Staging environment orchestration for the Word Case  */
+#                Conversion platform. Updated for Monorepo and        */
+#                production-ready networking.                         */
 #                                                                     */
 #  Revision History:                                                  */
 #  ------------------------------------------------------------------ */
 #  Version    Date        Author          Description                 */
 #  ------------------------------------------------------------------ */
-#  1.0        2026-04-14  Nitish Singh    Initial Production setup    */
-#  1.1        2026-04-15  Nitish Singh    Hardened security & limits  */
+#  1.0        2026-04-14  Nitish Singh    Initial Staging setup       */
+#  1.1        2026-04-15  Nitish Singh    Added Logging & Pull Policy */
 #*********************************************************************/
+
 
 services:
   backend:
-    image: nitishhsinghhh/case-api:latest
-    container_name: case-api-prod
+    image: nitishhsinghhh/case-api:staging
+    container_name: case-api-staging
     pull_policy: always
     ports:
-      - "8080:8080"
+      - "8081:8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-      - DOTNET_gcServer=1
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 512M
-    restart: always
+      - ASPNETCORE_ENVIRONMENT=Staging
+      - DOTNET_RUNNING_IN_CONTAINER=true
+    restart: unless-stopped
     networks:
       - case-network
-    # Removed the curl healthcheck to prevent false failures
+    # --- REMOVED HEALTHCHECK ENTIRELY ---
 
   frontend:
-    image: nitishhsinghhh/case-ui:latest
-    container_name: case-ui-prod
+    image: nitishhsinghhh/case-ui:staging
+    container_name: case-ui-staging
     pull_policy: always
     ports:
-      - "80:80" 
+      - "5174:80" 
     environment:
-      # NOTE: For local testing, use http://localhost:8080
-      - VITE_API_URL=http://localhost:8080
+      - VITE_API_URL=http://localhost:8081 
     depends_on:
-      - backend # Changed from service_healthy to standard dependency
-    restart: always
+      - backend # Back to standard dependency
+    restart: unless-stopped
     networks:
       - case-network
 

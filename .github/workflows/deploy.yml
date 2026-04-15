@@ -1,20 +1,21 @@
 #*********************************************************************/
 #  CI Pipeline - Full Stack Project (Core, API, & Frontend)          */
-#                                                                    */
-# Purpose   : Orchestrates a comprehensive multi-platform build of   */
-#             the C++ Native Layer, .NET 8 API, and React Frontend.  */
-# Trigger   : Push to main                                          */
-# Runtime   : Matrix Build (Ubuntu, Windows, macOS)                 */
-#                                                                    */
-# Notes     : - Manages the complex ABI artifact injection process.  */
-#             - Enforces environmental parity across all layers.     */
+#                                                                     */
+# Purpose   : Orchestrates a comprehensive multi-platform build of    */
+#              the C++ Native Layer, .NET 8 API, and React Frontend.  */
+# Trigger   : Push to main                                            */
+# Runtime   : Matrix Build (Ubuntu, Windows, macOS)                   */
+#                                                                     */
+# Notes     : - Manages the complex ABI artifact injection process.   */
+#             - Updated for Monorepo (backend/ & frontend/ folders).  */
 #             - Produces deployment-ready artifacts for all tiers.    */
-#                                                                    */
-# Revision History:                                                  */
-# ------------------------------------------------------------------ */
-# Version    Date        Author          Description                 */
-# ------------------------------------------------------------------ */
-# 1.0        2026-04-14  Nitish Singh    Initial Full-Project CI     */
+#                                                                     */
+# Revision History:                                                   */
+# ------------------------------------------------------------------  */
+# Version    Date        Author          Description                  */
+# ------------------------------------------------------------------  */
+# 1.0        2026-04-14  Nitish Singh    Initial Full-Project CI      */
+# 1.1        2026-04-15  Nitish Singh    Updated for Monorepo Paths   */
 #*********************************************************************/
 
 name: Build Full Project - All Platforms
@@ -66,32 +67,32 @@ jobs:
       - name: Clean build folder (Unix)
         if: runner.os != 'Windows'
         shell: bash
-        run: rm -rf CaseConversionAPI/CppLib/build_dll
+        run: rm -rf backend/CaseConversionAPI/CppLib/build_dll
 
       - name: Clean build folder (Windows)
         if: runner.os == 'Windows'
         shell: powershell
-        run: Remove-Item -Recurse -Force "CaseConversionAPI\CppLib\build_dll" -ErrorAction SilentlyContinue
+        run: Remove-Item -Recurse -Force "backend\CaseConversionAPI\CppLib\build_dll" -ErrorAction SilentlyContinue
 
       - name: Configure DLL (Unix)
         if: runner.os != 'Windows'
         shell: bash
-        run: cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build_dll -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S backend/CaseConversionAPI/CppLib -B backend/CaseConversionAPI/CppLib/build_dll -DCMAKE_BUILD_TYPE=Release
 
       - name: Configure DLL (Windows)
         if: runner.os == 'Windows'
         shell: powershell
-        run: cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build_dll -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 17 2022" -A x64 
+        run: cmake -S backend/CaseConversionAPI/CppLib -B backend/CaseConversionAPI/CppLib/build_dll -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 17 2022" -A x64 
 
       - name: Build DLL (Unix)
         if: runner.os != 'Windows'
         shell: bash
-        run: cmake --build CaseConversionAPI/CppLib/build_dll --parallel
+        run: cmake --build backend/CaseConversionAPI/CppLib/build_dll --parallel
 
       - name: Build DLL (Windows)
         if: runner.os == 'Windows'
         shell: powershell
-        run: cmake --build CaseConversionAPI/CppLib/build_dll --config Release --parallel
+        run: cmake --build backend/CaseConversionAPI/CppLib/build_dll --config Release --parallel
 
       # ======================================================
       # 3. MANAGED LAYER PUBLICATION (.NET 8)
@@ -103,10 +104,10 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore .NET dependencies
-        run: dotnet restore CaseConversionAPI/DotNetAPI
+        run: dotnet restore backend/CaseConversionAPI/DotNetAPI
 
       - name: Build and publish .NET API
-        run: dotnet publish CaseConversionAPI/DotNetAPI -c Release -o ./publish
+        run: dotnet publish backend/CaseConversionAPI/DotNetAPI -c Release -o ./publish
 
       # ======================================================
       # 4. ARTIFACT INJECTION (ABI BRIDGE)
@@ -115,19 +116,19 @@ jobs:
       - name: Copy Linux .so
         if: runner.os == 'Linux'
         shell: bash
-        run: cp CaseConversionAPI/CppLib/build_dll/lib/libProcessStringDLL.so ./publish/
+        run: cp backend/CaseConversionAPI/CppLib/build_dll/lib/libProcessStringDLL.so ./publish/
 
       - name: Copy macOS .dylib
         if: runner.os == 'macOS'
         shell: bash
-        run: cp CaseConversionAPI/CppLib/build_dll/lib/libProcessStringDLL.dylib ./publish/
+        run: cp backend/CaseConversionAPI/CppLib/build_dll/lib/libProcessStringDLL.dylib ./publish/
 
       - name: Copy Windows .dll
         if: runner.os == 'Windows'
         shell: powershell
         run: |
-             $dll = Get-ChildItem -Recurse -Filter ProcessStringDLL.dll CaseConversionAPI\CppLib\build_dll | Select-Object -First 1
-             Copy-Item $dll.FullName -Destination ".\publish\"
+              $dll = Get-ChildItem -Recurse -Filter ProcessStringDLL.dll backend\CaseConversionAPI\CppLib\build_dll | Select-Object -First 1
+              Copy-Item $dll.FullName -Destination ".\publish\"
 
       # ======================================================
       # 5. FRONTEND LAYER BUILD (REACT/VITE)
@@ -140,12 +141,12 @@ jobs:
 
       - name: Install frontend dependencies
         run: |
-          cd string-conversion-ui
+          cd frontend
           npm install
 
       - name: Build frontend
         run: |
-          cd string-conversion-ui
+          cd frontend
           npm run build
 
       # ======================================================
@@ -162,4 +163,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Frontend-${{ matrix.os }}
-          path: string-conversion-ui/dist/
+          path: frontend/dist/

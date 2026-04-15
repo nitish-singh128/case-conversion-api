@@ -1,17 +1,10 @@
 #*********************************************************************/
-#  File        : docker-compose.yml                                  */
-#                                                                    */
-#  Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.   */
-#                                                                    */
-#  Description : Orchestrates the local development environment for  */
-#                the Word Case Conversion ecosystem. Links the       */
-#                .NET/C++ Backend with the React/Vite Frontend.      */
-#                                                                    */
-#  Services    : 1. backend  - ASP.NET Core + Native C++ Engine      */
-#                2. frontend - React + TypeScript (Vite Dev Server)  */
-#                                                                    */
-#  Notes       : - Uses bind mounts for real-time code synchronization.*/
-#                - Internal bridge networking for service isolation. */
+#  File        : docker-compose.yml                                   */
+#                                                                     */
+#  Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.    */
+#                                                                     */
+#  Description : Orchestrates the LOCAL DEVELOPMENT environment.      */
+#                Links the backend/ and frontend/ subdirectories.     */
 #*********************************************************************/
 
 version: "3.9"
@@ -23,7 +16,7 @@ services:
   backend:
     container_name: case-api-dev
     build:
-      context: .
+      context: ./backend # Pointing to the backend folder
       dockerfile: Dockerfile
     image: nitishhsinghhh/case-api:dev   
     ports:
@@ -31,8 +24,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     volumes:
-      # Mount source for hot-reloading/debugging capabilities
-      - ./CaseConversionAPI:/src/CaseConversionAPI
+      # Mount the backend sub-folder for hot-reloading
+      - ./backend:/src
     networks:
       - case-network
 
@@ -44,22 +37,20 @@ services:
     image: node:20
     working_dir: /app
     volumes:
-      # Mount UI source to enable Vite HMR (Hot Module Replacement)
-      - ./string-conversion-ui:/app
+      # Updated from ./string-conversion-ui to ./frontend
+      - ./frontend:/app
+      # Anonymous volume to protect container node_modules
+      - /app/node_modules
     ports:
       - "5173:5173"
     environment:
       - VITE_API_URL=http://localhost:8080
-    # Orchestration: Ensure dependencies are present before launching dev server
     command: sh -c "npm install && npm run dev -- --host"
     depends_on:
       - backend
     networks:
       - case-network
 
-# ======================================================
-# NETWORK INFRASTRUCTURE
-# ======================================================
 networks:
   case-network:
     driver: bridge

@@ -1,20 +1,22 @@
 #*********************************************************************/
 #  CI Pipeline - Linux Native Application Execution                  */
-#                                                                    */
-# Purpose   : Validates the end-to-end build and execution flow of   */
-#             the C++ String Conversion Application on Linux.        */
-# Trigger   : Push to main / Pull Request to main                   */
-# Runtime   : Ubuntu Latest                                         */
-#                                                                    */
-# Notes     : - Synchronizes the LocalApp CMake configuration.      */
-#             - Validates core logic via GoogleTest console output.  */
-#             - Confirms binary linkage and runtime stability.       */
-#                                                                    */
-# Revision History:                                                  */
-# ------------------------------------------------------------------ */
-# Version    Date        Author          Description                 */
-# ------------------------------------------------------------------ */
-# 1.0        2026-04-14  Nitish Singh    Initial Linux App Workflow  */
+#                                                                     */
+# Purpose   : Validates the end-to-end build and execution flow of    */
+#              the C++ String Conversion Application on Linux.        */
+# Trigger   : Push to main / Pull Request to main                     */
+# Runtime   : Ubuntu Latest                                           */
+#                                                                     */
+# Notes     : - Synchronizes the LocalApp CMake configuration.       */
+#             - Validates core logic via GoogleTest console output.   */
+#             - Confirms binary linkage and runtime stability.        */
+#             - Updated for Monorepo (backend/ subdirectory).         */
+#                                                                     */
+# Revision History:                                                   */
+# ------------------------------------------------------------------  */
+# Version    Date        Author          Description                  */
+# ------------------------------------------------------------------  */
+# 1.0        2026-04-14  Nitish Singh    Initial Linux App Workflow   */
+# 1.1        2026-04-15  Nitish Singh    Updated for /backend path    */
 #*********************************************************************/
 
 name: C++ CI Working Application using build steps
@@ -47,32 +49,32 @@ jobs:
         run: ls -R
 
       # ======================================================
-      # 2. ARCHITECTURAL CONFIGURATION
+      # 2. ARCHITECTURAL CONFIGURATION (Updated Paths)
       # ======================================================
 
       - name: Use local app CMakeLists
-        run: cp CaseConversionAPI/CppLib/CMakeListsLocalApp.txt CaseConversionAPI/CppLib/CMakeLists.txt
+        run: cp backend/CaseConversionAPI/CppLib/CMakeListsLocalApp.txt backend/CaseConversionAPI/CppLib/CMakeLists.txt
 
       - name: Configure String Conversion
-        run: cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S backend/CaseConversionAPI/CppLib -B backend/CaseConversionAPI/CppLib/build -DCMAKE_BUILD_TYPE=Release
       
       # ======================================================
       # 3. COMPILATION & BUILD
       # ======================================================
 
       - name: Build project
-        run: cmake --build CaseConversionAPI/CppLib/build --parallel
+        run: cmake --build backend/CaseConversionAPI/CppLib/build --parallel
 
       # ======================================================
       # 4. RUNTIME VALIDATION (APPLICATION)
       # ======================================================
 
       - name: Run String Conversion App
-        run: ./CaseConversionAPI/CppLib/build/app
+        run: ./backend/CaseConversionAPI/CppLib/build/app
 
       # ======================================================
       # 5. NATIVE TEST EXECUTION (GOOGLE TEST)
       # ======================================================
 
       - name: Run String Conversion Tests with Logs
-        run: ./CaseConversionAPI/CppLib/build/runTests --gtest_output=console --gtest_brief=0
+        run: ./backend/CaseConversionAPI/CppLib/build/runTests --gtest_output=console --gtest_brief=0

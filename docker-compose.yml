@@ -1,28 +1,32 @@
 #*********************************************************************/
-#  File        : docker-compose.yml                                  */
-#                                                                    */
-#  Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.   */
-#                                                                    */
-#  Description : Streamlined local development orchestration for the */
-#                Word Case Conversion project. Triggers a local build*/
-#                of the C++/API and mounts the UI for hot-reloading. */
-#                                                                    */
-#  Services    : 1. backend  - Built from local Dockerfile           */
-#                2. frontend - Node-based dev server (Vite)          */
-#                                                                    */
-#  Notes       : - Backend uses 'unless-stopped' for stability.      */
-#                - Frontend utilizes bind-mounts for HMR support.    */
+#  File        : docker-compose.yml                                   */
+#                                                                     */
+#  Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.    */
+#                                                                     */
+#  Description : Streamlined local development orchestration for the  */
+#                Word Case Conversion project. Updated for Monorepo.  */
+#                                                                     */
+#  Services    : 1. backend  - Built from ./backend/Dockerfile        */
+#                2. frontend - Node-based dev server (Vite)           */
+#                                                                     */
+#  Revision History:                                                  */
+#  ------------------------------------------------------------------ */
+#  Version    Date        Author          Description                 */
+#  ------------------------------------------------------------------ */
+#  1.0        2026-04-14  Nitish Singh    Initial Compose setup       */
+#  1.1        2026-04-15  Nitish Singh    Updated for Monorepo paths  */
 #*********************************************************************/
 
 version: "3.9"
 
 services:
   # ======================================================
-  # BACKEND: API + Native Engine (Build from Source)
+  # BACKEND: API + Native Engine
   # ======================================================
   backend:
-    # Triggers the multi-stage Dockerfile build process
-    build: .
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: case-api
     ports:
       - "8080:8080"
@@ -36,11 +40,13 @@ services:
     container_name: case-ui
     working_dir: /app
     volumes:
-      # Direct mount allows immediate reflection of UI code changes
-      - ./string-conversion-ui:/app
+      # Updated path: from string-conversion-ui to frontend
+      - ./frontend:/app
+      # Prevents local node_modules from overwriting container node_modules
+      - /app/node_modules
     ports:
       - "5173:5173"
-    # Lifecycle: Install dependencies and boot the Vite server
+    # Vite requires --host to be accessible from outside the container
     command: sh -c "npm install && npm run dev -- --host"
     depends_on:
       - backend

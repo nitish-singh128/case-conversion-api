@@ -1,20 +1,21 @@
 #*********************************************************************/
-#  CI Pipeline - Cross-Platform Native C++ Engine                    */
-#                                                                    */
-# Purpose   : Validates the Core C++17 engine and CLI local app      */
-#             across Linux, Windows, and macOS environments.        */
-# Trigger   : Push to main / Pull Request to main                   */
-# Runtime   : Matrix Build (Ubuntu, Windows, macOS)                 */
-#                                                                    */
-# Notes     : - Enforces ABI compatibility across OS platforms.      */
-#             - Utilizes CMake for platform-agnostic build logic.    */
-#             - Executes GoogleTest suites and CLI sanity checks.    */
-#                                                                    */
-# Revision History:                                                  */
-# ------------------------------------------------------------------ */
-# Version    Date        Author          Description                 */
-# ------------------------------------------------------------------ */
-# 1.0        2026-04-14  Nitish Singh    Initial multi-OS workflow   */
+#  CI Pipeline - Cross-Platform Native C++ Engine                     */
+#                                                                     */
+# Purpose   : Validates the Core C++17 engine and CLI local app       */
+#              across Linux, Windows, and macOS environments.         */
+# Trigger   : Push to main / Pull Request to main                     */
+# Runtime   : Matrix Build (Ubuntu, Windows, macOS)                   */
+#                                                                     */
+# Notes     : - Enforces ABI compatibility across OS platforms.       */
+#             - Updated for the new /backend folder structure.        */
+#             - Utilizes CMake for platform-agnostic build logic.      */
+#                                                                     */
+# Revision History:                                                   */
+# ------------------------------------------------------------------  */
+# Version    Date        Author          Description                  */
+# ------------------------------------------------------------------  */
+# 1.0        2026-04-14  Nitish Singh    Initial multi-OS workflow    */
+# 1.1        2026-04-15  Nitish Singh    Updated for /backend path    */
 #*********************************************************************/
 
 name: C++ CI CaseConversionAPI - All Platforms (Local App)
@@ -58,28 +59,28 @@ jobs:
         run: choco install cmake ninja --installargs 'ADD_CMAKE_TO_PATH=System' --yes
 
       # ======================================================
-      # 2. PRE-BUILD ORCHESTRATION
+      # 2. PRE-BUILD ORCHESTRATION (Updated Paths)
       # ======================================================
 
       - name: Clean build directory (Windows)
         if: runner.os == 'Windows'
         run: |
-          if (Test-Path "CaseConversionAPI\CppLib\build") {
-            Remove-Item -Recurse -Force "CaseConversionAPI\CppLib\build"
+          if (Test-Path "backend/CaseConversionAPI/CppLib/build") {
+            Remove-Item -Recurse -Force "backend/CaseConversionAPI/CppLib/build"
           }
 
       - name: Use local app CMakeLists
-        run: cp CaseConversionAPI/CppLib/CMakeListsLocalApp.txt CaseConversionAPI/CppLib/CMakeLists.txt
+        run: cp backend/CaseConversionAPI/CppLib/CMakeListsLocalApp.txt backend/CaseConversionAPI/CppLib/CMakeLists.txt
 
       # ======================================================
       # 3. COMPILATION LAYER
       # ======================================================
 
       - name: Configure project
-        run: cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S backend/CaseConversionAPI/CppLib -B backend/CaseConversionAPI/CppLib/build -DCMAKE_BUILD_TYPE=Release
 
       - name: Build project
-        run: cmake --build CaseConversionAPI/CppLib/build --parallel
+        run: cmake --build backend/CaseConversionAPI/CppLib/build --parallel
 
       # ======================================================
       # 4. EXECUTION & VALIDATION (CLI APP)
@@ -87,12 +88,12 @@ jobs:
 
       - name: Run app (Linux/macOS)
         if: runner.os != 'Windows'
-        run: ./CaseConversionAPI/CppLib/build/app
+        run: ./backend/CaseConversionAPI/CppLib/build/app
 
       - name: Run app (Windows)
         if: runner.os == 'Windows'
         run: |
-            cd CaseConversionAPI\CppLib\build
+            cd backend\CaseConversionAPI\CppLib\build
             & .\Debug\app.exe
 
       # ======================================================
@@ -101,11 +102,11 @@ jobs:
 
       - name: Run tests (Linux/macOS)
         if: runner.os != 'Windows'
-        run: ctest --output-on-failure --test-dir CaseConversionAPI/CppLib/build
+        run: ctest --output-on-failure --test-dir backend/CaseConversionAPI/CppLib/build
 
       - name: Run tests (Windows)
         if: runner.os == 'Windows'
-        run: ctest --output-on-failure -C Debug --test-dir CaseConversionAPI/CppLib/build
+        run: ctest --output-on-failure -C Debug --test-dir backend/CaseConversionAPI/CppLib/build
 
       # ======================================================
       # 6. ARTIFACT & LOG GOVERNANCE
@@ -116,4 +117,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-logs-${{ matrix.os }}
-          path: CaseConversionAPI/CppLib/build/Testing/Temporary/LastTest.log
+          path: backend/CaseConversionAPI/CppLib/build/Testing/Temporary/LastTest.log
