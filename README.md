@@ -11,6 +11,8 @@
 
 ---
 
+![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=nitishhsinghhh&repo=case-conversion-api&layout=compact&theme=vision-friendly-dark)
+
 # Polyglot String Conversion Engine & API
 
 A high-performance system demonstrating a Native C++17 engine seamlessly integrated into a .NET 8 managed ecosystem. This project serves as a blueprint for handling manual memory management across the ABI boundary, implementing extensible Strategy patterns, and maintaining an immutable Docker promotion pipeline from development to production.
