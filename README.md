@@ -1,5 +1,5 @@
 ![C++ CI](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/cpp-ci.yml?branch=main&label=C%2B%2B%20Core&style=flat-square)
-![Full Project Build](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/cpp-ci-all-plat.yml?branch=main&label=Full%20Stack%20Build&style=flat-square)
+![Full Project Build](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/cpp-ci-DLL-all.yml?branch=main&label=Full%20Stack%20Build&style=flat-square)
 ![Docker Push](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/docker-build.yml?branch=main&label=Docker%20Registry&style=flat-square)
 ![Deployment](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/deploy.yml?branch=main&label=Production%20Deploy&style=flat-square)
 
