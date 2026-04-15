@@ -78,4 +78,26 @@ public class AdvancedConversionTests : ApiTestBase
     [Trait("Category", "Encoding")]
     public async Task Convert_LeetSpeak_ReturnsNumericSubstitutions()
         => Assert.Equal("7357", await ConvertAsync("Test", 13));
+
+    //===================================================================
+    // Stress & Boundary Testing (Large Payloads)
+    //===================================================================
+
+    [Fact]
+    [Trait("Category", "Stress")]
+    public async Task Convert_LargePayload_Exceeding2MB_ReturnsSuccessfully()
+    {
+        // Arrange: Generate ~2.1MB of data (1 character = 1 byte in UTF-8 usually)
+        int sizeInChars = 2100000; 
+        string largeInput = new string('a', sizeInChars);
+        
+        // Act: Perform a simple Uppercase conversion (ID 4)
+        string result = await ConvertAsync(largeInput, 4);
+
+        // Assert: Verify size integrity and correctness
+        Assert.NotNull(result);
+        Assert.Equal(sizeInChars, result.Length);
+        Assert.Equal("A", result.Substring(0, 1)); // Spot check start
+        Assert.Equal("A", result.Substring(result.Length - 1, 1)); // Spot check end
+    }
 }

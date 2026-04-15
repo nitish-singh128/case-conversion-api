@@ -96,3 +96,25 @@ Successful Response (200 OK):
 | ABI Safety          | `Marshal.PtrToStringAnsi`        | Performs a deep-copy of native memory into the managed garbage-collected (GC) heap. This decouples the .NET string lifecycle from the native buffer. |
 | Boundary Protection | Strict O(n) Length Checks        | Enforces a 2MB security gate at the native entry point. Prevents heap exhaustion and buffer overflow attacks before memory is allocated for strategies. |
 | Thread Safety       | Stateless Reentrancy             | The native engine is entirely stateless and stack-allocated, allowing the .NET ThreadPool to execute concurrent P/Invoke calls without mutex contention. |
+
+## Native Interop Architectural Principles
+
+### 1. The "Callee-Allocates, Caller-Frees" Pattern
+
+This is a critical memory management strategy for interop. By exporting a `freeString` function from the C++ library and invoking it via a delegate within a .NET `finally` block, the system eliminates the primary cause of memory leaks.
+
+This ensures that unmanaged memory is explicitly released, as the .NET Garbage Collector cannot track or free memory allocated by the native engine.
+
+### 2. Dynamic Library Loading
+
+The service utilizes the `NativeLibrary.Load` API combined with runtime OS detection instead of static `[DllImport]` attributes.
+
+This architectural choice ensures the API is truly cross-platform, allowing it to resolve and load the correct shared library format (`.dll`, `.so`, or `.dylib`) based on the deployment environment.
+
+### 3. Thread Safety & Lifecycle Management
+
+By implementing the full `IDisposable` pattern (including the `Dispose(bool disposing)` method and a finalizer), the service guarantees native resource cleanup.
+
+This fail-safe mechanism ensures that even if a consumer fails to explicitly dispose of the service, the native library handle is released to the Operating System, preventing handle leaks.
+
+---
