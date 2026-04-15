@@ -98,7 +98,7 @@ This enables the REST API to use native C++ performance-critical logic.
 
 - Managed: xUnit integration tests utilizing WebApplicationFactory.
 
-- Stress: Validation of 2MB+ large object payloads across the language boundary.
+- Stress: Validation of 5MB+ large object payloads across the language boundary.
 
 - CI: GitHub Actions Matrix builds enforcing cross-platform parity on every push.
 
