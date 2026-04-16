@@ -15,20 +15,21 @@ RUN apt-get update && apt-get install -y \
     cmake
 
 WORKDIR /src
+# Copy everything from the root context (which includes the 'backend' folder)
 COPY . .
 
-# Clean old CMake cache
-RUN rm -rf CaseConversionAPI/CppLib/build
+# 1. Clean old CMake cache (Updated path)
+RUN rm -rf backend/CaseConversionAPI/CppLib/build
 
-# Build C++ shared library
-RUN cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build -DCMAKE_BUILD_TYPE=Release
-RUN cmake --build CaseConversionAPI/CppLib/build --parallel
+# 2. Build C++ shared library (Added 'backend/' prefix)
+RUN cmake -S backend/CaseConversionAPI/CppLib -B backend/CaseConversionAPI/CppLib/build -DCMAKE_BUILD_TYPE=Release
+RUN cmake --build backend/CaseConversionAPI/CppLib/build --parallel
 
-# Publish .NET API
-RUN dotnet publish CaseConversionAPI/DotNetAPI -c Release -o /app/publish
+# 3. Publish .NET API (Added 'backend/' prefix)
+RUN dotnet publish backend/CaseConversionAPI/DotNetAPI -c Release -o /app/publish
 
-# Copy shared library
-RUN cp CaseConversionAPI/CppLib/build/lib/libProcessStringDLL.so /app/publish/
+# 4. Copy shared library (Note: check if your CMake output goes to 'lib' or root of build)
+RUN cp backend/CaseConversionAPI/CppLib/build/libProcessStringDLL.so /app/publish/
 
 # ---------- Runtime ----------
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
@@ -38,4 +39,5 @@ COPY --from=build /app/publish .
 
 EXPOSE 8080
 
-ENTRYPOINT ["dotnet", "DotNetAPI.dll"]
+# Ensure this matches the actual .csproj name in your backend folder
+ENTRYPOINT ["dotnet", "CaseConversionAPI.dll"]
