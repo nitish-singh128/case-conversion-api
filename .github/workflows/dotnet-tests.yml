@@ -87,20 +87,22 @@ jobs:
         run: |
             # Set target path within the .NET build output
             DEST_PATH="backend/CaseConversionAPI/tests/DotNetTests/bin/Release/net8.0/"
-            mkdir -p $DEST_PATH
+            mkdir -p "$DEST_PATH"
 
-            # Find the library based on platform extension
+            # Search recursively from the build root for the platform-specific binary
             if [ "${{ runner.os }}" == "Linux" ]; then
-              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "libProcessStringDLL.so" | head -n 1)
+              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -type f -name "libProcessStringDLL.so" | head -n 1)
             elif [ "${{ runner.os }}" == "macOS" ]; then
-              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "libProcessStringDLL.dylib" | head -n 1)
+              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -type f -name "libProcessStringDLL.dylib" | head -n 1)
             elif [ "${{ runner.os }}" == "Windows" ]; then
-              # MSVC often puts binaries in /Release/ or /Debug/ subfolders
-              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "ProcessStringDLL.dll" | head -n 1)
+              # MSVC often nests binaries in build/Release/ or build/bin/Release
+              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -type f -name "ProcessStringDLL.dll" | head -n 1)
             fi
 
             if [ -z "$LIB_FILE" ]; then
               echo "[ERROR] Native library not found for ${{ runner.os }}"
+              # Debug: List the build directory to see where the file actually is
+              ls -R backend/CaseConversionAPI/CppLib/build
               exit 1
             fi
 
