@@ -40,6 +40,15 @@ target_include_directories(StringConversionLib PUBLIC include)
 # ---------------------------
 # This creates the actual file (libProcessStringDLL.dylib / .so) for .NET
 add_library(ProcessStringDLL SHARED src/ProcessStringDLL.cpp)
+
+# This tells the compiler "We are BUILDING the DLL, not using it"
+target_compile_definitions(ProcessStringDLL PRIVATE PROCESSSTRING_EXPORTS)
+
+# This silences the 'strcpy' warning (C4996) seen in your logs
+if(WIN32)
+    target_compile_definitions(ProcessStringDLL PRIVATE _CRT_SECURE_NO_WARNINGS)
+endif()
+
 target_link_libraries(ProcessStringDLL PRIVATE StringConversionLib)
 
 # Ensure the "lib" prefix is consistent for your scripts
