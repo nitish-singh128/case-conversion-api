@@ -89,28 +89,25 @@ jobs:
             DEST_PATH="backend/CaseConversionAPI/tests/DotNetTests/bin/Release/net8.0/"
             mkdir -p "$DEST_PATH"
 
-            # Locate the library file based on platform and the 'lib' prefix observed in logs
-            if [ "${{ runner.os }}" == "Linux" ]; then
-              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "libProcessStringDLL.so" | head -n 1)
+            # Find whatever native library was built
+            if [ "${{ runner.os }}" == "Windows" ]; then
+              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "*.dll" | head -n 1)
+              # FORCE RENAME to match the DllImport name (likely without 'lib' prefix)
+              # If your C# uses [DllImport("ProcessStringDLL")], use that name here:
+              TARGET_NAME="ProcessStringDLL.dll"
             elif [ "${{ runner.os }}" == "macOS" ]; then
-              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "libProcessStringDLL.dylib" | head -n 1)
-            elif [ "${{ runner.os }}" == "Windows" ]; then
-              # Logs show Windows is producing 'libProcessStringDLL.dll'
-              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "libProcessStringDLL.dll" | head -n 1)
+              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "*.dylib" | head -n 1)
+              TARGET_NAME="libProcessStringDLL.dylib"
+            else
+              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "*.so" | head -n 1)
+              TARGET_NAME="libProcessStringDLL.so"
             fi
 
-            if [ -z "$LIB_FILE" ]; then
-              echo "[ERROR] Native library not found for ${{ runner.os }}"
-              # Final debug fallback to see the exact filename if it still fails
-              find backend/CaseConversionAPI/CppLib/build -name "*.dll" -o -name "*.so" -o -name "*.dylib"
-              exit 1
-            fi
-
-            echo "[INFO] Found library at: $LIB_FILE"
-            cp "$LIB_FILE" "$DEST_PATH"
+            echo "[INFO] Copying $LIB_FILE to $DEST_PATH$TARGET_NAME"
+            cp "$LIB_FILE" "$DEST_PATH$TARGET_NAME"
             
-            # Ensure the .NET project directory also has a copy for local runner resolution
-            cp "$LIB_FILE" "backend/CaseConversionAPI/tests/DotNetTests/"
+            # Copy to project root as well for the test runner context
+            cp "$LIB_FILE" "backend/CaseConversionAPI/tests/DotNetTests/$TARGET_NAME"
 
       # ======================================================
       # 5. TEST EXECUTION (INTEGRATION SUITE)
