@@ -89,27 +89,29 @@ jobs:
             DEST_PATH="backend/CaseConversionAPI/tests/DotNetTests/bin/Release/net8.0/"
             mkdir -p "$DEST_PATH"
 
-            # Search recursively from the build root for the platform-specific binary
+            # Locate the library file based on platform
             if [ "${{ runner.os }}" == "Linux" ]; then
-              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -type f -name "libProcessStringDLL.so" | head -n 1)
+              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "libProcessStringDLL.so" | head -n 1)
             elif [ "${{ runner.os }}" == "macOS" ]; then
-              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -type f -name "libProcessStringDLL.dylib" | head -n 1)
+              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "libProcessStringDLL.dylib" | head -n 1)
             elif [ "${{ runner.os }}" == "Windows" ]; then
-              # MSVC often nests binaries in build/Release/ or build/bin/Release
-              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -type f -name "ProcessStringDLL.dll" | head -n 1)
+              # Based on your logs, the file is in /build/Release/ProcessStringDLL.dll
+              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "ProcessStringDLL.dll" | head -n 1)
             fi
 
             if [ -z "$LIB_FILE" ]; then
               echo "[ERROR] Native library not found for ${{ runner.os }}"
-              # Debug: List the build directory to see where the file actually is
+              echo "Listing build directory for debugging:"
               ls -R backend/CaseConversionAPI/CppLib/build
               exit 1
             fi
 
-            echo "[INFO] Injecting $LIB_FILE into $DEST_PATH"
+            echo "[INFO] Found library at: $LIB_FILE"
+            echo "[INFO] Injecting into: $DEST_PATH"
+            
             cp "$LIB_FILE" "$DEST_PATH"
             
-            # Secondary copy for local P/Invoke resolution fallback
+            # Secondary copy for local P/Invoke resolution fallback (test project root)
             cp "$LIB_FILE" "backend/CaseConversionAPI/tests/DotNetTests/"
 
       # ======================================================
