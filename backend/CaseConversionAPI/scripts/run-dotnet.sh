@@ -7,9 +7,6 @@
 # Usage     : ./run-dotnet.sh                                        */
 # Shell     : Bash (Targeted for Linux/macOS)                        */
 #                                                                    */
-# Notes     : - Dynamically resolves paths relative to script loc.   */
-#             - Outputs build artifacts to /publish at root.         */
-#                                                                    */
 # Revision History:                                                  */
 # ------------------------------------------------------------------ */
 # Version    Date        Author          Description                 */
@@ -17,18 +14,25 @@
 # 1.0        2026-04-14  Nitish Singh    Initial .NET build script   */
 # 1.1        2026-04-15  Nitish Singh    Added Dynamic Path Logic    */
 # 1.2        2026-04-16  Nitish Singh    Refactored exit/root logic  */
+# 1.3        2026-04-16  Nitish Singh    Added Native Dylib Sync     */
+# 1.4        2026-04-16  Nitish Singh    Fixed naming prefix mismatch*/
+# 1.5        2026-04-16  Nitish Singh    Added Port Cleanup logic    */
 #*********************************************************************/
 
 # Exit immediately if any command fails
 set -e
 
 # -------------------------------
+# 0. Port Cleanup
+# -------------------------------
+echo "===== Clearing Port 5000 ====="
+# Finds the process ID on port 5000 and kills it; ignores errors if port is empty
+lsof -ti:5000 | xargs kill -9 2>/dev/null || true
+
+# -------------------------------
 # 1. Path Synchronization
 # -------------------------------
-# Get the directory where THIS script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-
-# Navigate to the API project folder relative to this script
 cd "$SCRIPT_DIR/../DotNetAPI"
 
 echo "===== Context: Switched to $(pwd) ====="
@@ -36,38 +40,52 @@ echo "===== Context: Switched to $(pwd) ====="
 # -------------------------------
 # 2. Restore dependencies
 # -------------------------------
-echo "===== Restoring dependencies ====="
+echo -e "\n===== Restoring dependencies ====="
 dotnet restore
 
 # -------------------------------
 # 3. Build the project
 # -------------------------------
-echo
-echo "===== Building project ====="
+echo -e "\n===== Building project ====="
 dotnet build -c Release
 
 # -------------------------------
-# 4. Publish the project
+# 4. Sync Native Binaries (CRITICAL FOR P/INVOKE & NativeLibrary)
 # -------------------------------
-echo
-echo "===== Publishing project ====="
-# Output to a 'publish' folder at the very root of the monorepo
-dotnet publish -c Release -o ../../../publish
+echo -e "\n===== Syncing Native C++ Library ====="
+BIN_DIR="bin/Release/net8.0"
+mkdir -p "$BIN_DIR"
+SRC_LIB="../CppLib/build/lib/libProcessStringDLL.dylib"
+
+if [ ! -f "$SRC_LIB" ]; then
+    echo "ERROR: Native library not found at $SRC_LIB"
+    exit 1
+fi
+
+cp "$SRC_LIB" "$BIN_DIR/ProcessStringDLL.dylib"
+cp "$SRC_LIB" "$BIN_DIR/libProcessStringDLL.dylib"
+
+echo "Synced: libProcessStringDLL.dylib -> $BIN_DIR/"
 
 # -------------------------------
-# 5. Run the API
+# 5. Publish the project
 # -------------------------------
-echo
-echo "===== Running API ====="
+echo -e "\n===== Publishing project ====="
+dotnet publish -c Release -o ../../../publish
+cp "$BIN_DIR/libProcessStringDLL.dylib" ../../../publish/
+cp "$BIN_DIR/ProcessStringDLL.dylib" ../../../publish/
+
+# -------------------------------
+# 6. Run the API
+# -------------------------------
+echo -e "\n===== Running API ====="
 echo "===== API is LIVE. Press Ctrl+C to stop and return to root ====="
 
-# This command blocks the script here until you stop the server
+export ASPNETCORE_ENVIRONMENT=Development
 dotnet run -c Release --no-build
 
 # -------------------------------
-# 6. Return to Monorepo Root
+# 7. Return to Monorepo Root
 # -------------------------------
-# This only executes AFTER you press Ctrl+C
 cd "$SCRIPT_DIR/../../.."
-echo
-echo "===== Completed. Back in project root: $(pwd) ====="
+echo -e "\n===== Completed. Back in project root: $(pwd) ====="

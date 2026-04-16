@@ -33,7 +33,8 @@
     #define API __declspec(dllimport)
   #endif
 #else
-  #define API
+  // CRITICAL FOR MACOS: Force symbol visibility
+  #define API __attribute__((visibility("default")))
 #endif
 
 #ifdef __cplusplus
