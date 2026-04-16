@@ -45,6 +45,7 @@ The system uses native C++ for efficient string transformations, .NET for servic
         v
         Strategy Pattern Conversion Engine
 ```
+ 
 ---
 
 ## 5. Component Design
@@ -195,6 +196,7 @@ Stage 2:
             ↓
             Frontend Display
 ```
+
 ---
 
 ## 8. Error Handling
