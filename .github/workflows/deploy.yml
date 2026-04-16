@@ -93,11 +93,10 @@ jobs:
       # --- ABI Bridge (Artifact Injection) ---
       - name: Copy Linux .so
         if: runner.os == 'Linux'
-        run: cp backend/CaseConversionAPI/CppLib/build_dll/lib/libProcessStringDLL.so ./publish/
-
+        run: cp backend/CaseConversionAPI/CppLib/build_dll/libProcessStringDLL.so ./publish/
       - name: Copy macOS .dylib
         if: runner.os == 'macOS'
-        run: cp backend/CaseConversionAPI/CppLib/build_dll/lib/libProcessStringDLL.dylib ./publish/
+        run: cp backend/CaseConversionAPI/CppLib/build_dll/libProcessStringDLL.dylib ./publish/
 
       - name: Copy Windows .dll
         if: runner.os == 'Windows'
