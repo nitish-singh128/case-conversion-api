@@ -6,14 +6,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 enable_testing()
 
 # ---------------------------
-# Include directories
+# Global Settings
 # ---------------------------
 include_directories(include)
+# Required for linking static code into a shared library on some platforms
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # ---------------------------
-# Library: StringConversionLib
+# 1. Core Logic: StringConversionLib (STATIC)
 # ---------------------------
-add_library(StringConversionLib SHARED
+add_library(StringConversionLib STATIC
     src/AlternatingCaseConversion.cpp
     src/CapitalizeWordsConversion.cpp
     src/Client.cpp
@@ -31,48 +33,43 @@ add_library(StringConversionLib SHARED
     src/ToggleCaseConversion.cpp
     src/UpperCaseConversion.cpp    
 )
-
-set_target_properties(StringConversionLib PROPERTIES OUTPUT_NAME "ProcessStringDLL")
-
 target_include_directories(StringConversionLib PUBLIC include)
 
 # ---------------------------
-# Main Application
+# 2. The Bridge DLL: ProcessStringDLL (SHARED)
+# ---------------------------
+# This creates the actual file (libProcessStringDLL.dylib / .so) for .NET
+add_library(ProcessStringDLL SHARED src/ProcessStringDLL.cpp)
+target_link_libraries(ProcessStringDLL PRIVATE StringConversionLib)
+
+# Ensure the "lib" prefix is consistent for your scripts
+set_target_properties(ProcessStringDLL PROPERTIES PREFIX "lib")
+
+# ---------------------------
+# 3. Main Application (CLI)
 # ---------------------------
 add_executable(app src/sourcecode.cpp)
 target_link_libraries(app StringConversionLib)
 
 # ---------------------------
-# GoogleTest Setup
+# 4. GoogleTest Setup
 # ---------------------------
 include(FetchContent)
-
-# Force GoogleTest to use the same runtime on Windows
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
 
 FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/main.zip
 )
-
-# Make GoogleTest available
 FetchContent_MakeAvailable(googletest)
 
 # ---------------------------
-# Test Executable
+# 5. Test Executable
 # ---------------------------
 add_executable(runTests
     ${PROJECT_SOURCE_DIR}/../tests/CppTests/StringConversionTests.cpp
     ${PROJECT_SOURCE_DIR}/../tests/CppTests/AdvancedStringConversionTests.cpp
 )
-
-# Link the library and GoogleTest
 target_link_libraries(runTests StringConversionLib gtest gtest_main)
 
-# ---------------------------
-# Register tests with CTest
-# ---------------------------
 add_test(NAME AllTests COMMAND runTests)
-
-
