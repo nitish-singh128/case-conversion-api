@@ -13,7 +13,7 @@ include_directories(include)
 # ---------------------------
 # Library: StringConversionLib
 # ---------------------------
-add_library(StringConversionLib
+add_library(StringConversionLib SHARED
     src/AlternatingCaseConversion.cpp
     src/CapitalizeWordsConversion.cpp
     src/Client.cpp
