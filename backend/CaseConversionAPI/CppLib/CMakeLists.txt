@@ -32,6 +32,8 @@ add_library(StringConversionLib SHARED
     src/UpperCaseConversion.cpp    
 )
 
+set_target_properties(StringConversionLib PROPERTIES OUTPUT_NAME "ProcessStringDLL")
+
 target_include_directories(StringConversionLib PUBLIC include)
 
 # ---------------------------
