@@ -8,36 +8,61 @@
 # The build stage also includes a step to clean any old CMake cache to ensure a fresh build of the C++ library
 # The build stage compiles the C++ shared library using CMake and then publishes the .NET API to a specified output directory
 
+# ==========================================
+# STAGE 1: Compilation Environment
+# ==========================================
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
+# Install C++ build tools
 RUN apt-get update && apt-get install -y \
     build-essential \
-    cmake
+    cmake \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
-# Copy everything from the root context (which includes the 'backend' folder)
+
+# Copy the entire monorepo context
+# This is necessary because your C++ tests might reference folders 
+# outside the immediate CppLib directory.
 COPY . .
 
-# 1. Clean old CMake cache (Updated path)
+# DEBUG STEP: This will print the file structure in your GitHub logs 
+# so you can verify exactly where the files are if it fails again.
+RUN ls -R /src/backend/CaseConversionAPI
+
+# 1. Clean old CMake cache
+# Using the full path from the root context (.)
 RUN rm -rf backend/CaseConversionAPI/CppLib/build
 
-# 2. Build C++ shared library (Added 'backend/' prefix)
-RUN cmake -S backend/CaseConversionAPI/CppLib -B backend/CaseConversionAPI/CppLib/build -DCMAKE_BUILD_TYPE=Release
+# 2. Build C++ shared library
+# Ensure the case matches your GitHub folders (e.g., CppLib vs cpplib)
+RUN cmake -S backend/CaseConversionAPI/CppLib \
+          -B backend/CaseConversionAPI/CppLib/build \
+          -DCMAKE_BUILD_TYPE=Release
+
 RUN cmake --build backend/CaseConversionAPI/CppLib/build --parallel
 
-# 3. Publish .NET API (Added 'backend/' prefix)
+# 3. Publish .NET API
+# This assumes your .csproj is inside the DotNetAPI folder
 RUN dotnet publish backend/CaseConversionAPI/DotNetAPI -c Release -o /app/publish
 
-# 4. Copy shared library (Note: check if your CMake output goes to 'lib' or root of build)
+# 4. Copy shared library to the publish folder
+# On Linux, CMake produces a .so file. 
+# We copy it so the .NET runtime can find it via P/Invoke.
 RUN cp backend/CaseConversionAPI/CppLib/build/libProcessStringDLL.so /app/publish/
 
-# ---------- Runtime ----------
+# ==========================================
+# STAGE 2: Optimized Runtime Image
+# ==========================================
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
-
 WORKDIR /app
+
+# Copy only the compiled artifacts from the build stage
 COPY --from=build /app/publish .
 
+# Expose the default ASP.NET port
 EXPOSE 8080
 
-# Ensure this matches the actual .csproj name in your backend folder
-ENTRYPOINT ["dotnet", "CaseConversionAPI.dll"]
+# Start the API
+# Ensure "DotNetAPI.dll" matches your actual assembly name
+ENTRYPOINT ["dotnet", "DotNetAPI.dll"]
