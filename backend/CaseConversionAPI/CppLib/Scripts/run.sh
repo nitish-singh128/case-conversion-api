@@ -1,42 +1,55 @@
 #!/bin/bash
-# backend/CaseConversionAPI/CppLib/run.sh
-# Build, run app, and tests
+#*********************************************************************/
+#  Utility Script - C++ Core Orchestration (Monorepo)                */
+#                                                                    */
+# Purpose   : Configures, builds, and executes C++ logic & tests.    */
+# Location  : backend/CaseConversionAPI/CppLib/Scripts/run.sh        */
+#                                                                    */
+# Revision History:                                                  */
+# ------------------------------------------------------------------ */
+# Version    Date        Author          Description                 */
+# ------------------------------------------------------------------ */
+# 1.0        2026-04-14  Nitish Singh    Initial C++ Run Script      */
+# 1.1        2026-04-15  Nitish Singh    Updated for /backend path   */
+# 1.2        2026-04-16  Nitish Singh    Added Dynamic Path Sync     */
+#*********************************************************************/
 
-# Revision History:
-# 1.0  2026-04-14  Initial C++ Run Script
-# 1.1  2026-04-15  Updated for /backend monorepo structure
-
-# Exit on any error
 set -e
 
 # -------------------------------
-# 1. Compilation Layer
+# 1. Path Synchronization
 # -------------------------------
-# Create build directory if it doesn't exist
+# Get the absolute path to this script's folder
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+# Target the CppLib root (one level up from Scripts/)
+CPP_ROOT="$SCRIPT_DIR/.."
+cd "$CPP_ROOT"
+
+# -------------------------------
+# 2. Compilation Layer
+# -------------------------------
+echo "===== Configuring & Building C++ Core ====="
+
+# Create build directory relative to CppLib root
 mkdir -p build
 cd build
 
-# Configure project with CMake
-cmake ..
-
-# Build everything
-cmake --build . --config Release
+# Configure and Build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+cmake --build . --config Release --parallel
 
 # -------------------------------
-# 2. Execution Layer
+# 3. Execution Layer
 # -------------------------------
-echo
-echo "===== Running Tests ====="
-./runTests
-
-echo
-echo "===== Running App ====="
-./app
+echo -e "\n===== Running Core Tests ====="
+# This is the primary validation for your C++ logic
+./ProcessStringDLLTests
 
 # -------------------------------
-# 3. Workspace Restoration
+# 4. Workspace Restoration
 # -------------------------------
-# Old: cd .. (This only went back to CppLib/)
-# New: cd ../../.. (CppLib -> CaseConversionAPI -> backend -> root)
-cd ../../..
-echo "===== Back in project root: $(pwd) ====="
+# Return to the monorepo root
+cd ../../../..
+
+echo -e "\n===== Completed. Back in project root: $(pwd) ====="

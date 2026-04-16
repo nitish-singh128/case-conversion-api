@@ -1,38 +1,19 @@
 cmake_minimum_required(VERSION 3.14)
-project(ProcessStringDLL LANGUAGES CXX)
+project(StringConversion)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# -----------------------------
-# Include directories
-# -----------------------------
-include_directories(include)
-
-
-# ---------------------------
-# GoogleTest Setup
-# ---------------------------
-include(FetchContent)
-
-# Force GoogleTest to use the same runtime on Windows
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/main.zip
-)
-
-# Make GoogleTest available
-FetchContent_MakeAvailable(googletest)
-
 enable_testing()
 
-# -----------------------------
-# Build the static library first
-# -----------------------------
-add_library(StringConversionLib STATIC
+# ---------------------------
+# Include directories
+# ---------------------------
+include_directories(include)
+
+# ---------------------------
+# Library: StringConversionLib
+# ---------------------------
+add_library(StringConversionLib
     src/AlternatingCaseConversion.cpp
     src/CapitalizeWordsConversion.cpp
     src/Client.cpp
@@ -51,47 +32,45 @@ add_library(StringConversionLib STATIC
     src/UpperCaseConversion.cpp    
 )
 
-# static library to be used in shared library
-set_target_properties(StringConversionLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(StringConversionLib PUBLIC include)
 
-# -----------------------------
-# DLL target: ProcessStringDLL
-# -----------------------------
-add_library(ProcessStringDLL SHARED
-    src/ProcessStringDLL.cpp
+# ---------------------------
+# Main Application
+# ---------------------------
+add_executable(app src/sourcecode.cpp)
+target_link_libraries(app StringConversionLib)
+
+# ---------------------------
+# GoogleTest Setup
+# ---------------------------
+include(FetchContent)
+
+# Force GoogleTest to use the same runtime on Windows
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/main.zip
 )
 
-# Export macro for Windows DLL
-target_compile_definitions(ProcessStringDLL PRIVATE PROCESSSTRING_EXPORTS)
+# Make GoogleTest available
+FetchContent_MakeAvailable(googletest)
 
-# Link the DLL with the static library
-target_link_libraries(ProcessStringDLL PRIVATE StringConversionLib)
-
-# DLL output folder
-set_target_properties(ProcessStringDLL PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+# ---------------------------
+# Test Executable
+# ---------------------------
+add_executable(runTests
+    ${PROJECT_SOURCE_DIR}/../tests/CppTests/StringConversionTests.cpp
+    ${PROJECT_SOURCE_DIR}/../tests/CppTests/AdvancedStringConversionTests.cpp
 )
 
-# -----------------------------
-# DLL Tests
-# -----------------------------
-add_executable(ProcessStringDLLTests
-    ../tests/CppTests/AdvStrTestDLL.cpp
-)
+# Link the library and GoogleTest
+target_link_libraries(runTests StringConversionLib gtest gtest_main)
 
-# Link against DLL + gtest
-target_link_libraries(ProcessStringDLLTests
-    PRIVATE
-    ProcessStringDLL
-    gtest
-    gtest_main
-)
+# ---------------------------
+# Register tests with CTest
+# ---------------------------
+add_test(NAME AllTests COMMAND runTests)
 
-# Include headers
-target_include_directories(ProcessStringDLLTests PRIVATE include)
 
-# Register test
-add_test(NAME DLLTests COMMAND ProcessStringDLLTests)

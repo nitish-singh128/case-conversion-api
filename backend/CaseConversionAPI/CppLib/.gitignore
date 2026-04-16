@@ -1,6 +1,7 @@
 
 # Ignore build directory
 /build/
+/build_local/
 /CMakeFiles/
 /CMakeCache.txt
 /Makefile
