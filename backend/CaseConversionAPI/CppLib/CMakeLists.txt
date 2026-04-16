@@ -1,46 +1,14 @@
 cmake_minimum_required(VERSION 3.14)
-project(StringConversion)
+project(ProcessStringDLL LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-enable_testing()
 
-# ---------------------------
+# -----------------------------
 # Include directories
-# ---------------------------
+# -----------------------------
 include_directories(include)
 
-# ---------------------------
-# Library: StringConversionLib
-# ---------------------------
-add_library(StringConversionLib SHARED
-    src/AlternatingCaseConversion.cpp
-    src/CapitalizeWordsConversion.cpp
-    src/Client.cpp
-    src/InvertWordsConversion.cpp
-    src/KebabCaseConversion.cpp
-    src/LeetSpeakConversion.cpp
-    src/LowerCaseConversion.cpp
-    src/ProcessString.cpp
-    src/RemoveSpacesConversion.cpp
-    src/RemoveVowelsConversion.cpp
-    src/ReverseConversion.cpp
-    src/SentenceCaseConversion.cpp
-    src/SnakeCaseConversion.cpp
-    src/StringConversionFactory.cpp
-    src/ToggleCaseConversion.cpp
-    src/UpperCaseConversion.cpp    
-)
-
-set_target_properties(StringConversionLib PROPERTIES OUTPUT_NAME "ProcessStringDLL")
-
-target_include_directories(StringConversionLib PUBLIC include)
-
-# ---------------------------
-# Main Application
-# ---------------------------
-add_executable(app src/sourcecode.cpp)
-target_link_libraries(app StringConversionLib)
 
 # ---------------------------
 # GoogleTest Setup
@@ -59,20 +27,71 @@ FetchContent_Declare(
 # Make GoogleTest available
 FetchContent_MakeAvailable(googletest)
 
-# ---------------------------
-# Test Executable
-# ---------------------------
-add_executable(runTests
-    ${PROJECT_SOURCE_DIR}/../tests/CppTests/StringConversionTests.cpp
-    ${PROJECT_SOURCE_DIR}/../tests/CppTests/AdvancedStringConversionTests.cpp
+enable_testing()
+
+# -----------------------------
+# Build the static library first
+# -----------------------------
+add_library(StringConversionLib STATIC
+    src/AlternatingCaseConversion.cpp
+    src/CapitalizeWordsConversion.cpp
+    src/Client.cpp
+    src/InvertWordsConversion.cpp
+    src/KebabCaseConversion.cpp
+    src/LeetSpeakConversion.cpp
+    src/LowerCaseConversion.cpp
+    src/ProcessString.cpp
+    src/RemoveSpacesConversion.cpp
+    src/RemoveVowelsConversion.cpp
+    src/ReverseConversion.cpp
+    src/SentenceCaseConversion.cpp
+    src/SnakeCaseConversion.cpp
+    src/StringConversionFactory.cpp
+    src/ToggleCaseConversion.cpp
+    src/UpperCaseConversion.cpp    
 )
 
-# Link the library and GoogleTest
-target_link_libraries(runTests StringConversionLib gtest gtest_main)
+# static library to be used in shared library
+set_target_properties(StringConversionLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_include_directories(StringConversionLib PUBLIC include)
 
-# ---------------------------
-# Register tests with CTest
-# ---------------------------
-add_test(NAME AllTests COMMAND runTests)
+# -----------------------------
+# DLL target: ProcessStringDLL
+# -----------------------------
+add_library(ProcessStringDLL SHARED
+    src/ProcessStringDLL.cpp
+)
 
+# Export macro for Windows DLL
+target_compile_definitions(ProcessStringDLL PRIVATE PROCESSSTRING_EXPORTS)
 
+# Link the DLL with the static library
+target_link_libraries(ProcessStringDLL PRIVATE StringConversionLib)
+
+# DLL output folder
+set_target_properties(ProcessStringDLL PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+)
+
+# -----------------------------
+# DLL Tests
+# -----------------------------
+add_executable(ProcessStringDLLTests
+    ../tests/CppTests/AdvStrConDLL.cpp
+)
+
+# Link against DLL + gtest
+target_link_libraries(ProcessStringDLLTests
+    PRIVATE
+    ProcessStringDLL
+    gtest
+    gtest_main
+)
+
+# Include headers
+target_include_directories(ProcessStringDLLTests PRIVATE include)
+
+# Register test
+add_test(NAME DLLTests COMMAND ProcessStringDLLTests)
