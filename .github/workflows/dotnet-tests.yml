@@ -1,21 +1,22 @@
 #*********************************************************************/
-#  CI Pipeline - .NET + API Integration Tests                       */
-#                                                                     */
-# Purpose   : Orchestrates the compilation of native C++ assets and   */
-#              executes the .NET integration test suite.              */
-# Trigger   : Push to main/develop | Pull Request to main             */
-# Runtime   : Ubuntu Latest                                           */
-#                                                                     */
-# Notes     : - Manages the critical injection of .so artifacts into  */
-#               the .NET bin directory for P/Invoke resolution.       */
-#             - Updated for Monorepo (backend/ subdirectory).         */
-#                                                                     */
-# Revision History:                                                   */
-# ------------------------------------------------------------------  */
-# Version    Date        Author          Description                  */
-# ------------------------------------------------------------------  */
-# 1.0        2026-04-14  Nitish Singh    Initial .NET Integration CI  */
-# 1.1        2026-04-15  Nitish Singh    Updated for /backend path    */
+#  CI Pipeline - .NET + API Integration Tests (Multi-Platform)       */
+#                                                                    */
+# Purpose   : Validates the P/Invoke bridge and API logic across     */
+#              Ubuntu, macOS, and Windows environments.              */
+# Trigger   : Push to main/develop | Pull Request to main            */
+# Runtime   : Matrix (Ubuntu, macOS, Windows)                        */
+#                                                                    */
+# Notes     : - Synchronizes Native & Managed build cycles.          */
+#             - Implements cross-platform artifact injection.        */
+#             - Fixes Windows C2491 via PROCESSSTRING_EXPORTS.       */
+#                                                                    */
+# Revision History:                                                  */
+# ------------------------------------------------------------------ */
+# Version    Date        Author           Description                */
+# ------------------------------------------------------------------ */
+# 1.0        2026-04-14  Nitish Singh     Initial .NET Integration CI*/
+# 1.1        2026-04-15  Nitish Singh     Updated for /backend path  */
+# 1.2        2026-04-16  Nitish Singh     Multi-Platform Matrix Fix  */
 #*********************************************************************/
 
 name: .NET Tests
@@ -28,33 +29,50 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    name: Test on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
       # ======================================================
-      # 1. REPOSITORY & NATIVE TOOLCHAIN
+      # 1. REPOSITORY & TOOLCHAIN SETUP
       # ======================================================
-
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Build C++ Library
-        working-directory: backend/CaseConversionAPI/CppLib
-        run: |
-            mkdir -p build
-            cd build
-            cmake ..
-            cmake --build . --config Release
-
-      # ======================================================
-      # 2. MANAGED ENVIRONMENT SETUP
-      # ======================================================
 
       - name: Setup .NET Environment
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
 
+      # ======================================================
+      # 2. NATIVE LAYER BUILD (C++17)
+      # ======================================================
+      - name: Build C++ Library (Unix)
+        if: runner.os != 'Windows'
+        working-directory: backend/CaseConversionAPI/CppLib
+        run: |
+            cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+            cmake --build build --config Release --parallel
+
+      - name: Build C++ Library (Windows)
+        if: runner.os == 'Windows'
+        working-directory: backend/CaseConversionAPI/CppLib
+        # -DPROCESSSTRING_EXPORTS is critical to resolve Error C2491 on MSVC
+        run: |
+            cmake -S . -B build `
+                  -DCMAKE_BUILD_TYPE=Release `
+                  -DPROCESSSTRING_EXPORTS=ON `
+                  -D_CRT_SECURE_NO_WARNINGS=ON `
+                  -G "Visual Studio 17 2022" -A x64
+            cmake --build build --config Release --parallel
+
+      # ======================================================
+      # 3. MANAGED LAYER BUILD (.NET 8)
+      # ======================================================
       - name: Build .NET Tests
         working-directory: backend/CaseConversionAPI/tests/DotNetTests
         run: |
@@ -62,27 +80,39 @@ jobs:
             dotnet build --configuration Release
 
       # ======================================================
-      # 3. ARTIFACT INJECTION (P/INVOKE PREPARATION)
+      # 4. ARTIFACT INJECTION (ABI BRIDGE PREP)
       # ======================================================
-
       - name: Inject Native Library to Test Folder
+        shell: bash
         run: |
-            # Locate the native binary
-            LIB_PATH=$(find backend/CaseConversionAPI/CppLib/build -name "libProcessStringDLL.so")
-            
-            # Destination path within the .NET build output
+            # Set target path within the .NET build output
             DEST_PATH="backend/CaseConversionAPI/tests/DotNetTests/bin/Release/net8.0/"
+            mkdir -p $DEST_PATH
+
+            # Find the library based on platform extension
+            if [ "${{ runner.os }}" == "Linux" ]; then
+              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "libProcessStringDLL.so" | head -n 1)
+            elif [ "${{ runner.os }}" == "macOS" ]; then
+              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "libProcessStringDLL.dylib" | head -n 1)
+            elif [ "${{ runner.os }}" == "Windows" ]; then
+              # MSVC often puts binaries in /Release/ or /Debug/ subfolders
+              LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "ProcessStringDLL.dll" | head -n 1)
+            fi
+
+            if [ -z "$LIB_FILE" ]; then
+              echo "[ERROR] Native library not found for ${{ runner.os }}"
+              exit 1
+            fi
+
+            echo "[INFO] Injecting $LIB_FILE into $DEST_PATH"
+            cp "$LIB_FILE" "$DEST_PATH"
             
-            echo "[INFO] Injecting $LIB_PATH into $DEST_PATH"
-            cp $LIB_PATH $DEST_PATH
-            
-            # Secondary copy for runner root fallback
-            cp $LIB_PATH backend/CaseConversionAPI/tests/DotNetTests/
+            # Secondary copy for local P/Invoke resolution fallback
+            cp "$LIB_FILE" "backend/CaseConversionAPI/tests/DotNetTests/"
 
       # ======================================================
-      # 4. TEST EXECUTION (INTEGRATION LAYER)
+      # 5. TEST EXECUTION (INTEGRATION SUITE)
       # ======================================================
-
       - name: Run Integration Tests
         working-directory: backend/CaseConversionAPI/tests/DotNetTests
         run: dotnet test --no-build --configuration Release --verbosity normal
