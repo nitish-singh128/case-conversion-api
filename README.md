@@ -154,26 +154,6 @@ This will start:
 
 ---
 
-### Language Distribution
-
-> **Note:** This project is a native-first system centered around high-performance C++ processing.
-
-| Language | Percentage | Focus Area |
-| :--- | :--- | :--- |
-| **C++17** | `65.3%` | Core Conversion Engine & Native Logic |
-| **C# / .NET 8** | `22.0%` | Interop Layer, P/Invoke, & REST API |
-| **Shell** | `6.0%` | CI/CD Automation & Environment Setup |
-| **Web (TS/HTML)** | `4.3%` | React Frontend Dashboard |
-| **DevOps** | `2.4%` | CMake & Docker Containerization |
-
-### System Composition
-
-![C++ Core](https://geps.dev/progress/65?dangerColor=00599C&warningColor=00599C&successColor=00599C)
-![C# Interop](https://geps.dev/progress/22?dangerColor=239120&warningColor=239120&successColor=239120)
-![Automation](https://geps.dev/progress/6?dangerColor=89e051&warningColor=89e051&successColor=89e051)
-
----
-
 ## Summary
 
 Developed a cross-platform string conversion ecosystem utilizing a high-performance C++17 engine integrated into a .NET 8 microservice via P/Invoke. Engineered a Zero-Leak memory management policy across the ABI boundary and implemented a multi-stage Docker CI/CD pipeline supporting immutable artifact promotion across Dev, Staging, and Production environments.
