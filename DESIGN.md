@@ -30,7 +30,7 @@ The system uses native C++ for efficient string transformations, .NET for servic
 
 ## 4. High-Level Architecture
 
-```
+```sh
         Frontend (React)
         |
         v
@@ -45,7 +45,7 @@ The system uses native C++ for efficient string transformations, .NET for servic
         v
         Strategy Pattern Conversion Engine
 ```
- 
+
 ---
 
 ## 5. Component Design
@@ -173,7 +173,7 @@ Stage 2:
 
 ## 7. Runtime Flow
 
-```
+```sh
             User Input (React)
             ↓
             REST API Call
@@ -274,7 +274,7 @@ Docker Compose orchestrates:
 
 ## 14. Tech Stack
 
-```
+```sh
 C++ — Conversion engine
 CMake — Build system
 GoogleTest — Unit tests
@@ -283,6 +283,7 @@ React + TypeScript — UI
 Docker — Containerization
 GitHub Actions — CI/CD
 ```
+
 ---
 
 ## 15. Key Design Decisions
