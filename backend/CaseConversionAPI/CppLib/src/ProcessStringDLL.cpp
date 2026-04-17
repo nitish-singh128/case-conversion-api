@@ -82,10 +82,6 @@ static char* allocateCString(const std::string& str) {
     return output;
 }
 
-// clang-format off
-//#endregion
-// clang-format on
-
 //===================================================================
 // Conversion Mapping (Internal - C++ only)
 //===================================================================
@@ -221,9 +217,5 @@ API const char* processStringDLL(const char* input, int choiceInt) {
 API void freeString(char* str) {
     free(str);
 }
-
-// clang-format off
-//#endregion
-// clang-format on
 
 } // extern "C"
