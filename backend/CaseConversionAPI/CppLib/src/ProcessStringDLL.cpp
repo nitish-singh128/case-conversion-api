@@ -233,7 +233,6 @@ API const char* processStringDLL(const char* input, int choiceInt) {
 
     ConversionType type;
 
-    // Map external choice → internal conversion type
     if (!mapConversionType(choice, type)) {
         return allocateCString(std::string(input));
     }
