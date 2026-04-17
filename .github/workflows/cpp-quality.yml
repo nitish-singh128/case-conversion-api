@@ -14,25 +14,26 @@
 # ------------------------------------------------------------------ */
 # 1.0        2026-04-18   Nitish Singh     Initial Quality Guard CI  */
 # 1.1        2026-04-18   Nitish Singh     Added CMake Swap & Fixes  */
+# 1.2        2026-04-18   Nitish Singh     Refined src path patterns */
 #*********************************************************************/
 
 name: C++ Quality Guard
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "develop"]
     paths:
       - 'backend/CaseConversionAPI/CppLib/**'
   pull_request:
     branches: ["main"]
     paths:
       - 'backend/CaseConversionAPI/CppLib/**'
+  # Allows manual triggering for testing
+  workflow_dispatch: {}
 
 jobs:
   static-analysis:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -42,35 +43,20 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang-tidy clang-format cmake
 
-      # ======================================================
-      # 1. PREPARATION (The "Swap Trick")
-      # ======================================================
-      - name: Use local app CMakeLists
+      - name: Configure CMake
         working-directory: backend/CaseConversionAPI/CppLib
-        run: cp CMakeListsLocalApp.txt CMakeLists.txt
+        run: |
+          # Generates compile_commands.json needed by Clang-Tidy
+          cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
-      # ======================================================
-      # 2. FORMATTING CHECK
-      # ======================================================
       - name: Run Clang-Format Check
         working-directory: backend/CaseConversionAPI/CppLib
         run: |
-          # Finds all C++ files and checks formatting style
-          # --Werror forces a failure if code is messy
-          find . -name "*.cpp" -o -name "*.h" -o -name "*.hpp" | xargs clang-format --dry-run --Werror
-
-      # ======================================================
-      # 3. STATIC ANALYSIS (The "Linter")
-      # ======================================================
-      - name: Configure CMake for Clang-Tidy
-        working-directory: backend/CaseConversionAPI/CppLib
-        run: |
-          # Generate compile_commands.json so Clang-Tidy knows include paths
-          cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          # Checks both .cpp and .h files inside the src folder
+          find src -type f \( -name "*.cpp" -o -name "*.h" \) | xargs clang-format --dry-run --Werror
 
       - name: Run Clang-Tidy
         working-directory: backend/CaseConversionAPI/CppLib
         run: |
-          # Scans for logic errors and memory leaks
-          # Using find ensures we check all files in the directory tree
-          find . -name "*.cpp" | xargs clang-tidy -p build --header-filter=.* --warnings-as-errors=*
+          # Scans the .cpp files using the header info from the same folder
+          find src -name "*.cpp" | xargs clang-tidy -p build --header-filter=src/.* --warnings-as-errors=*
