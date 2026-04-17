@@ -8,7 +8,7 @@
 #                                                                     */
 # Notes     : - Enforces ABI compatibility across OS platforms.       */
 #             - Updated for the new /backend folder structure.        */
-#             - Utilizes CMake for platform-agnostic build logic.      */
+#             - Utilizes CMake for platform-agnostic build logic.     */
 #                                                                     */
 # Revision History:                                                   */
 # ------------------------------------------------------------------  */

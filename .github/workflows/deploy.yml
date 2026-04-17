@@ -6,7 +6,9 @@
 # Trigger   : Push to main                                           */
 # Runtime   : Matrix Build (Ubuntu, Windows, macOS) + Independent UI */
 #                                                                    */
-# Notes     : - Parallelizes Backend and Frontend builds.            */
+# Notes     : - The Master Orchestrator for the entire project.      */
+#             - Ensures synchronized builds across all layers.       */
+#             - Parallelizes Backend and Frontend builds.            */
 #             - Manages the complex ABI artifact injection process.   */
 #             - Optimized to reduce CI minute consumption.           */
 #                                                                    */
