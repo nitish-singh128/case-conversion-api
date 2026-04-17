@@ -1,26 +1,25 @@
 #*********************************************************************/
-#  CI Pipeline - macOS Native Bridge & REST Integration              */
-#                                                                     */
-# Purpose   : Validates the end-to-end integration between the        */
-#              C++ Native Engine (dylib) and the .NET 8 REST API      */
-#              specifically on macOS runners.                         */
-# Trigger   : Push to main / Pull Request to main                     */
-# Runtime   : macOS Latest                                           */
-#                                                                     */
-# Notes     : - Verifies P/Invoke symbol resolution for .dylib files.*/
-#             - Executes a live 'Smoke Test' using background         */
-#               process orchestration and Curl.                       */
-#             - Updated for Monorepo (backend/ subdirectory).         */
-#                                                                     */
-# Revision History:                                                   */
-# ------------------------------------------------------------------  */
-# Version    Date        Author          Description                  */
-# ------------------------------------------------------------------  */
-# 1.0        2026-04-14  Nitish Singh    Initial macOS integration    */
-# 1.1        2026-04-15  Nitish Singh    Updated for /backend path    */
+#  CI Pipeline - .NET + API Integration Tests (Multi-Platform)       */
+#                                                                    */
+# Purpose   : Validates the P/Invoke bridge and API logic across     */
+#              Ubuntu, macOS, and Windows environments.              */
+# Trigger   : Push to main/develop | Pull Request to main            */
+# Runtime   : Matrix (Ubuntu, macOS, Windows)                        */
+#                                                                    */
+# Notes     : - Synchronizes Native & Managed build cycles.          */
+#             - Implements cross-platform artifact injection.        */
+#             - Fixes Windows C2491 via PROCESSSTRING_EXPORTS.       */
+#                                                                    */
+# Revision History:                                                  */
+# ------------------------------------------------------------------ */
+# Version    Date        Author           Description                */
+# ------------------------------------------------------------------ */
+# 1.0        2026-04-14  Nitish Singh     Initial .NET Integration CI*/
+# 1.1        2026-04-15  Nitish Singh     Updated for /backend path  */
+# 1.2        2026-04-17  Nitish Singh     Multi-Platform Matrix Fix  */
 #*********************************************************************/
 
-name: C++ DLL + .NET REST API CI
+name: .NET Tests
 
 on:
   push:
@@ -29,70 +28,91 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-and-test:
-    runs-on: macos-latest
+  test:
+    name: Test on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
-    # ======================================================
-    # 1. ENVIRONMENT & TOOLCHAIN SETUP
-    # ======================================================
+      # ======================================================
+      # 1. ENVIRONMENT SETUP
+      # ======================================================
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Setup .NET Environment
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
 
-    # -------------------------------
-    # Build C++ shared library
-    # -------------------------------
-    - name: Install CMake
-      run: brew install cmake
+      # ======================================================
+      # 2. NATIVE LAYER BUILD (C++17)
+      # ======================================================
+      - name: Build C++ Library (Unix)
+        if: runner.os != 'Windows'
+        working-directory: backend/CaseConversionAPI/CppLib
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release --parallel
 
-    # ======================================================
-    # 2. NATIVE LAYER: C++ DYNAMIC LIBRARY (.dylib)
-    # ======================================================
+      - name: Build C++ Library (Windows)
+        if: runner.os == 'Windows'
+        working-directory: backend/CaseConversionAPI/CppLib
+        # Using ` symbols for line breaks in PowerShell
+        run: |
+          cmake -S . -B build `
+                -DCMAKE_BUILD_TYPE=Release `
+                -DPROCESSSTRING_EXPORTS=ON `
+                -D_CRT_SECURE_NO_WARNINGS=ON `
+                -G "Visual Studio 17 2022" -A x64
+          cmake --build build --config Release --parallel
 
-    - name: Build C++ DLL
-      run: |
-        cd backend/CaseConversionAPI/CppLib
-        mkdir -p build
-        cd build
-        cmake ..
-        make
+      # ======================================================
+      # 3. MANAGED LAYER BUILD (.NET 8)
+      # ======================================================
+      - name: Build .NET Tests
+        working-directory: backend/CaseConversionAPI/tests/DotNetTests
+        run: |
+          dotnet restore
+          dotnet build --configuration Release
 
-    - name: Verify dylib
-      run: |
-        ls -l backend/CaseConversionAPI/CppLib/build/lib
+      # ======================================================
+      # 4. ARTIFACT INJECTION (ABI BRIDGE PREP)
+      # ======================================================
+      - name: Inject Native Library to Test Folder
+        shell: bash
+        run: |
+          # Define target directory for the compiled .NET binaries
+          DEST_PATH="backend/CaseConversionAPI/tests/DotNetTests/bin/Release/net8.0/"
+          mkdir -p "$DEST_PATH"
 
-    # ======================================================
-    # 3. MANAGED LAYER: .NET 8 REST API
-    # ======================================================
+          # Locate and rename the binary based on the OS
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "*.dll" | head -n 1)
+            TARGET_NAME="ProcessStringDLL.dll"
+          elif [ "${{ runner.os }}" == "macOS" ]; then
+            LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "*.dylib" | head -n 1)
+            TARGET_NAME="libProcessStringDLL.dylib"
+          else
+            LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "*.so" | head -n 1)
+            TARGET_NAME="libProcessStringDLL.so"
+          fi
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
+          echo "Injecting $LIB_FILE -> $DEST_PATH$TARGET_NAME"
+          cp "$LIB_FILE" "$DEST_PATH$TARGET_NAME"
+          
+          # Also place in working directory for local execution context
+          cp "$LIB_FILE" "backend/CaseConversionAPI/tests/DotNetTests/$TARGET_NAME"
 
-    # -------------------------------
-    # Build REST API (csproj copies dylib)
-    # -------------------------------
-    - name: Restore .NET
-      run: dotnet restore backend/CaseConversionAPI/DotNetAPI
-
-    - name: Build .NET
-      run: dotnet build backend/CaseConversionAPI/DotNetAPI --no-restore
-
-    # ======================================================
-    # 4. SERVICE ORCHESTRATION & VALIDATION
-    # ======================================================
-
-    - name: Run API
-      run: |
-        cd backend/CaseConversionAPI/DotNetAPI
-        dotnet run &
-        sleep 15
-
-    # -------------------------------
-    # Test endpoint
-    # -------------------------------
-    - name: Test REST endpoint
-      run: |
-        curl "http://localhost:5000/api/WordCase/convert?input=Hello%20World&choice=1"
+      # ======================================================
+      # 5. TEST EXECUTION
+      # ======================================================
+      - name: Run Integration Tests
+        working-directory: backend/CaseConversionAPI/tests/DotNetTests
+        # Adding current directory to PATH on Windows to ensure P/Invoke finds the DLL
+        run: |
+          ${{ runner.os == 'Windows' && '$env:PATH += ";."' || '' }}
+          dotnet test --no-build --configuration Release --verbosity normal
