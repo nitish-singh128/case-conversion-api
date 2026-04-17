@@ -228,7 +228,6 @@ extern "C" {
         return allocateCString(result);
     }
 
-
     /**
      * @brief Frees memory allocated by processStringDLL
      * 
