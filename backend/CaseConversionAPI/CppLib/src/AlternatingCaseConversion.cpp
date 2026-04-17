@@ -41,15 +41,13 @@ std::string AlternatingCaseConversion::convert(const std::string& input) const {
 
             if (upper) {
                 temp = upperConv.convert(temp);
-            }
-            else {
+            } else {
                 temp = lowerConv.convert(temp);
             }
-            
+
             result += temp;
             upper = !upper;
-        }
-        else {
+        } else {
             result += c;
 
             if (c == ' ') {
