@@ -53,6 +53,9 @@ jobs:
       # ======================================================
 
       - name: Use local app CMakeLists
+        # TRICK: Swap the default CMakeLists with a specialized version 
+        # for local/standalone app building. This allows us to build 
+        # a testable executable without modifying the core API build logic.
         run: cp backend/CaseConversionAPI/CppLib/CMakeListsLocalApp.txt backend/CaseConversionAPI/CppLib/CMakeLists.txt
 
       - name: Configure String Conversion

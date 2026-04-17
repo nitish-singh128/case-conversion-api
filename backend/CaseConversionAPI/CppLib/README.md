@@ -244,3 +244,49 @@ git push -u origin main
 After this, Git will ignore all the files and folders specified in .gitignore, keeping your repository clean and only tracking source and configuration files.
 
 ---
+
+## C++ Logic Component
+
+This directory contains the core C++ logic for the Case Conversion API. 
+
+## Build System "Swap" Trick
+
+To maintain a clean separation between the production API and local testing, we use two distinct CMake configurations:
+
+1. `CMakeLists.txt` (Production): The default configuration. It builds the project as a shared library or module intended to be consumed by the backend API.
+2. `CMakeListsLocalApp.txt` (Testing/Local): A specialized configuration that builds a standalone executable. This version includes a `main()` entry point for rapid testing and logic verification.
+
+### Why we do
+
+In our CI/CD pipeline (GitHub Actions), we perform a "Hot-Swap" of these files:
+
+```bash
+cp CMakeListsLocalApp.txt CMakeLists.
+```
+
+This allows the pipeline to compile and run the logic as a standalone application to verify string conversion accuracy without needing to boot up the entire web server infrastructure.
+
+## How to Build Locally
+
+1. Swap the files:
+
+```Bash
+cp CMakeListsLocalApp.txt CMakeLists.txt
+```
+
+2. Configure and Build:
+
+```Bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+```
+
+3. Run the App:
+
+```Bash
+./build/CaseConversionApp
+```
+
+Note: Be careful not to commit the swapped CMakeLists.txt if you have made changes to the production version. Always revert or use git checkout CMakeLists.txt after local testing.
+
+---
