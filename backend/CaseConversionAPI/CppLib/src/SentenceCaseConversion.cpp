@@ -24,8 +24,8 @@
 /*********************************************************************/
 /* Dependencies                                                      */
 /*********************************************************************/
-#include "SentenceCaseConversion.hpp"
 #include "LowerCaseConversion.hpp"
+#include "SentenceCaseConversion.hpp"
 #include "UpperCaseConversion.hpp"
 
 std::string SentenceCaseConversion::convert(const std::string& input) const {
@@ -41,4 +41,4 @@ std::string SentenceCaseConversion::convert(const std::string& input) const {
     result[0] = upperConv.convert(first)[0];
 
     return result;
- }
+}

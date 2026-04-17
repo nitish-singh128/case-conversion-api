@@ -33,6 +33,6 @@ std::string Client::execute(const std::string& input) const {
     if (!strategy) {
         return input;
     }
-        
+
     return strategy->convert(input);
 }

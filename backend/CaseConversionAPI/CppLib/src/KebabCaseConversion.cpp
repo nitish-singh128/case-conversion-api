@@ -36,8 +36,7 @@ std::string KebabCaseConversion::convert(const std::string& input) const {
     for (char ch : lower) {
         if (ch == ' ') {
             result += '-';
-        }
-        else {
+        } else {
             result += ch;
         }
     }

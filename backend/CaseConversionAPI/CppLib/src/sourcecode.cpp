@@ -25,8 +25,8 @@
 /*********************************************************************/
 /* Dependencies                                                      */
 /*********************************************************************/
-#include <iostream>
 #include "ProcessString.hpp"
+#include <iostream>
 
 int main() {
     std::string input;

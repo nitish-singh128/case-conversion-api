@@ -42,19 +42,18 @@
 /*  Code Qualty clang-formatted                                      */
 /*********************************************************************/
 
-
 /*********************************************************************/
 /* Dependencies                                                      */
 /*********************************************************************/
 
-#include "ProcessString.hpp"
 #include "Client.hpp"
-#include "StringConversionFactory.hpp"
 #include "ConversionTypeEnum.hpp"
+#include "ProcessString.hpp"
+#include "StringConversionFactory.hpp"
 
-#include <string>
-#include <cstring>
 #include <cstdlib>
+#include <cstring>
+#include <string>
 
 #include "ProcessStringDLL.hpp"
 
@@ -63,19 +62,20 @@
 //===================================================================
 
 /*
-*  Note: The 2 MB buffer limit is an arbitrary choice to prevent excessive memory usage in the DLL.
-*  In a production scenario, you may want to implement a more robust solution for handling large inputs,
-*  such as streaming processing or dynamic buffer resizing. For the purposes of this example, 
-*  we will simply return an error message if the input exceeds this limit.
-*
-*  Secruity Gate: 2MB Buffer Limit
-*  Prevents Heap Exhaustion attacks and protects the Dcoker sidecar's
-*  memory footprint from malicious or accidental large inputs. 
-*  This is a common best practice for C-style APIs that allocate memory based on input size.
-*/
+ *  Note: The 2 MB buffer limit is an arbitrary choice to prevent excessive
+ * memory usage in the DLL. In a production scenario, you may want to implement
+ * a more robust solution for handling large inputs, such as streaming
+ * processing or dynamic buffer resizing. For the purposes of this example, we
+ * will simply return an error message if the input exceeds this limit.
+ *
+ *  Secruity Gate: 2MB Buffer Limit
+ *  Prevents Heap Exhaustion attacks and protects the Dcoker sidecar's
+ *  memory footprint from malicious or accidental large inputs.
+ *  This is a common best practice for C-style APIs that allocate memory based
+ * on input size.
+ */
 
 #define MAX_INPUT_SIZE (5 * 1024 * 1024) // 5 MB
-
 
 //===================================================================
 // Helper Utilities (internal, not exported - C++ only)
@@ -86,7 +86,8 @@
  */
 static char* allocateCString(const std::string& str) {
     char* output = (char*)malloc(str.size() + 1);
-    if (!output) return nullptr;
+    if (!output)
+        return nullptr;
 
     strcpy(output, str.c_str());
     return output;
@@ -103,48 +104,48 @@ static bool mapConversionType(ConversionChoice choice, ConversionType& type) {
 
     switch (choice) {
 
-        case ConversionChoice::Alternating:   
-            type = ConversionType::Alternating; 
-            return true;
-        case ConversionChoice::Capitalize:    
-            type = ConversionType::Capitalize;  
-            return true;
-        case ConversionChoice::Lower:         
-            type = ConversionType::Lower;       
-            return true;
-        case ConversionChoice::Upper:         
-            type = ConversionType::Upper;       
-            return true;
-        case ConversionChoice::Sentence:      
-            type = ConversionType::Sentence;    
-            return true;
-        case ConversionChoice::Toggle:        
-            type = ConversionType::Toggle;      
-            return true;
-        case ConversionChoice::Reverse:       
-            type = ConversionType::Reverse;     
-            return true;
-        case ConversionChoice::RemoveVowels:  
-            type = ConversionType::RemoveVowels;
-            return true;
-        case ConversionChoice::RemoveSpaces:  
-            type = ConversionType::RemoveSpaces;
-            return true;
-        case ConversionChoice::InvertWords:   
-            type = ConversionType::InvertWords; 
-            return true;
-        case ConversionChoice::SnakeCase:     
-            type = ConversionType::SnakeCase;   
-            return true;
-        case ConversionChoice::KebabCase:     
-            type = ConversionType::KebabCase;   
-            return true;
-        case ConversionChoice::LeetSpeak:     
-            type = ConversionType::LeetSpeak;   
-            return true;
+    case ConversionChoice::Alternating:
+        type = ConversionType::Alternating;
+        return true;
+    case ConversionChoice::Capitalize:
+        type = ConversionType::Capitalize;
+        return true;
+    case ConversionChoice::Lower:
+        type = ConversionType::Lower;
+        return true;
+    case ConversionChoice::Upper:
+        type = ConversionType::Upper;
+        return true;
+    case ConversionChoice::Sentence:
+        type = ConversionType::Sentence;
+        return true;
+    case ConversionChoice::Toggle:
+        type = ConversionType::Toggle;
+        return true;
+    case ConversionChoice::Reverse:
+        type = ConversionType::Reverse;
+        return true;
+    case ConversionChoice::RemoveVowels:
+        type = ConversionType::RemoveVowels;
+        return true;
+    case ConversionChoice::RemoveSpaces:
+        type = ConversionType::RemoveSpaces;
+        return true;
+    case ConversionChoice::InvertWords:
+        type = ConversionType::InvertWords;
+        return true;
+    case ConversionChoice::SnakeCase:
+        type = ConversionType::SnakeCase;
+        return true;
+    case ConversionChoice::KebabCase:
+        type = ConversionType::KebabCase;
+        return true;
+    case ConversionChoice::LeetSpeak:
+        type = ConversionType::LeetSpeak;
+        return true;
 
-        default:
-            return false;
+    default:
+        return false;
     }
 }
 
@@ -155,9 +156,11 @@ static bool mapConversionType(ConversionChoice choice, ConversionType& type) {
 /*
 *   Important Notes on DLL API Design:
 *   1. C-style interface: Extern "C" is used to prevent name
-*      mangling and ensure compatibility with C# P/Invoke. 
-*      Ensures the exported function has a predictable name and calling convention.
-*      (e.g., "ProcessStringDLL" instead of a mangled C++ name like "_Z15ProcessStringDLLPKc").
+*      mangling and ensure compatibility with C# P/Invoke.
+*      Ensures the exported function has a predictable name and calling
+convention.
+*      (e.g., "ProcessStringDLL" instead of a mangled C++ name like
+"_Z15ProcessStringDLLPKc").
 *
 *   2. Memory management: The DLL allocates memory for the output
 *      string, and the caller (C#) is responsible for freeing it
@@ -172,7 +175,8 @@ static bool mapConversionType(ConversionChoice choice, ConversionType& type) {
 *
 *   4. Enum mapping: The mapConversionType function isolates the logic for
 *      mapping external conversion choices (from C#) to internal types
-*      used by the C++ engine. This separation of concerns improves maintainability.
+*      used by the C++ engine. This separation of concerns improves
+maintainability.
 *
 /*
 *   Why this is required:
@@ -181,20 +185,27 @@ static bool mapConversionType(ConversionChoice choice, ConversionType& type) {
 *   However, C# cannot directly call C++ functions that use these features
 *   due to differences in memory management and calling conventions.
 *   By providing a C-style interface (processStringDLL), we create a bridge
-*   that allows C# to leverage the powerful C++ engine while maintaining a simple and safe API contract.
+*   that allows C# to leverage the powerful C++ engine while maintaining a
+simple and safe API contract.
 *
-*   This design allows us to keep the core C++ code clean and modern, while still providing interoperability with C#. 
-*   It also ensures that we can handle memory management correctly across the language boundary, which is crucial for 
+*   This design allows us to keep the core C++ code clean and modern, while
+still providing interoperability with C#.
+*   It also ensures that we can handle memory management correctly across the
+language boundary, which is crucial for
 *   preventing leaks and crashes.
 *
 *
 *   Note:
-*     - Only C-style types (e.g., const char*) are used in the exported function signature to ensure compatibility with C#.
-*     - The function returns a newly allocated C-string that the caller must free using freeString to avoid memory leaks.
-*     - The internal logic of the function delegates to the existing C++ string conversion engine, ensuring that we do 
+*     - Only C-style types (e.g., const char*) are used in the exported function
+signature to ensure compatibility with C#.
+*     - The function returns a newly allocated C-string that the caller must
+free using freeString to avoid memory leaks.
+*     - The internal logic of the function delegates to the existing C++ string
+conversion engine, ensuring that we do
 *        not duplicate code and maintain a single source of truth for conversion
 *        logic.
-*     - Helper functions (allocateCString and mapConversionType) are defined as static and are not exposed outside this file, 
+*     - Helper functions (allocateCString and mapConversionType) are defined as
+static and are not exposed outside this file,
 *       keeping the API surface clean.
 */
 
@@ -218,8 +229,7 @@ API const char* processStringDLL(const char* input, int choiceInt) {
     }
 
     Client client;
-    ConversionChoice choice =
-        static_cast<ConversionChoice>(choiceInt);
+    ConversionChoice choice = static_cast<ConversionChoice>(choiceInt);
 
     ConversionType type;
 
@@ -232,24 +242,21 @@ API const char* processStringDLL(const char* input, int choiceInt) {
     client.setStrategy(StringConversionFactory::create(type));
 
     // Execute conversion pipeline
-    std::string result =
-        client.execute(std::string(input));
+    std::string result = client.execute(std::string(input));
 
     return allocateCString(result);
 }
 
 /**
  * @brief Frees memory allocated by processStringDLL
- * 
- * Important: C# must call this to avoid memory leaks since DLL allocates 
+ *
+ * Important: C# must call this to avoid memory leaks since DLL allocates
  * memory on the heap.
- * 
- * This is a common pattern for C-style interop where the callee allocates 
+ *
+ * This is a common pattern for C-style interop where the callee allocates
  * memory and the caller is responsible for freeing it.
- *  
+ *
  */
-API void freeString(char* str) {
-    free(str);
-}
+API void freeString(char* str) { free(str); }
 
 } // extern "C"

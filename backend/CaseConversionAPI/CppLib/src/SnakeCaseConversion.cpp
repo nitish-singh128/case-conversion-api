@@ -24,8 +24,8 @@
 /*********************************************************************/
 /* Dependencies                                                      */
 /*********************************************************************/
-#include "SnakeCaseConversion.hpp"
 #include "LowerCaseConversion.hpp"
+#include "SnakeCaseConversion.hpp"
 
 std::string SnakeCaseConversion::convert(const std::string& input) const {
     LowerCaseConversion lowerConv;
@@ -33,7 +33,7 @@ std::string SnakeCaseConversion::convert(const std::string& input) const {
     std::string lower = lowerConv.convert(input);
     std::string result;
 
-    for (char ch : lower){
+    for (char ch : lower) {
         if (ch == ' ')
             result += '_';
         else

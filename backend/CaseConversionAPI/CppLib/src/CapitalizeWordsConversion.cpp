@@ -41,7 +41,7 @@ std::string CapitalizeWordsConversion::convert(const std::string& input) const {
         if (!result.empty()) {
             result += " ";
         }
-            
+
         // Convert whole word to lowercase first
         word = lowerConv.convert(word);
 

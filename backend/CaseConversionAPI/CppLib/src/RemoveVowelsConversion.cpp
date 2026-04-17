@@ -22,8 +22,8 @@
 /*********************************************************************/
 /* Dependencies                                                      */
 /*********************************************************************/
-#include "RemoveVowelsConversion.hpp"
 #include "LowerCaseConversion.hpp"
+#include "RemoveVowelsConversion.hpp"
 
 std::string RemoveVowelsConversion::convert(const std::string& input) const {
     LowerCaseConversion lowerConv;
@@ -31,11 +31,10 @@ std::string RemoveVowelsConversion::convert(const std::string& input) const {
     std::string result;
     for (size_t i = 0; i < input.size(); ++i) {
         char ch = lower[i];
-        if (ch != 'a' && ch != 'e' && ch != 'i' &&
-            ch != 'o' && ch != 'u') {
+        if (ch != 'a' && ch != 'e' && ch != 'i' && ch != 'o' && ch != 'u') {
             result += input[i];
         }
     }
-    
+
     return result;
 }

@@ -24,8 +24,8 @@
 /* Dependencies                                                      */
 /*********************************************************************/
 #include "InvertWordsConversion.hpp"
-#include <sstream>
 #include <algorithm>
+#include <sstream>
 
 std::string InvertWordsConversion::convert(const std::string& input) const {
     std::istringstream iss(input);
@@ -43,6 +43,6 @@ std::string InvertWordsConversion::convert(const std::string& input) const {
         oss << word;
         first = false;
     }
-    
+
     return oss.str();
 }
