@@ -18,6 +18,9 @@
 /*                                                                   */
 /*  Revision 1.0  2026/04/11  Nitish Singh                           */
 /*  Initial implementation of ToggleCaseConversion.                  */
+/*                                                                   */   
+/* Revision 1.1  2026/04/12  Nitish Singh                            */
+/* Added code quality changes.                                       */
 /*********************************************************************/
 
 /*********************************************************************/
@@ -42,8 +45,10 @@ std::string ToggleCaseConversion::convert(const std::string& input) const {
             std::string temp(1, c);
             result += lowerConv.convert(temp);
         }
-        else
-            result += c;
+        else {
+            result += c; // Non-alphabetic characters unchanged
+        }
+            
     }
     
     return result;

@@ -74,9 +74,7 @@ std::string processString(const std::string& input, int choiceInt) {
     // Map enum to ConversionType
     ConversionType type = mapChoiceToType(choice);
 
-    client.setStrategy(
-        StringConversionFactory::create(type)
-    );
+    client.setStrategy(StringConversionFactory::create(type));
 
     return client.execute(input);
 }

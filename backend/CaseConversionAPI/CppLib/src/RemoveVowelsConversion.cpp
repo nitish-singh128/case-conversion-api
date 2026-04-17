@@ -36,5 +36,6 @@ std::string RemoveVowelsConversion::convert(const std::string& input) const {
             result += input[i];
         }
     }
+    
     return result;
 }

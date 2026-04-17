@@ -36,11 +36,13 @@ std::string InvertWordsConversion::convert(const std::string& input) const {
     while (iss >> word) {
         std::reverse(word.begin(), word.end());
 
-        if (!first)
+        if (!first) {
             oss << ' ';
+        }
 
         oss << word;
         first = false;
     }
+    
     return oss.str();
 }

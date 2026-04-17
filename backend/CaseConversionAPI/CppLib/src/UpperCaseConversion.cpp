@@ -29,8 +29,9 @@ std::string UpperCaseConversion::convert(const std::string& input) const {
     std::string result = input;
 
     for (char &c : result) {
-        if (c >= 'a' && c <= 'z')
+        if (c >= 'a' && c <= 'z') {
             c = c - ('a' - 'A');  // ASCII conversion
+        }
     }
     
     return result;

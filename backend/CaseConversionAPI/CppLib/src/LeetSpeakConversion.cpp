@@ -40,10 +40,13 @@ std::string LeetSpeakConversion::convert(const std::string& input) const {
     std::string result;
 
     for (char ch : input) {
-        if (leetMap.find(ch) != leetMap.end())
+        if (leetMap.find(ch) != leetMap.end()) {
             result += leetMap[ch];
-        else
+        }
+        else {
             result += ch;
+        }
     }
+    
     return result;
 }

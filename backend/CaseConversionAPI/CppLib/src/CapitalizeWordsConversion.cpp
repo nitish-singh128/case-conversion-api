@@ -38,9 +38,10 @@ std::string CapitalizeWordsConversion::convert(const std::string& input) const {
     std::string result;
 
     while (iss >> word) {
-        if (!result.empty())
+        if (!result.empty()) {
             result += " ";
-
+        }
+            
         // Convert whole word to lowercase first
         word = lowerConv.convert(word);
 

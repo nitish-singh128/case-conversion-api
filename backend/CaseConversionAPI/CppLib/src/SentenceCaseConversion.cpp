@@ -29,8 +29,9 @@
 #include "UpperCaseConversion.hpp"
 
 std::string SentenceCaseConversion::convert(const std::string& input) const {
-    if (input.empty())
+    if (input.empty()) {
         return input;
+    }
 
     LowerCaseConversion lowerConv;
     UpperCaseConversion upperConv;

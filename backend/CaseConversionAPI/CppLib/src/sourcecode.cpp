@@ -28,8 +28,7 @@
 #include <iostream>
 #include "ProcessString.hpp"
 
-int main()
-{
+int main() {
     std::string input;
 
     std::cout << "Enter string: ";

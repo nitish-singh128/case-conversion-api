@@ -30,6 +30,16 @@
 /*   - Restructured file using logical regions for clarity          */
 /*     (Helper Utilities, Conversion Mapping, Exported API).        */
 /*   - Reduced code duplication and improved readability.           */
+/*                                                                   */
+/* Revision 1.2  2026/04/13  Nitish Singh                          */
+/* Added security gate to prevent buffer overflow attacks by enforcing */
+/* a 2 MB input size limit. This protects the DLL and the hosting      */
+/* process from malicious or accidental large inputs. If the input     */
+/* exceeds this limit, the function returns a deterministic error string */
+/* that the .NET layer can identify and handle appropriately.         */
+/*
+/*  Revision 1.3  2026/04/14  Nitish Singh                          */
+/*  Code Qualty clang-formatted                                      */
 /*********************************************************************/
 
 

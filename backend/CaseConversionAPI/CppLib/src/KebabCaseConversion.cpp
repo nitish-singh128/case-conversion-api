@@ -34,10 +34,12 @@ std::string KebabCaseConversion::convert(const std::string& input) const {
     std::string result;
 
     for (char ch : lower) {
-        if (ch == ' ') 
+        if (ch == ' ') {
             result += '-';
-        else
+        }
+        else {
             result += ch;
+        }
     }
     return result;
 }
