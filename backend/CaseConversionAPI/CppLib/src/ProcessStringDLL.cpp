@@ -59,7 +59,7 @@
 #include "ProcessStringDLL.hpp"
 
 //===================================================================
-// Constrants: 2 MB Buffer Limit
+// Constrants: 5 MB Buffer Limit
 //===================================================================
 
 /*
@@ -74,7 +74,7 @@
 *  This is a common best practice for C-style APIs that allocate memory based on input size.
 */
 
-#define MAX_INPUT_SIZE (2 * 1024 * 1024) // 2 MB
+#define MAX_INPUT_SIZE (5 * 1024 * 1024) // 5 MB
 
 
 //===================================================================
