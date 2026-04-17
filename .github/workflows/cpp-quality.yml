@@ -1,0 +1,68 @@
+#*********************************************************************/
+#  CI Pipeline - C++ Static Analysis & Code Quality                  */
+#                                                                    */
+# Purpose   : Enforces C++17 standards, formatting, and safety.       */
+# Trigger   : Push / Pull Request affecting C++ source files.        */
+# Runtime   : Ubuntu Latest (Single Platform for maximum speed)      */
+#                                                                    */
+# Notes     : - Uses Clang-Format for architectural consistency.     */
+#             - Uses Clang-Tidy to detect memory leaks & code smells. */
+#                                                                    */
+# Revision History:                                                  */
+# ------------------------------------------------------------------ */
+# Version    Date         Author           Description               */
+# ------------------------------------------------------------------ */
+# 1.0        2026-04-18   Nitish Singh     Initial Quality Guard CI  */
+#*********************************************************************/
+
+name: C++ Quality Guard
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'backend/CaseConversionAPI/CppLib/**'
+  pull_request:
+    branches: ["main"]
+    paths:
+      - 'backend/CaseConversionAPI/CppLib/**'
+
+jobs:
+  static-analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-tidy clang-format cmake
+
+      # ======================================================
+      # 1. FORMATTING CHECK
+      # ======================================================
+      - name: Run Clang-Format Check
+        working-directory: backend/CaseConversionAPI/CppLib
+        run: |
+          # Checks against style guide without changing files
+          # --Werror makes the CI fail if formatting is incorrect
+          find . -name "*.cpp" -o -name "*.h" -o -name "*.hpp" | xargs clang-format --dry-run --Werror
+
+      # ======================================================
+      # 2. STATIC ANALYSIS (The "Linter")
+      # ======================================================
+      - name: Configure CMake for Clang-Tidy
+        working-directory: backend/CaseConversionAPI/CppLib
+        run: |
+          # CMAKE_EXPORT_COMPILE_COMMANDS is required for Clang-Tidy to understand imports
+          cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Run Clang-Tidy
+        working-directory: backend/CaseConversionAPI/CppLib
+        run: |
+          # Scans for logic errors, memory leaks, and modern standards
+          # --warnings-as-errors=* ensures no "code smell" passes the gate
+          clang-tidy src/*.cpp -p build --header-filter=.* --warnings-as-errors=*
