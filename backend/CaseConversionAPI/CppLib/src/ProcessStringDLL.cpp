@@ -216,15 +216,13 @@ extern "C" {
  */
 API const char* processStringDLL(const char* input, int choiceInt) {
 
-    // Fundamental safety check
-    if (!input)
+    if (!input) {
         return nullptr;
-
+    }
+       
     size_t inputLength = std::strlen(input);
 
-    // Check for input size limit
     if (inputLength > MAX_INPUT_SIZE) {
-        // Deterministic error string that the .NET layer can identify
         return allocateCString("ERROR_BUFFER_OVERFLOW_LIMIT_2MB");
     }
 
@@ -237,10 +235,8 @@ API const char* processStringDLL(const char* input, int choiceInt) {
         return allocateCString(std::string(input));
     }
 
-    // Set strategy
     client.setStrategy(StringConversionFactory::create(type));
 
-    // Execute conversion pipeline
     std::string result = client.execute(std::string(input));
 
     return allocateCString(result);
