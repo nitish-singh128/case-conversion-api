@@ -25,8 +25,8 @@
 /*********************************************************************/
 /* Dependencies                                                      */
 /*********************************************************************/
-#include <string>
 #include <iostream>
+#include <string>
 
 /**
  * @brief Logs the result of a string conversion.
@@ -35,12 +35,10 @@
  * Input  : "HELLO"
  * Output : "hello"
  */
-inline void logConversion(const std::string& name,
-                          const std::string& input,
-                          const std::string& output)
-{
-    std::cout << "[" << name << "] Input: \"" << input
-              << "\" => Output: \"" << output << "\"" << std::endl;
+inline void logConversion(const std::string &name, const std::string &input,
+                          const std::string &output) {
+  std::cout << "[" << name << "] Input: \"" << input << "\" => Output: \""
+            << output << "\"" << std::endl;
 }
 
 #endif // TEST_HELPERS_HPP

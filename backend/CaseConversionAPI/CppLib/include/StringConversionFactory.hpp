@@ -26,27 +26,27 @@
 /*********************************************************************/
 /* Dependencies                                                      */
 /*********************************************************************/
-#include <memory>
 #include "IStringConversion.hpp"
+#include <memory>
 
 /**
  * @enum ConversionType
  * @brief Defines types of string conversions available.
  */
 enum class ConversionType {
-    Lower,
-    Upper,
-    Capitalize,
-    Sentence,
-    Toggle,
-    Alternating,
-    Reverse,
-    RemoveVowels,
-    RemoveSpaces,
-    InvertWords,
-    SnakeCase,
-    KebabCase,
-    LeetSpeak
+  Lower,
+  Upper,
+  Capitalize,
+  Sentence,
+  Toggle,
+  Alternating,
+  Reverse,
+  RemoveVowels,
+  RemoveSpaces,
+  InvertWords,
+  SnakeCase,
+  KebabCase,
+  LeetSpeak
 };
 
 /**
@@ -59,12 +59,12 @@ enum class ConversionType {
  */
 class StringConversionFactory {
 public:
-    /**
-     * @brief Creates a string conversion object based on ConversionType.
-     * @param type The type of conversion to create.
-     * @return Unique pointer to conversion object.
-     */
-    static std::unique_ptr<IStringConversion> create(ConversionType type);
+  /**
+   * @brief Creates a string conversion object based on ConversionType.
+   * @param type The type of conversion to create.
+   * @return Unique pointer to conversion object.
+   */
+  static std::unique_ptr<IStringConversion> create(ConversionType type);
 };
 
 #endif // STRINGCONVERSIONFACTORY_HPP

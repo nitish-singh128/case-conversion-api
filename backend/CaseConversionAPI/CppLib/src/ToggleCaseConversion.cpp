@@ -26,27 +26,27 @@
 /*********************************************************************/
 /* Dependencies                                                      */
 /*********************************************************************/
-#include "LowerCaseConversion.hpp"
 #include "ToggleCaseConversion.hpp"
+#include "LowerCaseConversion.hpp"
 #include "UpperCaseConversion.hpp"
 
-std::string ToggleCaseConversion::convert(const std::string& input) const {
-    LowerCaseConversion lowerConv;
-    UpperCaseConversion upperConv;
+std::string ToggleCaseConversion::convert(const std::string &input) const {
+  LowerCaseConversion lowerConv;
+  UpperCaseConversion upperConv;
 
-    std::string result;
+  std::string result;
 
-    for (char c : input) {
-        if (c >= 'a' && c <= 'z') {
-            std::string temp(1, c);
-            result += upperConv.convert(temp);
-        } else if (c >= 'A' && c <= 'Z') {
-            std::string temp(1, c);
-            result += lowerConv.convert(temp);
-        } else {
-            result += c; // Non-alphabetic characters unchanged
-        }
+  for (char c : input) {
+    if (c >= 'a' && c <= 'z') {
+      std::string temp(1, c);
+      result += upperConv.convert(temp);
+    } else if (c >= 'A' && c <= 'Z') {
+      std::string temp(1, c);
+      result += lowerConv.convert(temp);
+    } else {
+      result += c; // Non-alphabetic characters unchanged
     }
+  }
 
-    return result;
+  return result;
 }

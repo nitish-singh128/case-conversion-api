@@ -39,12 +39,13 @@
  */
 class CapitalizeWordsConversion : public IStringConversion {
 public:
-    /**
-     * @brief Converts the input string by capitalizing the first letter of each word.
-     * @param input The original string to convert.
-     * @return A new string with each word capitalized.
-     */
-    std::string convert(const std::string& input) const override;
+  /**
+   * @brief Converts the input string by capitalizing the first letter of each
+   * word.
+   * @param input The original string to convert.
+   * @return A new string with each word capitalized.
+   */
+  std::string convert(const std::string &input) const override;
 };
 
 #endif // CAPITALIZEWORDSCONVERSION_HPP

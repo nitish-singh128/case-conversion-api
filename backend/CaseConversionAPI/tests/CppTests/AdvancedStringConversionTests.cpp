@@ -26,25 +26,25 @@
 // ---------------------------
 // Core Includes
 // ---------------------------
-#include "TestHelpers.hpp"
+#include "AlternatingCaseConversion.hpp"
+#include "CapitalizeWordsConversion.hpp"
 #include "IStringConversion.hpp"
 #include "LowerCaseConversion.hpp"
-#include "UpperCaseConversion.hpp"
-#include "CapitalizeWordsConversion.hpp"
-#include "SentenceCaseConversion.hpp"
-#include "ToggleCaseConversion.hpp"
-#include "AlternatingCaseConversion.hpp"
 #include "ReverseConversion.hpp"
+#include "SentenceCaseConversion.hpp"
+#include "TestHelpers.hpp"
+#include "ToggleCaseConversion.hpp"
+#include "UpperCaseConversion.hpp"
 
 // ---------------------------
 // Design Pattern / Framework
 // ---------------------------
-#include "StringConversionFactory.hpp"
 #include "Client.hpp"
 #include "ProcessString.hpp"
+#include "StringConversionFactory.hpp"
 
-#include <iostream>
 #include <chrono>
+#include <iostream>
 #include <random>
 
 // ============================================================
@@ -52,40 +52,40 @@
 // ============================================================
 
 TEST(AdvancedConversionTest, MixedCaseInputWithLog) {
-    std::string input = "hElLo WoRLd!";
+  std::string input = "hElLo WoRLd!";
 
-    LowerCaseConversion lower;
-    UpperCaseConversion upper;
-    CapitalizeWordsConversion cap;
-    SentenceCaseConversion sentence;
-    ToggleCaseConversion toggle;
-    AlternatingCaseConversion alternating;
+  LowerCaseConversion lower;
+  UpperCaseConversion upper;
+  CapitalizeWordsConversion cap;
+  SentenceCaseConversion sentence;
+  ToggleCaseConversion toggle;
+  AlternatingCaseConversion alternating;
 
-    std::string result;
+  std::string result;
 
-    result = lower.convert(input);
-    logConversion("LowerCase", input, result);
-    EXPECT_EQ(result, "hello world!");
+  result = lower.convert(input);
+  logConversion("LowerCase", input, result);
+  EXPECT_EQ(result, "hello world!");
 
-    result = upper.convert(input);
-    logConversion("UpperCase", input, result);
-    EXPECT_EQ(result, "HELLO WORLD!");
+  result = upper.convert(input);
+  logConversion("UpperCase", input, result);
+  EXPECT_EQ(result, "HELLO WORLD!");
 
-    result = cap.convert(input);
-    logConversion("CapitalizeWords", input, result);
-    EXPECT_EQ(result, "Hello World!");
+  result = cap.convert(input);
+  logConversion("CapitalizeWords", input, result);
+  EXPECT_EQ(result, "Hello World!");
 
-    result = sentence.convert(input);
-    logConversion("SentenceCase", input, result);
-    EXPECT_EQ(result, "Hello world!");
+  result = sentence.convert(input);
+  logConversion("SentenceCase", input, result);
+  EXPECT_EQ(result, "Hello world!");
 
-    result = toggle.convert(input);
-    logConversion("ToggleCase", input, result);
-    EXPECT_EQ(result, "HeLlO wOrlD!");
+  result = toggle.convert(input);
+  logConversion("ToggleCase", input, result);
+  EXPECT_EQ(result, "HeLlO wOrlD!");
 
-    result = alternating.convert(input);
-    logConversion("AlternatingCase", input, result);
-    EXPECT_EQ(result, "HeLlO WoRlD!");
+  result = alternating.convert(input);
+  logConversion("AlternatingCase", input, result);
+  EXPECT_EQ(result, "HeLlO WoRlD!");
 }
 
 // ============================================================
@@ -93,17 +93,17 @@ TEST(AdvancedConversionTest, MixedCaseInputWithLog) {
 // ============================================================
 
 TEST(ClientTest, ExecuteStrategyWithLog) {
-    std::string input = "TeStInG";
+  std::string input = "TeStInG";
 
-    Client client;
-    client.setStrategy(StringConversionFactory::create(ConversionType::Toggle));
+  Client client;
+  client.setStrategy(StringConversionFactory::create(ConversionType::Toggle));
 
-    std::string output = client.execute(input);
+  std::string output = client.execute(input);
 
-    std::cout << "[Client Toggle] Input: \"" << input
-              << "\" => Output: \"" << output << "\"" << std::endl;
+  std::cout << "[Client Toggle] Input: \"" << input << "\" => Output: \""
+            << output << "\"" << std::endl;
 
-    EXPECT_EQ(output, "tEsTiNg");
+  EXPECT_EQ(output, "tEsTiNg");
 }
 
 // ============================================================
@@ -111,25 +111,25 @@ TEST(ClientTest, ExecuteStrategyWithLog) {
 // ============================================================
 
 TEST(ProcessStringTest, ProcessStringAlternating) {
-    std::string input = "Hello World!";
-    int choice = 1; // Alternating case
+  std::string input = "Hello World!";
+  int choice = 1; // Alternating case
 
-    std::string output = processString(input, choice);
+  std::string output = processString(input, choice);
 
-    logConversion("ProcessString Alternating", input, output);
+  logConversion("ProcessString Alternating", input, output);
 
-    EXPECT_EQ(output, "HeLlO WoRlD!");
+  EXPECT_EQ(output, "HeLlO WoRlD!");
 }
 
 TEST(ProcessStringTest, ProcessStringReverse) {
-    std::string input = "Hello World!";
-    int choice = 7; // Reverse
+  std::string input = "Hello World!";
+  int choice = 7; // Reverse
 
-    std::string output = processString(input, choice);
+  std::string output = processString(input, choice);
 
-    logConversion("ProcessString Reverse", input, output);
+  logConversion("ProcessString Reverse", input, output);
 
-    EXPECT_EQ(output, "!dlroW olleH");
+  EXPECT_EQ(output, "!dlroW olleH");
 }
 
 // ============================================================
@@ -137,38 +137,37 @@ TEST(ProcessStringTest, ProcessStringReverse) {
 // ============================================================
 
 TEST(ReverseConversionTest, ReverseStringWithLog) {
-    std::string input = "Hello World!";
-    ReverseConversion reverse;
+  std::string input = "Hello World!";
+  ReverseConversion reverse;
 
-    std::string output = reverse.convert(input);
+  std::string output = reverse.convert(input);
 
-    logConversion("ReverseCase", input, output);
+  logConversion("ReverseCase", input, output);
 
-    EXPECT_EQ(output, "!dlroW olleH");
+  EXPECT_EQ(output, "!dlroW olleH");
 }
 
 // ============================================================
 // 5. PERFORMANCE TEST
 // ============================================================
 
-
 TEST(UpperCasePerformanceTest, LargeInput) {
-    UpperCaseConversion converter;
+  UpperCaseConversion converter;
 
-    std::string largeInput(1'000'000, 'a');
+  std::string largeInput(1'000'000, 'a');
 
-    auto start = std::chrono::high_resolution_clock::now();
-    auto result = converter.convert(largeInput);
-    auto end = std::chrono::high_resolution_clock::now();
+  auto start = std::chrono::high_resolution_clock::now();
+  auto result = converter.convert(largeInput);
+  auto end = std::chrono::high_resolution_clock::now();
 
-    auto duration =
-        std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+  auto duration =
+      std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-    std::cout << "Execution time: " << duration.count() << " ms\n";
+  std::cout << "Execution time: " << duration.count() << " ms\n";
 
-    EXPECT_EQ(result.size(), largeInput.size());
-    
-    EXPECT_LT(duration.count(), 25); // < 25 ms
+  EXPECT_EQ(result.size(), largeInput.size());
+
+  EXPECT_LT(duration.count(), 25); // < 25 ms
 }
 
 // ============================================================
@@ -176,22 +175,22 @@ TEST(UpperCasePerformanceTest, LargeInput) {
 // ============================================================
 
 TEST(UpperCaseFuzzTest, RandomStrings) {
-    UpperCaseConversion converter;
+  UpperCaseConversion converter;
 
-    std::mt19937 rng(123);
-    std::uniform_int_distribution<int> lenDist(0, 100);
-    std::uniform_int_distribution<int> charDist(32, 126);
+  std::mt19937 rng(123);
+  std::uniform_int_distribution<int> lenDist(0, 100);
+  std::uniform_int_distribution<int> charDist(32, 126);
 
-    for (int i = 0; i < 1000; ++i) {
-        int len = lenDist(rng);
-        std::string input;
+  for (int i = 0; i < 1000; ++i) {
+    int len = lenDist(rng);
+    std::string input;
 
-        for (int j = 0; j < len; ++j) {
-            input += static_cast<char>(charDist(rng));
-        }
-
-        std::string output = converter.convert(input);
-
-        EXPECT_EQ(output.size(), input.size());
+    for (int j = 0; j < len; ++j) {
+      input += static_cast<char>(charDist(rng));
     }
+
+    std::string output = converter.convert(input);
+
+    EXPECT_EQ(output.size(), input.size());
+  }
 }

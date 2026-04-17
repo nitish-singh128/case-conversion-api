@@ -17,46 +17,61 @@
 # 1.2        2026-04-18   Nitish Singh     Refined src path patterns */
 #*********************************************************************/
 
+#*********************************************************************/
+#  CI Pipeline - C++ Static Analysis & Code Quality                  */
+#*********************************************************************/
+
 name: C++ Quality Guard
 
 on:
   push:
-    branches: ["main", "develop"]
+    branches: ["main"]
     paths:
       - 'backend/CaseConversionAPI/CppLib/**'
   pull_request:
     branches: ["main"]
     paths:
       - 'backend/CaseConversionAPI/CppLib/**'
-  # Allows manual triggering for testing
   workflow_dispatch: {}
 
 jobs:
   static-analysis:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Toolchain
+      # ------------------------------------------------------------
+      # Install deterministic LLVM toolchain (IMPORTANT)
+      # ------------------------------------------------------------
+      - name: Install Toolchain (Clang 16)
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang-tidy clang-format cmake
+          sudo apt-get install -y clang-format-16 clang-tidy-16 cmake
 
+      # ------------------------------------------------------------
+      # Configure project for clang-tidy
+      # ------------------------------------------------------------
       - name: Configure CMake
         working-directory: backend/CaseConversionAPI/CppLib
         run: |
-          # Generates compile_commands.json needed by Clang-Tidy
           cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
+      # ------------------------------------------------------------
+      # Clang-Format Check (STRICT)
+      # ------------------------------------------------------------
       - name: Run Clang-Format Check
         working-directory: backend/CaseConversionAPI/CppLib
         run: |
-          # Checks both .cpp and .h files inside the src folder
-          find src -type f \( -name "*.cpp" -o -name "*.h" \) | xargs clang-format --dry-run --Werror
+          find src -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) -print0 \
+          | xargs -0 clang-format-16 --dry-run --Werror
 
+      # ------------------------------------------------------------
+      # Clang-Tidy Analysis
+      # ------------------------------------------------------------
       - name: Run Clang-Tidy
         working-directory: backend/CaseConversionAPI/CppLib
         run: |
-          # Scans the .cpp files using the header info from the same folder
-          find src -name "*.cpp" | xargs clang-tidy -p build --header-filter=src/.* --warnings-as-errors=*
+          find src -name "*.cpp" -print0 \
+          | xargs -0 clang-tidy-16 -p build --header-filter=src/.* --warnings-as-errors=*

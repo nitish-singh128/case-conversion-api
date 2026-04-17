@@ -24,21 +24,21 @@
 /*********************************************************************/
 /* Dependencies                                                      */
 /*********************************************************************/
-#include "LowerCaseConversion.hpp"
 #include "SentenceCaseConversion.hpp"
+#include "LowerCaseConversion.hpp"
 #include "UpperCaseConversion.hpp"
 
-std::string SentenceCaseConversion::convert(const std::string& input) const {
-    if (input.empty()) {
-        return input;
-    }
+std::string SentenceCaseConversion::convert(const std::string &input) const {
+  if (input.empty()) {
+    return input;
+  }
 
-    LowerCaseConversion lowerConv;
-    UpperCaseConversion upperConv;
+  LowerCaseConversion lowerConv;
+  UpperCaseConversion upperConv;
 
-    std::string result = lowerConv.convert(input);
-    std::string first(1, result[0]);
-    result[0] = upperConv.convert(first)[0];
+  std::string result = lowerConv.convert(input);
+  std::string first(1, result[0]);
+  result[0] = upperConv.convert(first)[0];
 
-    return result;
+  return result;
 }

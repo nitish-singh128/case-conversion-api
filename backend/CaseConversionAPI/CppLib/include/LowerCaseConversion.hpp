@@ -31,7 +31,8 @@
 
 /**
  * @class LowerCaseConversion
- * @brief Concrete implementation of IStringConversion that converts strings to lowercase.
+ * @brief Concrete implementation of IStringConversion that converts strings to
+ * lowercase.
  *
  * Example:
  * Input  : "HELLO WORLD"
@@ -39,12 +40,12 @@
  */
 class LowerCaseConversion : public IStringConversion {
 public:
-    /**
-     * @brief Converts the input string to lowercase.
-     * @param input The string to convert.
-     * @return A new string where all alphabetic characters are lowercase.
-     */
-    std::string convert(const std::string& input) const override;
+  /**
+   * @brief Converts the input string to lowercase.
+   * @param input The string to convert.
+   * @return A new string where all alphabetic characters are lowercase.
+   */
+  std::string convert(const std::string &input) const override;
 };
 
 #endif // LOWERCASECONVERSION_HPP

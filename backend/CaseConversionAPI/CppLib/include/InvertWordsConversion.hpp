@@ -38,12 +38,12 @@
  */
 class InvertWordsConversion : public IStringConversion {
 public:
-    /**
-     * @brief Converts the input string by inverting each word.
-     * @param input The original string to convert.
-     * @return A new string with each word reversed.
-     */
-    std::string convert(const std::string& input) const override;
+  /**
+   * @brief Converts the input string by inverting each word.
+   * @param input The original string to convert.
+   * @return A new string with each word reversed.
+   */
+  std::string convert(const std::string &input) const override;
 };
 
 #endif // INVERTWORDSCONVERSION_HPP

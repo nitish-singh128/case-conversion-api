@@ -27,40 +27,42 @@
 /*********************************************************************/
 
 #ifdef _WIN32
-  #ifdef PROCESSSTRING_EXPORTS
-    #define API __declspec(dllexport)
-  #else
-    #define API __declspec(dllimport)
-  #endif
+#ifdef PROCESSSTRING_EXPORTS
+#define API __declspec(dllexport)
 #else
-  // CRITICAL FOR MACOS: Force symbol visibility
-  #define API __attribute__((visibility("default")))
+#define API __declspec(dllimport)
+#endif
+#else
+// CRITICAL FOR MACOS: Force symbol visibility
+#define API __attribute__((visibility("default")))
 #endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-    /**
-     * @brief COnverts input string based on choice and returns a newly allocated C-string.
-     *
-     * @param input  C-string input.
-     * @param choice Integer conversion choice.
-     * @return C-string result (valid until next call). Caller must free using freeString.
-     */
-    API const char* processStringDLL(const char* input, int choice);
+/**
+ * @brief COnverts input string based on choice and returns a newly allocated
+ * C-string.
+ *
+ * @param input  C-string input.
+ * @param choice Integer conversion choice.
+ * @return C-string result (valid until next call). Caller must free using
+ * freeString.
+ */
+API const char *processStringDLL(const char *input, int choice);
 
-    /**
-     * @brief Frees memory allocated by processStringDLL
-     * 
-     * Important: C# must call this to avoid memory leaks since DLL allocates 
-     * memory on the heap.
-     * 
-     * This is a common pattern for C-style interop where the callee allocates 
-     * memory and the caller is responsible for freeing it.
-     *  
-     */
-    API void freeString(char* str);
+/**
+ * @brief Frees memory allocated by processStringDLL
+ *
+ * Important: C# must call this to avoid memory leaks since DLL allocates
+ * memory on the heap.
+ *
+ * This is a common pattern for C-style interop where the callee allocates
+ * memory and the caller is responsible for freeing it.
+ *
+ */
+API void freeString(char *str);
 
 #ifdef __cplusplus
 } // extern "C"

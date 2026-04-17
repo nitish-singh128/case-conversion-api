@@ -29,7 +29,8 @@
 
 /**
  * @class SnakeCaseConversion
- * @brief Concrete implementation of IStringConversion that converts to snake_case.
+ * @brief Concrete implementation of IStringConversion that converts to
+ * snake_case.
  *
  * Example:
  * Input  : "Hello World Example"
@@ -37,12 +38,12 @@
  */
 class SnakeCaseConversion : public IStringConversion {
 public:
-    /**
-     * @brief Converts the input string to snake_case.
-     * @param input The original string to convert.
-     * @return A new string in snake_case format.
-     */
-    std::string convert(const std::string& input) const override;
+  /**
+   * @brief Converts the input string to snake_case.
+   * @param input The original string to convert.
+   * @return A new string in snake_case format.
+   */
+  std::string convert(const std::string &input) const override;
 };
 
 #endif // SNAKECASECONVERSION_HPP

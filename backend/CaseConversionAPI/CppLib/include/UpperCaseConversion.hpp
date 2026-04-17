@@ -38,12 +38,12 @@
  */
 class UpperCaseConversion : public IStringConversion {
 public:
-    /**
-     * @brief Converts the input string to uppercase.
-     * @param input The string to convert.
-     * @return Converted string in uppercase.
-     */
-    std::string convert(const std::string& input) const override;
+  /**
+   * @brief Converts the input string to uppercase.
+   * @param input The string to convert.
+   * @return Converted string in uppercase.
+   */
+  std::string convert(const std::string &input) const override;
 };
 
 #endif // UPPERCASECONVERSION_HPP

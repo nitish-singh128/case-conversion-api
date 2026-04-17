@@ -31,7 +31,8 @@
 
 /**
  * @class LeetSpeakConversion
- * @brief Concrete implementation of IStringConversion that converts strings into leet speak.
+ * @brief Concrete implementation of IStringConversion that converts strings
+ * into leet speak.
  *
  * Example:
  * Input  : "Hello World"
@@ -39,12 +40,12 @@
  */
 class LeetSpeakConversion : public IStringConversion {
 public:
-    /**
-     * @brief Converts the input string into leet speak.
-     * @param input The string to convert.
-     * @return The leet speak version of the input.
-     */
-    std::string convert(const std::string& input) const override;
+  /**
+   * @brief Converts the input string into leet speak.
+   * @param input The string to convert.
+   * @return The leet speak version of the input.
+   */
+  std::string convert(const std::string &input) const override;
 };
 
 #endif // LEETSPEAKCONVERSION_HPP

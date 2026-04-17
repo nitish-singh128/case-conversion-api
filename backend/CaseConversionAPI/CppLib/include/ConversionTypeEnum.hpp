@@ -36,19 +36,19 @@
  * selected by passing its integer value to processStringDLL.
  */
 enum class ConversionChoice : int {
-    Alternating   = 1,  ///< Alternating Case
-    Capitalize    = 2,  ///< Capitalize Words
-    Lower         = 3,  ///< Lower Case
-    Upper         = 4,  ///< Upper Case
-    Sentence      = 5,  ///< Sentence Case
-    Toggle        = 6,  ///< Toggle Case
-    Reverse       = 7,  ///< Reverse String
-    RemoveVowels  = 8,  ///< Remove Vowels
-    RemoveSpaces  = 9,  ///< Remove Spaces
-    InvertWords   = 10, ///< Invert Words
-    SnakeCase     = 11, ///< Snake Case
-    KebabCase     = 12, ///< Kebab Case
-    LeetSpeak     = 13  ///< Leet Speak
+  Alternating = 1,  ///< Alternating Case
+  Capitalize = 2,   ///< Capitalize Words
+  Lower = 3,        ///< Lower Case
+  Upper = 4,        ///< Upper Case
+  Sentence = 5,     ///< Sentence Case
+  Toggle = 6,       ///< Toggle Case
+  Reverse = 7,      ///< Reverse String
+  RemoveVowels = 8, ///< Remove Vowels
+  RemoveSpaces = 9, ///< Remove Spaces
+  InvertWords = 10, ///< Invert Words
+  SnakeCase = 11,   ///< Snake Case
+  KebabCase = 12,   ///< Kebab Case
+  LeetSpeak = 13    ///< Leet Speak
 };
 
 #endif // CONVERSIONTYPEENUM_HPP

@@ -29,7 +29,8 @@
 
 /**
  * @class SentenceCaseConversion
- * @brief Concrete implementation of IStringConversion that converts to sentence case.
+ * @brief Concrete implementation of IStringConversion that converts to sentence
+ * case.
  *
  * Example:
  * Input  : "hELLO WORLD"
@@ -37,12 +38,12 @@
  */
 class SentenceCaseConversion : public IStringConversion {
 public:
-    /**
-     * @brief Converts the input string to sentence case.
-     * @param input The string to convert.
-     * @return The converted string with first letter capitalized.
-     */
-    std::string convert(const std::string& input) const override;
+  /**
+   * @brief Converts the input string to sentence case.
+   * @param input The string to convert.
+   * @return The converted string with first letter capitalized.
+   */
+  std::string convert(const std::string &input) const override;
 };
 
 #endif // SENTENCECASECONVERSION_HPP

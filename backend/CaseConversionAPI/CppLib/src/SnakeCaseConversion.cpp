@@ -24,20 +24,20 @@
 /*********************************************************************/
 /* Dependencies                                                      */
 /*********************************************************************/
-#include "LowerCaseConversion.hpp"
 #include "SnakeCaseConversion.hpp"
+#include "LowerCaseConversion.hpp"
 
-std::string SnakeCaseConversion::convert(const std::string& input) const {
-    LowerCaseConversion lowerConv;
+std::string SnakeCaseConversion::convert(const std::string &input) const {
+  LowerCaseConversion lowerConv;
 
-    std::string lower = lowerConv.convert(input);
-    std::string result;
+  std::string lower = lowerConv.convert(input);
+  std::string result;
 
-    for (char ch : lower) {
-        if (ch == ' ')
-            result += '_';
-        else
-            result += ch;
-    }
-    return result;
+  for (char ch : lower) {
+    if (ch == ' ')
+      result += '_';
+    else
+      result += ch;
+  }
+  return result;
 }

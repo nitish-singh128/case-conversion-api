@@ -39,12 +39,12 @@
  */
 class AlternatingCaseConversion : public IStringConversion {
 public:
-    /**
-     * @brief Converts the input string by alternating the case of each character.
-     * @param input The original string to convert.
-     * @return A new string with alternating character case.
-     */
-    std::string convert(const std::string& input) const override;
+  /**
+   * @brief Converts the input string by alternating the case of each character.
+   * @param input The original string to convert.
+   * @return A new string with alternating character case.
+   */
+  std::string convert(const std::string &input) const override;
 };
 
 #endif // ALTERNATINGCASECONVERSION_HPP

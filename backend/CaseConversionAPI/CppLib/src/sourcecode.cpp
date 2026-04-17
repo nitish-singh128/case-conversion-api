@@ -29,22 +29,22 @@
 #include <iostream>
 
 int main() {
-    std::string input;
+  std::string input;
 
-    std::cout << "Enter string: ";
-    std::getline(std::cin, input);
+  std::cout << "Enter string: ";
+  std::getline(std::cin, input);
 
-    std::cout << "1: Alternating, 2: Capitalize, 3: Lower, 4: Upper, "
-                 "5: Sentence, 6: Toggle, 7: Reverse, 8: RemoveVowels, "
-                 "9: RemoveSpaces, 10: InvertWords, 11: SnakeCase, "
-                 "12: KebabCase, 13: LeetSpeak\n";
+  std::cout << "1: Alternating, 2: Capitalize, 3: Lower, 4: Upper, "
+               "5: Sentence, 6: Toggle, 7: Reverse, 8: RemoveVowels, "
+               "9: RemoveSpaces, 10: InvertWords, 11: SnakeCase, "
+               "12: KebabCase, 13: LeetSpeak\n";
 
-    int choice;
-    std::cin >> choice;
+  int choice;
+  std::cin >> choice;
 
-    std::string result = processString(input, choice);
+  std::string result = processString(input, choice);
 
-    std::cout << "Result: " << result << std::endl;
+  std::cout << "Result: " << result << std::endl;
 
-    return 0;
+  return 0;
 }

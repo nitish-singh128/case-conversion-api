@@ -32,7 +32,8 @@
 
 /**
  * @class KebabCaseConversion
- * @brief Concrete implementation of IStringConversion that converts strings to kebab-case.
+ * @brief Concrete implementation of IStringConversion that converts strings to
+ * kebab-case.
  *
  * Example:
  * Input  : "Hello World Example"
@@ -40,12 +41,12 @@
  */
 class KebabCaseConversion : public IStringConversion {
 public:
-    /**
-     * @brief Converts the input string to kebab-case.
-     * @param input The string to convert.
-     * @return The kebab-case version of the input.
-     */
-    std::string convert(const std::string& input) const override;
+  /**
+   * @brief Converts the input string to kebab-case.
+   * @param input The string to convert.
+   * @return The kebab-case version of the input.
+   */
+  std::string convert(const std::string &input) const override;
 };
 
 #endif // KEBABCASECONVERSION_HPP

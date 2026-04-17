@@ -27,18 +27,18 @@
 #include "KebabCaseConversion.hpp"
 #include "LowerCaseConversion.hpp"
 
-std::string KebabCaseConversion::convert(const std::string& input) const {
-    LowerCaseConversion lowerConv;
+std::string KebabCaseConversion::convert(const std::string &input) const {
+  LowerCaseConversion lowerConv;
 
-    std::string lower = lowerConv.convert(input);
-    std::string result;
+  std::string lower = lowerConv.convert(input);
+  std::string result;
 
-    for (char ch : lower) {
-        if (ch == ' ') {
-            result += '-';
-        } else {
-            result += ch;
-        }
+  for (char ch : lower) {
+    if (ch == ' ') {
+      result += '-';
+    } else {
+      result += ch;
     }
-    return result;
+  }
+  return result;
 }

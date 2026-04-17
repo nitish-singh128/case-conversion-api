@@ -84,13 +84,13 @@
 /**
  * @brief Allocates a C-string from std::string (heap memory)
  */
-static char* allocateCString(const std::string& str) {
-    char* output = (char*)malloc(str.size() + 1);
-    if (!output)
-        return nullptr;
+static char *allocateCString(const std::string &str) {
+  char *output = (char *)malloc(str.size() + 1);
+  if (!output)
+    return nullptr;
 
-    strcpy(output, str.c_str());
-    return output;
+  strcpy(output, str.c_str());
+  return output;
 }
 
 //===================================================================
@@ -100,53 +100,53 @@ static char* allocateCString(const std::string& str) {
 /**
  * @brief Maps external conversion choice to internal type
  */
-static bool mapConversionType(ConversionChoice choice, ConversionType& type) {
+static bool mapConversionType(ConversionChoice choice, ConversionType &type) {
 
-    switch (choice) {
+  switch (choice) {
 
-    case ConversionChoice::Alternating:
-        type = ConversionType::Alternating;
-        return true;
-    case ConversionChoice::Capitalize:
-        type = ConversionType::Capitalize;
-        return true;
-    case ConversionChoice::Lower:
-        type = ConversionType::Lower;
-        return true;
-    case ConversionChoice::Upper:
-        type = ConversionType::Upper;
-        return true;
-    case ConversionChoice::Sentence:
-        type = ConversionType::Sentence;
-        return true;
-    case ConversionChoice::Toggle:
-        type = ConversionType::Toggle;
-        return true;
-    case ConversionChoice::Reverse:
-        type = ConversionType::Reverse;
-        return true;
-    case ConversionChoice::RemoveVowels:
-        type = ConversionType::RemoveVowels;
-        return true;
-    case ConversionChoice::RemoveSpaces:
-        type = ConversionType::RemoveSpaces;
-        return true;
-    case ConversionChoice::InvertWords:
-        type = ConversionType::InvertWords;
-        return true;
-    case ConversionChoice::SnakeCase:
-        type = ConversionType::SnakeCase;
-        return true;
-    case ConversionChoice::KebabCase:
-        type = ConversionType::KebabCase;
-        return true;
-    case ConversionChoice::LeetSpeak:
-        type = ConversionType::LeetSpeak;
-        return true;
+  case ConversionChoice::Alternating:
+    type = ConversionType::Alternating;
+    return true;
+  case ConversionChoice::Capitalize:
+    type = ConversionType::Capitalize;
+    return true;
+  case ConversionChoice::Lower:
+    type = ConversionType::Lower;
+    return true;
+  case ConversionChoice::Upper:
+    type = ConversionType::Upper;
+    return true;
+  case ConversionChoice::Sentence:
+    type = ConversionType::Sentence;
+    return true;
+  case ConversionChoice::Toggle:
+    type = ConversionType::Toggle;
+    return true;
+  case ConversionChoice::Reverse:
+    type = ConversionType::Reverse;
+    return true;
+  case ConversionChoice::RemoveVowels:
+    type = ConversionType::RemoveVowels;
+    return true;
+  case ConversionChoice::RemoveSpaces:
+    type = ConversionType::RemoveSpaces;
+    return true;
+  case ConversionChoice::InvertWords:
+    type = ConversionType::InvertWords;
+    return true;
+  case ConversionChoice::SnakeCase:
+    type = ConversionType::SnakeCase;
+    return true;
+  case ConversionChoice::KebabCase:
+    type = ConversionType::KebabCase;
+    return true;
+  case ConversionChoice::LeetSpeak:
+    type = ConversionType::LeetSpeak;
+    return true;
 
-    default:
-        return false;
-    }
+  default:
+    return false;
+  }
 }
 
 //===================================================================
@@ -214,32 +214,32 @@ extern "C" {
 /**
  * @brief Main DLL entry point for C# string conversion
  */
-API const char* processStringDLL(const char* input, int choiceInt) {
+API const char *processStringDLL(const char *input, int choiceInt) {
 
-    if (!input) {
-        return nullptr;
-    }
-       
-    size_t inputLength = std::strlen(input);
+  if (!input) {
+    return nullptr;
+  }
 
-    if (inputLength > MAX_INPUT_SIZE) {
-        return allocateCString("ERROR_BUFFER_OVERFLOW_LIMIT_2MB");
-    }
+  size_t inputLength = std::strlen(input);
 
-    Client client;
-    ConversionChoice choice = static_cast<ConversionChoice>(choiceInt);
+  if (inputLength > MAX_INPUT_SIZE) {
+    return allocateCString("ERROR_BUFFER_OVERFLOW_LIMIT_2MB");
+  }
 
-    ConversionType type;
+  Client client;
+  ConversionChoice choice = static_cast<ConversionChoice>(choiceInt);
 
-    if (!mapConversionType(choice, type)) {
-        return allocateCString(std::string(input));
-    }
+  ConversionType type;
 
-    client.setStrategy(StringConversionFactory::create(type));
+  if (!mapConversionType(choice, type)) {
+    return allocateCString(std::string(input));
+  }
 
-    std::string result = client.execute(std::string(input));
+  client.setStrategy(StringConversionFactory::create(type));
 
-    return allocateCString(result);
+  std::string result = client.execute(std::string(input));
+
+  return allocateCString(result);
 }
 
 /**
@@ -252,6 +252,6 @@ API const char* processStringDLL(const char* input, int choiceInt) {
  * memory and the caller is responsible for freeing it.
  *
  */
-API void freeString(char* str) { free(str); }
+API void freeString(char *str) { free(str); }
 
 } // extern "C"

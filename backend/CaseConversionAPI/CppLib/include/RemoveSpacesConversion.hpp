@@ -37,12 +37,12 @@
  */
 class RemoveSpacesConversion : public IStringConversion {
 public:
-    /**
-     * @brief Converts the input string by removing all spaces.
-     * @param input The original string to convert.
-     * @return A new string with all spaces removed.
-     */
-    std::string convert(const std::string& input) const override;
+  /**
+   * @brief Converts the input string by removing all spaces.
+   * @param input The original string to convert.
+   * @return A new string with all spaces removed.
+   */
+  std::string convert(const std::string &input) const override;
 };
 
 #endif // REMOVESPACECONVERSION_HPP

@@ -39,12 +39,12 @@
  */
 class ToggleCaseConversion : public IStringConversion {
 public:
-    /**
-     * @brief Toggles the case of each character in the input string.
-     * @param input The string to convert.
-     * @return Converted string with toggled case.
-     */
-    std::string convert(const std::string& input) const override;
+  /**
+   * @brief Toggles the case of each character in the input string.
+   * @param input The string to convert.
+   * @return Converted string with toggled case.
+   */
+  std::string convert(const std::string &input) const override;
 };
 
 #endif // TOGGLECASECONVERSION_HPP

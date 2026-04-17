@@ -37,12 +37,12 @@
  */
 class ReverseConversion : public IStringConversion {
 public:
-    /**
-     * @brief Reverses the input string.
-     * @param input The string to be reversed.
-     * @return A new string with characters in reverse order.
-     */
-    std::string convert(const std::string& input) const override;
+  /**
+   * @brief Reverses the input string.
+   * @param input The string to be reversed.
+   * @return A new string with characters in reverse order.
+   */
+  std::string convert(const std::string &input) const override;
 };
 
 #endif // REVERSECONVERSION_HPP

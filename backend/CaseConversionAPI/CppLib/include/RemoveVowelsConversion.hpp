@@ -37,12 +37,12 @@
  */
 class RemoveVowelsConversion : public IStringConversion {
 public:
-    /**
-     * @brief Converts the input string by removing all vowels.
-     * @param input The original string to convert.
-     * @return A new string with all vowels removed.
-     */
-    std::string convert(const std::string& input) const override;
+  /**
+   * @brief Converts the input string by removing all vowels.
+   * @param input The original string to convert.
+   * @return A new string with all vowels removed.
+   */
+  std::string convert(const std::string &input) const override;
 };
 
 #endif // REMOVEVOWELSCONVERSION_HPP

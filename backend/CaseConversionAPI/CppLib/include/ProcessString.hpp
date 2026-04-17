@@ -35,6 +35,6 @@
  * Input  : ("Hello World", 3)
  * Output : "hello world"
  */
-std::string processString(const std::string& input, int choice);
+std::string processString(const std::string &input, int choice);
 
 #endif // PROCESSSTRING_HPP
