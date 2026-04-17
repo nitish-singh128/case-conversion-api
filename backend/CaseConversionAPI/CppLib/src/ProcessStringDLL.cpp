@@ -218,9 +218,7 @@ API const char* processStringDLL(const char* input, int choiceInt) {
     }
 
     // Set strategy
-    client.setStrategy(
-        StringConversionFactory::create(type)
-    );
+    client.setStrategy(StringConversionFactory::create(type));
 
     // Execute conversion pipeline
     std::string result =
