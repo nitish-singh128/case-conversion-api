@@ -31,14 +31,13 @@
 /*     (Helper Utilities, Conversion Mapping, Exported API).        */
 /*   - Reduced code duplication and improved readability.           */
 /*                                                                   */
-/* Revision 1.2  2026/04/13  Nitish Singh                          */
-/* Added security gate to prevent buffer overflow attacks by enforcing */
-/* a 2 MB input size limit. This protects the DLL and the hosting      */
-/* process from malicious or accidental large inputs. If the input     */
-/* exceeds this limit, the function returns a deterministic error string */
-/* that the .NET layer can identify and handle appropriately.         */
-/*
-/*  Revision 1.3  2026/04/14  Nitish Singh                          */
+/*  Revision 1.2  2026/04/13  Nitish Singh                          */
+/*  Added security gate to prevent buffer overflow attacks by enforcing */
+/*  a 5 MB input size limit. This protects the DLL and the hosting      */
+/*  process from malicious or accidental large inputs. If the input     */
+/*  exceeds this limit, the function returns a deterministic error string */
+/*  that the .NET layer can identify and handle appropriately.         */
+/*  Revision 1.3  2026/04/18  Nitish Singh                          */
 /*  Code Qualty clang-formatted                                      */
 /*********************************************************************/
 
@@ -85,11 +84,11 @@
  * @brief Allocates a C-string from std::string (heap memory)
  */
 static char *allocateCString(const std::string &str) {
-  char *output = (char *)malloc(str.size() + 1);
+  char *output = static_cast<char *>(std::malloc(str.size() + 1));
   if (!output)
     return nullptr;
 
-  strcpy(output, str.c_str());
+  std::memcpy(output, str.c_str(), str.size() + 1);
   return output;
 }
 
