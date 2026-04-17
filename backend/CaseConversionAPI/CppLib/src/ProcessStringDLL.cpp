@@ -93,19 +93,45 @@ static bool mapConversionType(ConversionChoice choice, ConversionType& type) {
 
     switch (choice) {
 
-        case ConversionChoice::Alternating:   type = ConversionType::Alternating; return true;
-        case ConversionChoice::Capitalize:    type = ConversionType::Capitalize;  return true;
-        case ConversionChoice::Lower:         type = ConversionType::Lower;       return true;
-        case ConversionChoice::Upper:         type = ConversionType::Upper;       return true;
-        case ConversionChoice::Sentence:      type = ConversionType::Sentence;    return true;
-        case ConversionChoice::Toggle:        type = ConversionType::Toggle;      return true;
-        case ConversionChoice::Reverse:       type = ConversionType::Reverse;     return true;
-        case ConversionChoice::RemoveVowels:  type = ConversionType::RemoveVowels;return true;
-        case ConversionChoice::RemoveSpaces:  type = ConversionType::RemoveSpaces;return true;
-        case ConversionChoice::InvertWords:   type = ConversionType::InvertWords; return true;
-        case ConversionChoice::SnakeCase:     type = ConversionType::SnakeCase;   return true;
-        case ConversionChoice::KebabCase:     type = ConversionType::KebabCase;   return true;
-        case ConversionChoice::LeetSpeak:     type = ConversionType::LeetSpeak;   return true;
+        case ConversionChoice::Alternating:   
+            type = ConversionType::Alternating; 
+            return true;
+        case ConversionChoice::Capitalize:    
+            type = ConversionType::Capitalize;  
+            return true;
+        case ConversionChoice::Lower:         
+            type = ConversionType::Lower;       
+            return true;
+        case ConversionChoice::Upper:         
+            type = ConversionType::Upper;       
+            return true;
+        case ConversionChoice::Sentence:      
+            type = ConversionType::Sentence;    
+            return true;
+        case ConversionChoice::Toggle:        
+            type = ConversionType::Toggle;      
+            return true;
+        case ConversionChoice::Reverse:       
+            type = ConversionType::Reverse;     
+            return true;
+        case ConversionChoice::RemoveVowels:  
+            type = ConversionType::RemoveVowels;
+            return true;
+        case ConversionChoice::RemoveSpaces:  
+            type = ConversionType::RemoveSpaces;
+            return true;
+        case ConversionChoice::InvertWords:   
+            type = ConversionType::InvertWords; 
+            return true;
+        case ConversionChoice::SnakeCase:     
+            type = ConversionType::SnakeCase;   
+            return true;
+        case ConversionChoice::KebabCase:     
+            type = ConversionType::KebabCase;   
+            return true;
+        case ConversionChoice::LeetSpeak:     
+            type = ConversionType::LeetSpeak;   
+            return true;
 
         default:
             return false;
