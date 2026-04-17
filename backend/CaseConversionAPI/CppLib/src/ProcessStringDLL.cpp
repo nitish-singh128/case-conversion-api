@@ -64,7 +64,7 @@
 *  This is a common best practice for C-style APIs that allocate memory based on input size.
 */
 
-#define MAX_INPUT_SIZE (5 * 1024 * 1024) // 5 MB
+#define MAX_INPUT_SIZE (2 * 1024 * 1024) // 2 MB
 
 
 //===================================================================
@@ -82,7 +82,9 @@ static char* allocateCString(const std::string& str) {
     return output;
 }
 
+// clang-format off
 //#endregion
+// clang-format on
 
 //===================================================================
 // Conversion Mapping (Internal - C++ only)
@@ -220,6 +222,8 @@ API void freeString(char* str) {
     free(str);
 }
 
+// clang-format off
 //#endregion
+// clang-format on
 
 } // extern "C"
