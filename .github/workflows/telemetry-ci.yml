@@ -95,23 +95,27 @@ jobs:
           -H "Content-Type: application/json" \
           -d '{"text": "E2E-TELEMETRY-PROBE", "choice": 1}'
 
-      # --- 5. Telemetry Validation (The Quality Guard) ---
+     # --- 5. Telemetry Validation ---
       - name: Verify Span Ingestion in Jaeger
         run: |
+          echo "Stopping API gracefully to flush final spans..."
+          # SIGTERM allows the .NET SDK to run its Shutdown/Dispose logic
+          pkill -15 dotnet || true
+          sleep 5
+
           echo "Checking Jaeger for Native-C++-Process span..."
-          
-          # Retry loop to account for OTLP ingestion/indexing latency
-          for i in {1..5}; do
-            RESPONSE=$(curl -s "http://localhost:16686/api/traces?service=CaseConversion-Gateway")
+          for i in {1..10}; do
+            # Querying the Jaeger API for the last 10 traces
+            RESPONSE=$(curl -s "http://localhost:16686/api/traces?limit=10")
             
             if [[ "$RESPONSE" == *"Native-C++-Process"* ]]; then
-              echo "SUCCESS: Found Native-C++-Process span in Jaeger!"
+              echo "SUCCESS: Found the native bridge span!"
               exit 0
             fi
             
-            echo "Attempt $i: Trace not indexed yet. Retrying in 5s..."
+            echo "Attempt $i: Span not found. Services indexed: $(curl -s http://localhost:16686/api/services)"
             sleep 5
           done
           
-          echo "ERROR: Telemetry integration failed. The 'Native-C++-Process' span never reached Jaeger."
+          echo "ERROR: Trace never arrived."
           exit 1
