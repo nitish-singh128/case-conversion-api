@@ -40,7 +40,7 @@ builder.Services.AddOpenTelemetry()
         {
             options.Endpoint = new Uri("http://localhost:4317");
             // Corrected Enum Path: Removed the middle 'OpenTelemetryProtocol'
-            options.Protocol = OtlpExportProtocol.Grpc; 
+            opt.ExportProcessorType = ExportProcessorType.Simple; 
         }));
 
 // --- 2. Controller & Documentation Services ---
