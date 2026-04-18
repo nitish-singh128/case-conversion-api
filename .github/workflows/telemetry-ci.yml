@@ -66,20 +66,18 @@ jobs:
           dotnet restore
           dotnet build -c Release
           
-          # Sync Linux .so for P/Invoke
+          # Create the directory if it doesn't exist and copy the DLL there
+          mkdir -p ./bin/Release/net8.0/
+          cp ../CppLib/build/libProcessStringDLL.so ./bin/Release/net8.0/
+          
+          # Also copy to the root just in case
           cp ../CppLib/build/libProcessStringDLL.so .
           
-          # Launch in background and capture logs
+          # Launch in background
           dotnet run -c Release --no-build > api.log 2>&1 & 
           
           echo "Waiting for API to respond..."
-          for i in {1..20}; do
-            if curl -s http://localhost:5000/api/WordCase/convert -X POST -d '{"text":""}' > /dev/null; then
-              echo "API is UP!"
-              break
-            fi
-            sleep 2
-          done
+          timeout 30s bash -c 'until curl -s http://localhost:5000/api/WordCase/convert -X POST -d "{\"text\":\"\"}" > /dev/null; do sleep 1; done'
 
       # --- 4. Traffic Injection ---
       - name: Trigger Distributed Trace
