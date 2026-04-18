@@ -1,0 +1,95 @@
+#*********************************************************************/
+#  Security Pipeline - CodeQL Advanced Semantic Analysis             */
+#                                                                    */
+# Purpose   : Performs SAST (Static Application Security Testing)    */
+#              across the polyglot stack (C++, C#, TS, Actions).     */
+# Trigger   : Weekly Schedule / Push & PR to main                    */
+# Runtime   : Matrix Build (Multi-language Analysis)                 */
+#                                                                    */
+# Notes     : - Identifies memory safety issues in Native C++ code.  */
+#             - Validates P/Invoke security in the .NET layer.       */
+#             - Scans for XSS/Injection in React/TypeScript.         */
+#                                                                    */
+# Revision History:                                                  */
+# ------------------------------------------------------------------  */
+# Version    Date        Author          Description                  */
+# ------------------------------------------------------------------  */
+# 1.0        2026-04-18  Nitish Singh    Initial Security Orchestration*/
+#*********************************************************************/
+
+name: "Security Scan (CodeQL Advanced)"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '30 23 * * 1' # Runs every Monday at 23:30 UTC
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    timeout-minutes: 360
+    permissions:
+      security-events: write
+      packages: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            build-mode: none
+          - language: c-cpp
+            build-mode: autobuild # CodeQL monitors the C++ build process
+          - language: csharp
+            build-mode: none
+          - language: javascript-typescript
+            build-mode: none
+
+    steps:
+      # ======================================================
+      # 1. ENVIRONMENT INITIALIZATION
+      # ======================================================
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ======================================================
+      # 2. CODEQL INITIALIZATION
+      # ======================================================
+      - name: Initialize CodeQL Engine
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          # Extended queries for Principal-level security audits
+          queries: security-extended,security-and-quality
+
+      # ======================================================
+      # 3. COMPILATION LAYER (FOR COMPILED LANGUAGES)
+      # ======================================================
+      # If autobuild fails for C++, you can replace this with 
+      # your CMake build commands from the C++ CI file.
+      
+      - name: Run manual build (if applicable)
+        if: matrix.build-mode == 'manual'
+        shell: bash
+        run: |
+          echo "Executing manual build for security analysis..."
+          exit 1
+
+      # ======================================================
+      # 4. SEMANTIC ANALYSIS & SARIF GENERATION
+      # ======================================================
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{matrix.language}}"
+          
