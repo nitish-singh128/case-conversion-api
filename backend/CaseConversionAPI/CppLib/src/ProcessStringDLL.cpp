@@ -170,7 +170,8 @@ extern "C" {
 /**
  * @brief Main DLL entry point for C# string conversion
  */
-API const char *processStringDLL(const char *input, int choiceInt, const char *traceId) {
+API const char *processStringDLL(const char *input, int choiceInt,
+                                 const char *traceId) {
 
   if (!input) {
     return nullptr;
