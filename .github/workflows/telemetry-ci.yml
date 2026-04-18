@@ -59,23 +59,39 @@ jobs:
       - name: Bootstrap .NET API with Native Interop
         env:
           OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4317
+          ASPNETCORE_URLS: http://localhost:5000
         run: |
           cd backend/CaseConversionAPI/DotNetAPI
           
+          # Ensure dependencies are restored and built
+          dotnet restore
+          dotnet build -c Release
+          
           # Sync Linux-compatible .so for P/Invoke resolution
           cp ../CppLib/build/libProcessStringDLL.so .
-          cp ../CppLib/build/libProcessStringDLL.so ProcessStringDLL.so
           
-          # Launch API in detached mode (background)
+          # Launch API in background
           dotnet run -c Release --no-build & 
           
-          # Allow 15s for the Kestrel server and OTEL SDK to initialize
-          sleep 15
+          # Wait-for-Ready: Check if port 5000 is responding
+          echo "Waiting for API to respond on port 5000..."
+          for i in {1..20}; do
+            if curl -s http://localhost:5000/health > /dev/null || [ $? -eq 7 ]; then
+              # Port is at least rejecting/accepting, checking if it's up
+              if curl -s http://localhost:5000/api/WordCase/convert -X POST -d '{"text":""}' > /dev/null; then
+                echo "API is UP!"
+                break
+              fi
+            fi
+            echo "Still waiting..."
+            sleep 2
+          done
 
-      # --- 4. Traffic Injection (The Probe) ---
+      # --- 4. Traffic Injection ---
       - name: Trigger Distributed Trace
         run: |
-          curl -X POST http://localhost:5000/api/WordCase/convert \
+          # Use -v to see exactly what is happening if it fails
+          curl -v -X POST http://localhost:5000/api/WordCase/convert \
           -H "Content-Type: application/json" \
           -d '{"text": "E2E-TELEMETRY-PROBE", "choice": 1}'
 
