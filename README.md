@@ -13,6 +13,7 @@
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)
 ![CI/CD](https://img.shields.io/badge/Pipeline-Verified-green.svg)
 ![Telemetry](https://img.shields.io/badge/Telemetry-OpenTelemetry-orange.svg)
+![License](https://img.shields.io/github/license/nitishhsinghhh/case-conversion-api?style=flat-square&color=blue)
 
 ![Visitors](https://komarev.com/ghpvc/?username=nitishhsinghhh&repo=case-conversion-api&label=Repo%20Views&color=2088FF&style=flat-square)
 
