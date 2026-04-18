@@ -90,10 +90,13 @@ namespace StringConversionAPI.Services
             if (string.IsNullOrEmpty(input))
                 return input;
 
-            // Start OpenTelemetry Span
             using var activity = _activitySource.StartActivity("Native-C++-Process", ActivityKind.Internal);
-            
-            // Generate the W3C Trace Context to pass to C++
+
+            // If activity is null here, it means no one is listening to "CaseConversion.Engine"
+            if (activity == null) {
+                 Console.WriteLine("[DEBUG] Telemetry Warning: Activity was not started. Check ActivitySource name.");
+            }
+
             string traceId = activity?.Id ?? "no-trace-context";
             
             activity?.SetTag("conversion.choice", choice);

@@ -98,24 +98,25 @@ jobs:
      # --- 5. Telemetry Validation ---
       - name: Verify Span Ingestion in Jaeger
         run: |
-          echo "Stopping API gracefully to flush final spans..."
-          # SIGTERM allows the .NET SDK to run its Shutdown/Dispose logic
+          echo "Stopping API gracefully..."
           pkill -15 dotnet || true
           sleep 5
 
           echo "Checking Jaeger for Native-C++-Process span..."
           for i in {1..10}; do
-            # Querying the Jaeger API for the last 10 traces
-            RESPONSE=$(curl -s "http://localhost:16686/api/traces?limit=10")
+            # Use the service name filter in the query to be precise
+            RESPONSE=$(curl -s "http://localhost:16686/api/traces?service=CaseConversion-Gateway")
             
             if [[ "$RESPONSE" == *"Native-C++-Process"* ]]; then
               echo "SUCCESS: Found the native bridge span!"
               exit 0
             fi
             
-            echo "Attempt $i: Span not found. Services indexed: $(curl -s http://localhost:16686/api/services)"
+            echo "Attempt $i: Span not found in traces. Services present: $(curl -s http://localhost:16686/api/services)"
             sleep 5
           done
           
-          echo "ERROR: Trace never arrived."
+          echo "ERROR: Trace never arrived. Printing API logs for debugging..."
+          # If you redirected dotnet output to a file, cat it here. 
+          # Or just rely on the GitHub Action console output above.
           exit 1
