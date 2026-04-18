@@ -1,44 +1,36 @@
 /*********************************************************************/
 /* $File: ProcessStringDLL.cpp                                       */
-/*                                                                   */
-/* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.      */
-/* This material may be reproduced for teaching and learning        */
-/* purposes only. It is not to be used in industry or for           */
-/* commercial purposes.                                             */
-/*                                                                   */
-/* Class       - ProcessStringDLL                                   */
-/*                                                                   */
-/* Description - DLL wrapper exposing C++ string conversion engine  */
-/*               for C# P/Invoke interoperability. Delegates calls  */
-/*               to core ProcessString dispatcher.                  */
-/*                                                                   */
-/* Notes       - Interop layer between native C++ and .NET API      */
-/*                                                                   */
-/* $Log: ProcessStringDLL.cpp                                       */
-/*                                                                   */
-/*  Revision 1.0  2026/04/11  Nitish Singh                          */
-/*  Initial implementation of DLL interop wrapper.                  */
-/*                                                                   */
-/*  Revision 1.1  2026/04/12  Nitish Singh                          */
-/*  Refactored DLL wrapper for improved maintainability and safety. */
-/*  Changes include:                                                 */
-/*   - Introduced helper function allocateCString() for memory      */
-/*     allocation and centralised C-string conversion logic.        */
-/*   - Added mapConversionType() to isolate enum mapping logic.     */
-/*   - Improved fallback handling to ensure safe memory allocation   */
-/*     instead of returning raw input pointer.                      */
-/*   - Restructured file using logical regions for clarity          */
-/*     (Helper Utilities, Conversion Mapping, Exported API).        */
-/*   - Reduced code duplication and improved readability.           */
-/*                                                                   */
-/*  Revision 1.2  2026/04/13  Nitish Singh                          */
-/*  Added security gate to prevent buffer overflow attacks by enforcing */
-/*  a 5 MB input size limit. This protects the DLL and the hosting      */
-/*  process from malicious or accidental large inputs. If the input     */
-/*  exceeds this limit, the function returns a deterministic error string */
-/*  that the .NET layer can identify and handle appropriately.         */
-/*  Revision 1.3  2026/04/18  Nitish Singh                          */
-/*  Code Qualty clang-formatted                                      */
+/* */
+/* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
+/* This material may be reproduced for teaching and learning         */
+/* purposes only. It is not to be used in industry or for            */
+/* commercial purposes.                                              */
+/* */
+/* Class       - ProcessStringDLL                                    */
+/* */
+/* Description - DLL wrapper exposing C++ string conversion engine   */
+/* for C# P/Invoke interoperability. Delegates calls   */
+/* to core ProcessString dispatcher.                   */
+/* */
+/* Notes       - Interop layer between native C++ and .NET API       */
+/* */
+/* $Log: ProcessStringDLL.cpp                                        */
+/* */
+/* Revision 1.0  2026/04/11  Nitish Singh                           */
+/* Initial implementation of DLL interop wrapper.                   */
+/* */
+/* Revision 1.1  2026/04/12  Nitish Singh                           */
+/* Refactored DLL wrapper for improved maintainability and safety.  */
+/* */
+/* Revision 1.2  2026/04/13  Nitish Singh                           */
+/* Added security gate (5MB limit) to prevent buffer overflows.     */
+/* */
+/* Revision 1.3  2026/04/18  Nitish Singh                           */
+/* Code Quality clang-formatted.                                    */
+/* */
+/* Revision 1.4  2026/04/18  Nitish Singh                           */
+/* Extended API signature for Distributed Tracing (OpenTelemetry).  */
+/* Added 'traceId' parameter to support cross-process correlation.  */
 /*********************************************************************/
 
 /*********************************************************************/
@@ -178,7 +170,7 @@ extern "C" {
 /**
  * @brief Main DLL entry point for C# string conversion
  */
-API const char *processStringDLL(const char *input, int choiceInt) {
+API const char *processStringDLL(const char *input, int choiceInt, const char *traceId) {
 
   if (!input) {
     return nullptr;
@@ -187,7 +179,7 @@ API const char *processStringDLL(const char *input, int choiceInt) {
   size_t inputLength = std::strlen(input);
 
   if (inputLength > MAX_INPUT_SIZE) {
-    return allocateCString("ERROR_BUFFER_OVERFLOW_LIMIT_2MB");
+    return allocateCString("ERROR_BUFFER_OVERFLOW_LIMIT_5MB");
   }
 
   Client client;

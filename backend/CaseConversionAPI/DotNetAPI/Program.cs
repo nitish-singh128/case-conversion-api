@@ -7,28 +7,43 @@
  *
  * Description  : Application entry point for the Word Case REST API.
  * Configures ASP.NET Core middleware pipeline, dependency injection,
- * CORS policies, and API documentation via Swagger.
- *
- * Notes        : - Registers controllers and application services for DI.
- * - Enables Swagger UI at root for API exploration.
- * - Configures permissive CORS policy for cross-origin access.
- * - Skips application run during integration testing.
+ * CORS policies, OpenTelemetry observability, and Swagger.
  *
  * Revision History:
  * ------------------------------------------------------------------------------------------------
- * Version     Date        Author          Description
+ * Version     Date           Author           Description
  * ------------------------------------------------------------------------------------------------
- * 1.0         2026-04-11  Nitish Singh    Initial implementation of application bootstrap
- * 1.1         2026-04-16  Nitish Singh    Optimized DI lifetime to Singleton and refined CORS 
- * preflight handling for frontend interoperability.
+ * 1.0         2026-04-11     Nitish Singh     Initial implementation of application bootstrap
+ * 1.1         2026-04-16     Nitish Singh     Optimized DI lifetime and refined CORS handling.
+ * 1.2         2026-04-18     Nitish Singh     Integrated OpenTelemetry (OTLP) for distributed 
+ * tracing across the native ABI boundary. Corrected OTLP namespace.
  **************************************************************************************************/
 
 using Microsoft.OpenApi.Models;
 using StringConversionAPI.Services;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Exporter; // Added to resolve OtlpExportProtocol
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- Services ---
+// --- 1. OpenTelemetry & Observability ---
+const string serviceName = "CaseConversion-Gateway";
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService(serviceName))
+    .WithTracing(tracing => tracing
+        .AddSource("CaseConversion.Engine") 
+        .AddAspNetCoreInstrumentation()      
+        .AddHttpClientInstrumentation()      
+        .AddOtlpExporter(options =>
+        {
+            options.Endpoint = new Uri("http://localhost:4317");
+            // Corrected Enum Path: Removed the middle 'OpenTelemetryProtocol'
+            options.Protocol = OtlpExportProtocol.Grpc; 
+        }));
+
+// --- 2. Controller & Documentation Services ---
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -36,7 +51,7 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Word Case API", Version = "v1" });
 });
 
-// --- Optimized CORS ---
+// --- 3. Optimized CORS Policy ---
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -48,13 +63,13 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Use Singleton for Native Interop to avoid reloading dylib every request
+// --- 4. Core Business Services ---
 builder.Services.AddSingleton<ProcessStringService>();
 
 var app = builder.Build();
 
-// --- Middleware ---
-app.UseCors(); // Must be called BEFORE MapControllers
+// --- Middleware Pipeline ---
+app.UseCors(); 
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>

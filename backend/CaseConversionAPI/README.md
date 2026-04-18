@@ -118,3 +118,51 @@ By implementing the full `IDisposable` pattern (including the `Dispose(bool disp
 This fail-safe mechanism ensures that even if a consumer fails to explicitly dispose of the service, the native library handle is released to the Operating System, preventing handle leaks.
 
 ---
+
+## Telemetry & Observability
+
+This project implements **Distributed Tracing** to monitor the lifecycle of a request as it transitions from the Managed .NET layer into the Native C++ engine.
+
+### Prerequisites
+
+- Docker Desktop (for Jaeger backend)
+- .NET 8.0 SDK
+
+### Setup Instructions
+
+1. Install Dependencies
+   Navigate to the API project folder and install the OTEL packages:
+
+   ```bash
+   cd CaseConversionAPI/DotNetAPI
+   dotnet add package OpenTelemetry.Extensions.Hosting
+   dotnet add package OpenTelemetry.Exporter.OpenTelemetryProtocol
+   dotnet add package OpenTelemetry.Instrumentation.AspNetCore
+   ```
+
+2. Add package
+
+  ```Bash
+    dotnet add package OpenTelemetry.Extensions.Hosting
+  ```
+
+ 3. Visualizing Performance with Jaeger
+
+ To view the traces, the project utilizes Jaeger as the distributed tracing backend.
+
+Launch Infrastructure:
+
+```Bash
+chmod +x ./run-telemetry.sh 
+./run-telemetry.sh
+```
+
+### Analyzing the Waterfall
+
+When inspecting a trace at http://localhost:16686, you can distinguish between:
+
+The Parent Span: Total time from request received to response sent.
+
+The Native Span: The exact microseconds spent inside the C++ processStringDLL function.
+
+This granularity allows developers to verify if a delay is caused by .NET Marshalling overhead or the C++ Strategy logic.

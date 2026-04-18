@@ -1,0 +1,101 @@
+#*********************************************************************/
+#  CI Pipeline - Telemetry E2E Integration & Verification             */
+#                                                                    */
+# Purpose   : Orchestrates a full-stack smoke test by building the   */
+#             C++ engine, running the .NET API, and verifying        */
+#             trace ingestion into a live Jaeger instance.           */
+# Trigger   : Push to main / Pull Request to main                    */
+# Runtime   : Ubuntu Latest (GitHub Hosted)                          */
+#                                                                    */
+# Revision History:                                                  */
+# ------------------------------------------------------------------ */
+# Version    Date          Author           Description              */
+# ------------------------------------------------------------------ */
+# 1.0        2026-04-18    Nitish Singh     Initial E2E Telemetry CI */
+#*********************************************************************/
+
+name: Telemetry E2E Integration
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  telemetry-test:
+    name: "Build, Instrument, and Verify"
+    runs-on: ubuntu-latest
+
+    # Sidecar Services: Run Jaeger in the background for OTLP collection
+    services:
+      jaeger:
+        image: jaegertracing/all-in-one:latest
+        env:
+          COLLECTOR_OTLP_ENABLED: true
+        ports:
+          - 16686:16686
+          - 4317:4317
+
+    steps:
+      # --- 1. Environment Setup ---
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8.0 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0
+
+      # --- 2. Build Native Layer ---
+      - name: Compile C++ Conversion Engine
+        run: |
+          mkdir -p backend/CaseConversionAPI/CppLib/build
+          cd backend/CaseConversionAPI/CppLib/build
+          cmake ..
+          make
+
+      # --- 3. Build & Launch Managed Gateway ---
+      - name: Bootstrap .NET API with Native Interop
+        env:
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4317
+        run: |
+          cd backend/CaseConversionAPI/DotNetAPI
+          
+          # Sync Linux-compatible .so for P/Invoke resolution
+          cp ../CppLib/build/libProcessStringDLL.so .
+          cp ../CppLib/build/libProcessStringDLL.so ProcessStringDLL.so
+          
+          # Launch API in detached mode (background)
+          dotnet run -c Release --no-build & 
+          
+          # Allow 15s for the Kestrel server and OTEL SDK to initialize
+          sleep 15
+
+      # --- 4. Traffic Injection (The Probe) ---
+      - name: Trigger Distributed Trace
+        run: |
+          curl -X POST http://localhost:5000/api/WordCase/convert \
+          -H "Content-Type: application/json" \
+          -d '{"text": "E2E-TELEMETRY-PROBE", "choice": 1}'
+
+      # --- 5. Telemetry Validation (The Quality Guard) ---
+      - name: Verify Span Ingestion in Jaeger
+        run: |
+          echo "Checking Jaeger for Native-C++-Process span..."
+          
+          # Retry loop to account for OTLP ingestion/indexing latency
+          for i in {1..5}; do
+            RESPONSE=$(curl -s "http://localhost:16686/api/traces?service=CaseConversion-Gateway")
+            
+            if [[ "$RESPONSE" == *"Native-C++-Process"* ]]; then
+              echo "SUCCESS: Found Native-C++-Process span in Jaeger!"
+              exit 0
+            fi
+            
+            echo "Attempt $i: Trace not indexed yet. Retrying in 5s..."
+            sleep 5
+          done
+          
+          echo "ERROR: Telemetry integration failed. The 'Native-C++-Process' span never reached Jaeger."
+          exit 1

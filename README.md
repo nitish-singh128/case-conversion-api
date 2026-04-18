@@ -11,6 +11,7 @@
 ![React](https://img.shields.io/badge/React-2024-61DAFB.svg)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)
 ![CI/CD](https://img.shields.io/badge/Pipeline-Verified-green.svg)
+![Telemetry](https://img.shields.io/badge/Telemetry-OpenTelemetry-orange.svg)
 
 ![Visitors](https://komarev.com/ghpvc/?username=nitishhsinghhh&repo=case-conversion-api&label=Repo%20Views&color=2088FF&style=flat-square)
 
@@ -115,6 +116,27 @@ This enables the REST API to use native C++ performance-critical logic.
 - CI: GitHub Actions Matrix builds enforcing cross-platform parity on every push.
 
 ---
+
+## Telemetry Infrastructure
+
+A dedicated script manages the lifecycle of the OTLP (OpenTelemetry Protocol) backend:
+
+```Bash
+# Start the Jaeger collector and UI
+./scripts/run-telemetry.sh start
+```
+
+- UI Dashboard: http://localhost:16686
+
+- OTLP Endpoint: http://localhost:4317 (gRPC)
+
+### Performance Metrics & Insights
+
+- ABI Latency: Verification that data marshalling between System.String and char* remains under 1ms.
+
+- Security Gate Logging: Native 5MB buffer violations are automatically tagged as Error status in the trace, allowing for instant debugging of failed payloads.
+
+-Context Propagation: The W3C Trace ID is passed into the C++ engine, ensuring that native logs can be correlated back to specific API calls.
 
 ## Engineering Deep Dive
 
