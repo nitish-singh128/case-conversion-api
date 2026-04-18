@@ -23,7 +23,8 @@ using Microsoft.OpenApi.Models;
 using StringConversionAPI.Services;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using OpenTelemetry.Exporter; // Added to resolve OtlpExportProtocol
+using OpenTelemetry; 
+using OpenTelemetry.Exporter; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,7 +41,7 @@ builder.Services.AddOpenTelemetry()
         {
             options.Endpoint = new Uri("http://localhost:4317");
             // Corrected Enum Path: Removed the middle 'OpenTelemetryProtocol'
-            opt.ExportProcessorType = ExportProcessorType.Simple; 
+            options.ExportProcessorType = ExportProcessorType.Simple;
         }));
 
 // --- 2. Controller & Documentation Services ---
