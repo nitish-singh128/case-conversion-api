@@ -95,6 +95,13 @@ Responsibilities:
 * Dispatch conversion request
 * Return C-style string pointer
 
+#### 5.2.1 Memory Ownership Policy
+
+The Contract: To prevent memory leaks, the system follows a Caller-Must-Cleanup or Static-Return pattern.
+
+Implementation: The C++ engine returns a const char*. The .NET side treats this as an IntPtr.
+
+Safety: Because string conversions are stateless, we avoid long-lived heap allocations in the native layer to minimize the risk of fragmentation.
 ---
 
 ### 5.3 .NET Interop Layer
@@ -300,6 +307,9 @@ Reason: Extensible conversion types
 Decision: Multi-stage Docker
 Reason: Smaller runtime image
 
+Decision: Manual Telemetry Propagation
+Reason: Ensures that errors occurring deep in the C++ engine are correlated to the specific HTTP request that triggered them.
+
 ---
 
 ## 16. Tradeoffs
@@ -317,3 +327,19 @@ Cons:
 * Cross-platform build complexity
 
 ---
+
+## 17. Observability & Telemetry Architecture
+
+To ensure the polyglot boundary is transparent, the system implements:
+
+- Trace Context Propagation: The .NET Gateway extracts the W3C traceparent and passes it to the native engine.
+
+- Granular Spans: We track ABI Latency (the time spent converting data between managed and unmanaged memory) separately from Logic Latency (the time the C++ engine takes to run the strategy).
+
+- Visualizer: All traces are exported via OTLP to a Jaeger/Zipkin backend.
+
+## 18. Security & Boundary Hardening
+
+- Buffer Overflow Protection: The managed API validates the input length against a MAX_BUFFER_SIZE before the P/Invoke call.
+
+- Sanitization: The C++ engine uses std::string_view or bound-checked iterators to ensure it never reads past the memory allocated by the managed environment.
