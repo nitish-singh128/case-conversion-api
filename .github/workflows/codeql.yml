@@ -6,15 +6,17 @@
 # Trigger   : Weekly Schedule / Push & PR to main                    */
 # Runtime   : Matrix Build (Multi-language Analysis)                 */
 #                                                                    */
-# Notes     : - Identifies memory safety issues in Native C++ code.  */
+# Notes     : - Manual build mode enabled for C++ to handle nested   */
+#               monorepo structure in /backend.                      */
+#             - Identifies memory safety issues in Native C++ code.  */
 #             - Validates P/Invoke security in the .NET layer.       */
-#             - Scans for XSS/Injection in React/TypeScript.         */
 #                                                                    */
 # Revision History:                                                  */
 # ------------------------------------------------------------------  */
 # Version    Date        Author          Description                  */
 # ------------------------------------------------------------------  */
 # 1.0        2026-04-18  Nitish Singh    Initial Security Orchestration*/
+# 1.1        2026-04-18  Nitish Singh    Fix: Manual Build for C++ Lib*/
 #*********************************************************************/
 
 name: "Security Scan (CodeQL Advanced)"
@@ -25,7 +27,7 @@ on:
   pull_request:
     branches: [ "main" ]
   schedule:
-    - cron: '30 23 * * 1' # Runs every Monday at 23:30 UTC
+    - cron: '30 23 * * 1'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -48,7 +50,7 @@ jobs:
           - language: actions
             build-mode: none
           - language: c-cpp
-            build-mode: autobuild # CodeQL monitors the C++ build process
+            build-mode: manual  # Switched to manual to handle nested pathing
           - language: csharp
             build-mode: none
           - language: javascript-typescript
@@ -61,6 +63,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install compiler & CMake (Linux)
+        if: matrix.language == 'c-cpp'
+        run: sudo apt-get update && sudo apt-get install -y build-essential cmake
+
       # ======================================================
       # 2. CODEQL INITIALIZATION
       # ======================================================
@@ -69,21 +75,20 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
-          # Extended queries for Principal-level security audits
           queries: security-extended,security-and-quality
 
       # ======================================================
-      # 3. COMPILATION LAYER (FOR COMPILED LANGUAGES)
+      # 3. COMPILATION LAYER (Manual Pathing)
       # ======================================================
-      # If autobuild fails for C++, you can replace this with 
-      # your CMake build commands from the C++ CI file.
-      
-      - name: Run manual build (if applicable)
-        if: matrix.build-mode == 'manual'
+      - name: Run Manual Build (C++ Native Engine)
+        if: matrix.build-mode == 'manual' && matrix.language == 'c-cpp'
         shell: bash
         run: |
-          echo "Executing manual build for security analysis..."
-          exit 1
+          echo "Building C++ Engine for Semantic Analysis..."
+          # Match the path from your successful C++ CI workflow
+          cd backend/CaseConversionAPI/CppLib
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release --parallel
 
       # ======================================================
       # 4. SEMANTIC ANALYSIS & SARIF GENERATION
@@ -92,4 +97,3 @@ jobs:
         uses: github/codeql-action/analyze@v4
         with:
           category: "/language:${{matrix.language}}"
-          
