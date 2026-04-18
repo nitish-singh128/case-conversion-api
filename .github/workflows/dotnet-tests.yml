@@ -2,21 +2,18 @@
 #  CI Pipeline - .NET + API Integration Tests (Multi-Platform)       */
 #                                                                    */
 # Purpose   : Validates the P/Invoke bridge and API logic across     */
-#              Ubuntu, macOS, and Windows environments.              */
+#             Ubuntu, macOS, and Windows environments.               */
 # Trigger   : Push to main/develop | Pull Request to main            */
 # Runtime   : Matrix (Ubuntu, macOS, Windows)                        */
 #                                                                    */
-# Notes     : - Synchronizes Native & Managed build cycles.          */
-#             - Implements cross-platform artifact injection.        */
-#             - Fixes Windows C2491 via PROCESSSTRING_EXPORTS.       */
-#                                                                    */
 # Revision History:                                                  */
 # ------------------------------------------------------------------ */
-# Version    Date        Author           Description                */
+# Version    Date          Author           Description              */
 # ------------------------------------------------------------------ */
-# 1.0        2026-04-14  Nitish Singh     Initial .NET Integration CI*/
-# 1.1        2026-04-15  Nitish Singh     Updated for /backend path  */
-# 1.2        2026-04-16  Nitish Singh     Multi-Platform Matrix Fix  */
+# 1.0        2026-04-14    Nitish Singh     Initial .NET Integration CI
+# 1.1        2026-04-15    Nitish Singh     Updated for /backend path 
+# 1.2        2026-04-16    Nitish Singh     Multi-Platform Matrix Fix 
+# 1.3        2026-04-18    Nitish Singh     Added Telemetry Validation
 #*********************************************************************/
 
 name: .NET Tests
@@ -35,6 +32,15 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+
+    # Sidecar for Linux to verify actual trace ingestion
+    services:
+      jaeger:
+        image: ${{ matrix.os == 'ubuntu-latest' && 'jaegertracing/all-in-one:latest' || '' }}
+        env:
+          COLLECTOR_OTLP_ENABLED: true
+        ports:
+          - 4317:4317
 
     steps:
       # ======================================================
@@ -61,7 +67,6 @@ jobs:
       - name: Build C++ Library (Windows)
         if: runner.os == 'Windows'
         working-directory: backend/CaseConversionAPI/CppLib
-        # -DPROCESSSTRING_EXPORTS is critical to resolve Error C2491 on MSVC
         run: |
             cmake -S . -B build `
                   -DCMAKE_BUILD_TYPE=Release `
@@ -71,7 +76,7 @@ jobs:
             cmake --build build --config Release --parallel
 
       # ======================================================
-      # 3. MANAGED LAYER BUILD (.NET 8)
+      # 3. MANAGED LAYER BUILD & TELEMETRY RESTORE
       # ======================================================
       - name: Build .NET Tests
         working-directory: backend/CaseConversionAPI/tests/DotNetTests
@@ -85,15 +90,11 @@ jobs:
       - name: Inject Native Library to Test Folder
         shell: bash
         run: |
-            # Set target path within the .NET build output
             DEST_PATH="backend/CaseConversionAPI/tests/DotNetTests/bin/Release/net8.0/"
             mkdir -p "$DEST_PATH"
 
-            # Find whatever native library was built
             if [ "${{ runner.os }}" == "Windows" ]; then
               LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "*.dll" | head -n 1)
-              # FORCE RENAME to match the DllImport name (likely without 'lib' prefix)
-              # If your C# uses [DllImport("ProcessStringDLL")], use that name here:
               TARGET_NAME="ProcessStringDLL.dll"
             elif [ "${{ runner.os }}" == "macOS" ]; then
               LIB_FILE=$(find backend/CaseConversionAPI/CppLib/build -name "*.dylib" | head -n 1)
@@ -103,15 +104,16 @@ jobs:
               TARGET_NAME="libProcessStringDLL.so"
             fi
 
-            echo "[INFO] Copying $LIB_FILE to $DEST_PATH$TARGET_NAME"
             cp "$LIB_FILE" "$DEST_PATH$TARGET_NAME"
-            
-            # Copy to project root as well for the test runner context
             cp "$LIB_FILE" "backend/CaseConversionAPI/tests/DotNetTests/$TARGET_NAME"
 
       # ======================================================
-      # 5. TEST EXECUTION (INTEGRATION SUITE)
+      # 5. TEST EXECUTION (WITH TELEMETRY CONTEXT)
       # ======================================================
       - name: Run Integration Tests
         working-directory: backend/CaseConversionAPI/tests/DotNetTests
+        env:
+          # Point to local Jaeger on Ubuntu, or use a dummy endpoint on others
+          OTEL_EXPORTER_OTLP_ENDPOINT: ${{ runner.os == 'Linux' && 'http://localhost:4317' || 'http://localhost:9999' }}
+          OTEL_SERVICE_NAME: "CaseConversion-Test-Runner"
         run: dotnet test --no-build --configuration Release --verbosity normal
