@@ -50,7 +50,7 @@ extern "C" {
  * @return C-string result (valid until next call). Caller must free using
  * freeString.
  */
-API const char *processStringDLL(const char *input, int choice);
+API const char *processStringDLL(const char *input, int choice, const char *traceId);
 
 /**
  * @brief Frees memory allocated by processStringDLL
