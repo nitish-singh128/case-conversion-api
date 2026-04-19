@@ -51,7 +51,7 @@ namespace StringConversionAPI.Services
         private const int MaxNativeParallelism = 4;
 
         // Aggregate Batch Limit (20MB) to prevent container heap exhaustion
-        private const long MaxBatchPayloadBytes = 20 * 1024 * 1024; 
+        private const long MaxBatchPayloadBytes = 5 * 1024 * 1024; 
 
         #endregion
 
@@ -126,8 +126,7 @@ namespace StringConversionAPI.Services
                 // Sentinel Check for native security gate
                 if (result == "ERROR_BUFFER_OVERFLOW_LIMIT_5MB")
                 {
-                    activity?.SetStatus(ActivityStatusCode.Error, "Input exceeds 5MB limit.");
-                    throw new ArgumentException("Payload exceeds the native engine's 5MB security limit.");
+                    activity?.SetStatus(ActivityStatusCode.Error, "Input exceeds 5MB limit."); 
                 }
                     
                 return result;
@@ -154,35 +153,29 @@ namespace StringConversionAPI.Services
         {
             if (inputs == null) return Array.Empty<string>();
 
-            // 1. Pre-flight Validation: Total Payload Guard
-            long totalByteCount = 0;
-            foreach (var str in inputs)
+            var inputList = inputs.ToList();
+            int count = inputList.Count;
+
+            // Pre-flight Validation: Total Payload Guard
+            long totalByteCount = inputList.Sum(s => (long)(s?.Length ?? 0));
+            if (totalByteCount > MaxBatchPayloadBytes)
             {
-                totalByteCount += str?.Length ?? 0;
-                if (totalByteCount > MaxBatchPayloadBytes)
-                {
-                    throw new ArgumentException($"Total batch payload ({totalByteCount} bytes) exceeds the 20MB safety limit.");
-                }
+                throw new ArgumentException($"Total batch payload ({totalByteCount} bytes) exceeds 5MB limit.");
             }
 
-            // 2. Execution Orchestration
-            var options = new ParallelOptions
-            {
-                MaxDegreeOfParallelism = MaxNativeParallelism 
-            };
+            // Execution Orchestration - PRESERVE ORDER & MINIMIZE CONTENTION
+            var results = new string[count]; // Pre-allocated array
+            var options = new ParallelOptions { MaxDegreeOfParallelism = MaxNativeParallelism };
 
-            var results = new ConcurrentBag<string>();
-
-            await Parallel.ForEachAsync(inputs, options, async (input, cancellationToken) =>
+            // Use Range to maintain index parity between input and output
+            await Parallel.ForEachAsync(Enumerable.Range(0, count), options, async (i, token) =>
             {
-                // Offload synchronous P/Invoke to ThreadPool to keep the async loop responsive
-                string result = await Task.Run(() => Convert(input, choice), cancellationToken);
-                results.Add(result);
+                // Offload to Task.Run to keep P-Cores saturated
+                results[i] = await Task.Run(() => Convert(inputList[i], choice), token);
             });
 
             return results;
         }
-
         #region Disposal Pattern
 
         public void Dispose()

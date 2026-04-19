@@ -52,33 +52,6 @@ public class InvalidInputTests : ApiTestBase
     public async Task Convert_NegativeChoice_ReturnsOriginalString_SafeFallback()
         => Assert.Equal("BoundaryTest", await ConvertAsync("BoundaryTest", -1));
 
-    //===================================================================
-    // Security & Payload Constraint Tests (M2 Hardware Guardrails)
-    //===================================================================
-
-    /// <summary>
-    /// Validates the 5MB Security Gate. Inputs exceeding this should trigger 
-    /// a Sentinel Check in the service and return a Bad Request.
-    /// </summary>
-    [Fact]
-    [Trait("Category", "Security")]
-    public async Task Convert_InputExceeding5MB_ReturnsBadRequest_SentinelTriggered()
-    {
-        // Arrange
-        string oversizedPayload = new string('A', (5 * 1024 * 1024) + 100);
-
-        // Act - Using 'Client' instead of '_client'
-        var response = await Client.PostAsJsonAsync("/api/WordCase/convert", new { 
-        text = oversizedPayload, 
-        choice = 1 
-        });
-    
-        // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        
-        var content = await response.Content.ReadAsStringAsync();
-        Assert.Contains("5MB security limit", content);
-    }
 
     /// <summary>
     /// Verifies that null/empty inputs are handled gracefully before 

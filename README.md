@@ -163,7 +163,7 @@ A dedicated script manages the lifecycle of the OTLP (OpenTelemetry Protocol) ba
 
 - **P-Core Saturation:** `MaxDegreeOfParallelism` is explicitly set to 4. This aligns with the M2's Performance Cores, ensuring heavy C++ string transformations maintain maximum IPC (Instructions Per Cycle) without being offloaded to Efficiency Cores.
 - Double-Lock Memory Safety: - Global: 20MB batch ceiling prevents the 8GB Unified Memory from triggering SSD swap.
-    - Local: 5MB native limit prevents buffer overflows in unmanaged memory.
+  - Local: 5MB native limit prevents buffer overflows in unmanaged memory.
 - Contention-Free Buffering:** Utilizes `ConcurrentBag<T>` to allow parallel P-Cores to flush data back to managed memory without the lock-contention overhead of traditional `List<T>` synchronization.
 
 ## Engineering Deep Dive

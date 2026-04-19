@@ -1,25 +1,27 @@
 /**************************************************************************************************
- * File        : ConvertResponse.cs
+ * File         : ConvertResponse.cs
  *
- * Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.
- *               This material may be reproduced for teaching and learning purposes only.
- *               It is not to be used in industry or for commercial purposes.
+ * Copyright    : (c) 2016–2026 nitishhsinghh. All rights reserved.
+ * This material may be reproduced for teaching and learning purposes only.
+ * It is not to be used in industry or for commercial purposes.
  *
- * Class       : ConvertResponse
+ * Class        : ConvertResponse
  *
- * Description : Data transfer object (DTO) representing the response payload for
- *               string conversion operations. Encapsulates the original input,
- *               selected conversion strategy, and processed output string.
+ * Description  : Data transfer object (DTO) representing the response payload for
+ * string conversion operations. Encapsulates the original input,
+ * selected conversion strategy, and processed output string.
  *
- * Notes       : - Returned by WordCaseController endpoints.
- *               - Defines the API response contract for client consumption.
+ * Notes        : - Returned by WordCaseController endpoints.
+ * - Defines the API response contract for client consumption.
  *
  * Revision History:
  * ------------------------------------------------------------------------------------------------
- * Version     Date        Author          Description
+ * Version     Date           Author           Description
  * ------------------------------------------------------------------------------------------------
- * 1.0         2026-04-11  Nitish Singh    Initial implementation of response model
- *
+ * 1.0         2026-04-11     Nitish Singh     Initial implementation of response model.
+ * 1.1         2026-04-20     Nitish Singh     Added ConvertedText property to resolve CS0117.
+ * Mapped Output as a calculated property for 
+ * backward compatibility.
  **************************************************************************************************/
 
 namespace StringConversionAPI.Models
@@ -27,7 +29,23 @@ namespace StringConversionAPI.Models
     public class ConvertResponse
     {
         public string Input { get; set; } = string.Empty;
+        
         public int Choice { get; set; }
-        public string Output { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The final processed string from the native C++ engine.
+        /// Fixed: Explicitly named to match the WordCaseController assignment.
+        /// </summary>
+        public string ConvertedText { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Maps to ConvertedText to ensure legacy compatibility with the 
+        /// 1.0 API contract without duplicating memory.
+        /// </summary>
+        public string Output 
+        { 
+            get => ConvertedText; 
+            set => ConvertedText = value; 
+        }
     }
 }

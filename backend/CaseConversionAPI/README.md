@@ -33,7 +33,7 @@ chmod +x run-dotnet.sh
 ./run-dotnet.sh
 ```
 
-2. Manual Development Workflow
+2.Manual Development Workflow
 
 ```Bash
 # Navigate to project

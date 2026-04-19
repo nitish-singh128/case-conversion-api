@@ -1,33 +1,27 @@
 /**************************************************************************************************
- * File        : ConvertRequest.cs
+ * File         : ConvertRequest.cs
  *
- * Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.
- *               This material may be reproduced for teaching and learning purposes only.
- *               It is not to be used in industry or for commercial purposes.
- *
- * Class       : ConvertRequest
- *
- * Description : Data transfer object (DTO) representing the request payload for
- *               string conversion operations. Encapsulates input text and the
- *               selected conversion strategy identifier.
- *
- * Notes       : - Consumed by WordCaseController POST endpoint.
- *               - Serves as the API contract for client-to-server communication.
- *
+ * Copyright    : (c) 2016–2026 nitishhsinghh. All rights reserved.
+ **************************************************************************************************
  * Revision History:
  * ------------------------------------------------------------------------------------------------
- * Version     Date        Author          Description
+ * Version     Date           Author           Description
  * ------------------------------------------------------------------------------------------------
- * 1.0         2026-04-11  Nitish Singh    Initial implementation of request model
- *
+ * 1.0         2026-04-11     Nitish Singh     Initial implementation of request model.
+ * 1.1         2026-04-20     Nitish Singh     Changed Text to string? to resolve 400 errors 
+ * on empty/null string test cases.
  **************************************************************************************************/
 
-using StringConversionAPI.Models;
 namespace StringConversionAPI.Models
 {
     public class ConvertRequest
     {
-        public string Text { get; set; } = string.Empty;
+        /// <summary>
+        /// Input text. Marked nullable (?) to ensure .NET 8 allows empty strings 
+        /// to pass through to the Service layer for custom validation.
+        /// </summary>
+        public string? Text { get; set; } = string.Empty;
+
         public int Choice { get; set; }
     }
 }
