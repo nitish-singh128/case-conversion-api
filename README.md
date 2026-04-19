@@ -102,8 +102,6 @@ The .NET service implements a **Double-Lock Security Gate** to ensure system sta
 // Version 1.4: High-Performance Parallel Orchestration with Aggregate Guard
 public async Task<IEnumerable<string>> ConvertBatchAsync(IEnumerable<string> inputs, int choice)
 {
-    // Gate 1: Managed Aggregate Memory Guard (20MB)
-    // Prevents "Death by a Thousand Cuts" where many small strings overwhelm the container.
     if (inputs.Sum(s => (long)s.Length) > MaxBatchPayloadBytes)
         throw new ArgumentException($"Total batch payload exceeds the {MaxBatchPayloadBytes / 1024 / 1024}MB safety limit.");
 
@@ -112,8 +110,6 @@ public async Task<IEnumerable<string>> ConvertBatchAsync(IEnumerable<string> inp
 
     await Parallel.ForEachAsync(inputs, options, async (input, cancellationToken) =>
     {
-        // Gate 2: Native Sentinel Check (5MB)
-        // Wraps the synchronous P/Invoke in Task.Run to preserve ThreadPool responsiveness.
         string result = await Task.Run(() => Convert(input, choice), cancellationToken);
         results.Add(result);
     });
