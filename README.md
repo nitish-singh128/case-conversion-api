@@ -141,6 +141,14 @@ A dedicated script manages the lifecycle of the OTLP (OpenTelemetry Protocol) ba
 
 -Context Propagation: The W3C Trace ID is passed into the C++ engine, ensuring that native logs can be correlated back to specific API calls.
 
+## Hardware-Specific Optimization (Apple M2)
+
+The system was developed and benchmarked on an 8GB M2 MacBook Air. Operating within a Unified Memory Architecture (UMA) required specific architectural decisions to maintain high throughput without triggering SSD swapping:
+
+- Concurrency Tuning: To maximize efficiency on the M2's 8-core silicon, the `MaxDegreeOfParallelism` was tuned to 4. This aligns with the M2's high-performance cores, ensuring heavy C++ string transformations do not compete with OS-level efficiency tasks.
+- Memory Pressure Mitigation: With only 8GB of shared RAM, a strict RAII-to-Disposable bridge was implemented. This ensures that native `char*` buffers are released back to the OS immediately after the managed layer completes its copy, preventing the system from falling into the "Swap Zone," which would degrade ABI latency.
+- Thermal Efficiency: By throttling concurrent native calls, the engine maintains a sustainable CPU temperature on fanless hardware, preventing thermal throttling during high-volume batch processing.
+
 ## Engineering Deep Dive
 
 1. Concurrency & Thread-Safety

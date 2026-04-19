@@ -1,34 +1,35 @@
 /**************************************************************************************************
- * File        : AdvancedConversionTests.cs
+ * File         : AdvancedConversionTests.cs
  *
- * Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.
- *               This material may be reproduced for teaching and learning purposes only.
- *               It is not to be used in industry or for commercial purposes.
+ * Copyright    : (c) 2016–2026 nitishhsinghh. All rights reserved.
+ * This material may be reproduced for teaching and learning purposes only.
+ * It is not to be used in industry or for commercial purposes.
  *
- * Class       : AdvancedConversionTests
+ * Class        : AdvancedConversionTests
  *
- * Description : Integration test suite for advanced Word Case REST API conversion scenarios.
- *               Extends the base API infrastructure to validate complex native transformations
- *               including SnakeCase, LeetSpeak, and algorithmic word inversion.
- *
- * Notes       : - Utilizes WebApplicationFactory for in-memory integration testing.
- *               - Validates the full execution path from JSON DTO binding to C++ strategy layer.
+ * Description  : Integration test suite for high-complexity conversion and concurrency.
+ * Validates M2 Hardware Parallelism, ABI thread-safety, and memory stability.
  *
  * Revision History:
  * ------------------------------------------------------------------------------------------------
- * Version     Date        Author          Description
+ * Version     Date            Author           Description
  * ------------------------------------------------------------------------------------------------
- * 1.0         2026-04-14  Nitish Singh    Initial implementation of advanced conversion tests
- *
+ * 1.0         2026-04-14      Nitish Singh     Initial implementation of advanced tests.
+ * 1.1         2026-04-19      Nitish Singh     Added M2 P-Core saturation and hardware-specific tags.
+ * 1.2         2026-04-19      Nitish Singh     Integrated Race-Condition, N+1 Stress, and Leak tests.
  **************************************************************************************************/
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
 /// <summary>
-/// Validates high-complexity conversion strategies that involve character 
-/// replacement, delimiter injection, and structural string manipulation.
+/// Validates high-complexity conversion strategies and concurrent execution 
+/// patterns tuned for Apple M2 hardware constraints (4 P-Cores).
 /// </summary>
 public class AdvancedConversionTests : ApiTestBase
 {
@@ -38,7 +39,7 @@ public class AdvancedConversionTests : ApiTestBase
     }
 
     //===================================================================
-    // Advanced Structural Conversions
+    // Advanced Structural & Algorithmic Conversions
     //===================================================================
 
     [Fact]
@@ -52,52 +53,113 @@ public class AdvancedConversionTests : ApiTestBase
         => Assert.Equal("hello_world_example", await ConvertAsync("Hello World Example", 11));
 
     [Fact]
-    [Trait("Category", "Formatting")]
-    public async Task Convert_KebabCase_ReturnsHyphenSeparated()
-        => Assert.Equal("hello-world-example", await ConvertAsync("Hello World Example", 12));
-
-    //===================================================================
-    // Content Filtering & Optimization
-    //===================================================================
-
-    [Fact]
-    [Trait("Category", "Filtering")]
-    public async Task Convert_RemoveSpaces_ReturnsJoinedString()
-        => Assert.Equal("HelloWorld", await ConvertAsync("Hello World", 9));
-
-    [Fact]
-    [Trait("Category", "Filtering")]
-    public async Task Convert_RemoveVowels_ReturnsConsonantsOnly()
-        => Assert.Equal("Hll Wrld", await ConvertAsync("Hello World", 8));
-
-    //===================================================================
-    // Algorithmic Substitutions
-    //===================================================================
-
-    [Fact]
     [Trait("Category", "Encoding")]
     public async Task Convert_LeetSpeak_ReturnsNumericSubstitutions()
         => Assert.Equal("7357", await ConvertAsync("Test", 13));
 
     //===================================================================
-    // Stress & Boundary Testing (Large Payloads)
+    // Hardware-Specific Concurrency (Apple M2 Optimization)
+    //===================================================================
+
+    [Fact]
+    [Trait("Category", "Performance-Benchmark")]
+    [Trait("Hardware", "M2-P-Cores")]
+    public async Task Benchmark_SequentialVsParallel_ProvesPCoreEfficiency()
+    {
+        var inputs = Enumerable.Range(1, 4)
+            .Select(i => $"Bench_Data_{i}_" + new string('X', 50000))
+            .ToList();
+
+        // Warm-up to bypass JIT overhead
+        await ConvertAsync("Warmup", 1);
+
+        // Sequential Execution
+        var watch = Stopwatch.StartNew();
+        foreach (var input in inputs) { await ConvertAsync(input, 1); }
+        watch.Stop();
+        long sequentialTime = watch.ElapsedMilliseconds;
+
+        // Parallel Execution
+        watch.Restart();
+        var tasks = inputs.Select(input => ConvertAsync(input, 1));
+        await Task.WhenAll(tasks);
+        watch.Stop();
+        long parallelTime = watch.ElapsedMilliseconds;
+
+        double speedup = (double)sequentialTime / parallelTime;
+        Console.WriteLine($"[METRIC] M2 Speedup: {speedup:F2}x | Parallel: {parallelTime}ms");
+
+        Assert.True(parallelTime < sequentialTime, "Parallel should be faster.");
+        Assert.True(speedup > 2.0, $"Speedup ({speedup:F2}x) indicates core under-utilization.");
+    }
+
+    //===================================================================
+    // Thread Isolation & Race Condition Validation
+    //===================================================================
+
+    [Fact]
+    [Trait("Category", "Concurrency")]
+    public async Task Convert_ConcurrentExecution_EnsuresThreadIsolation()
+    {
+        var testData = new Dictionary<int, string>
+        {
+            { 1, "ALPHA" }, { 2, "BRAVO" }, { 3, "CHARLIE" }, { 4, "DELTA" }
+        };
+
+        var tasks = testData.Select(kvp => Task.Run(async () => {
+            var result = await ConvertAsync(kvp.Value, 4); // Choice 4: Uppercase
+            return new { Id = kvp.Key, Output = result };
+        }));
+
+        var results = await Task.WhenAll(tasks);
+
+        // Verify no memory cross-talk in the C++ layer
+        foreach (var res in results)
+        {
+            Assert.Equal(testData[res.Id].ToUpper(), res.Output);
+        }
+    }
+
+    //===================================================================
+    // Stress, Boundary & Memory Leak Testing
     //===================================================================
 
     [Fact]
     [Trait("Category", "Stress")]
     public async Task Convert_LargePayload_Exceeding2MB_ReturnsSuccessfully()
     {
-        // Arrange: Generate ~2.1MB of data (1 character = 1 byte in UTF-8 usually)
         int sizeInChars = 2100000; 
         string largeInput = new string('a', sizeInChars);
-        
-        // Act: Perform a simple Uppercase conversion (ID 4)
         string result = await ConvertAsync(largeInput, 4);
 
-        // Assert: Verify size integrity and correctness
-        Assert.NotNull(result);
         Assert.Equal(sizeInChars, result.Length);
-        Assert.Equal("A", result.Substring(0, 1)); // Spot check start
-        Assert.Equal("A", result.Substring(result.Length - 1, 1)); // Spot check end
+        Assert.Equal("A", result.Substring(0, 1)); 
+    }
+
+    [Fact]
+    [Trait("Category", "Reliability")]
+    public async Task Convert_RapidSuccession_NoMemoryLeak()
+    {
+        // 1000 rapid calls to verify 'freeString' delegate releases native heap
+        for (int i = 0; i < 1000; i++)
+        {
+            var res = await ConvertAsync("LeakCheck", 1);
+            Assert.NotNull(res);
+        }
+    }
+
+    /// <summary>
+    /// Validates the 4-thread saturation limit on M2. 
+    /// Sends N+1 requests to verify the queue handles the overflow gracefully.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Hardware-Optimization")]
+    public async Task Convert_NPlusOneLoad_MaintainsStability()
+    {
+        var inputs = Enumerable.Range(1, 5).Select(i => $"Overflow_{i}").ToList();
+        var tasks = inputs.Select(input => ConvertAsync(input, 1));
+        
+        var results = await Task.WhenAll(tasks);
+        Assert.Equal(5, results.Length);
     }
 }

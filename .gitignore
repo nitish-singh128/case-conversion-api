@@ -1,17 +1,51 @@
-*.env.dev
-*.env.prod
-*.env.local
-*.env.test
-*.env
-.DS_Store
-node_modules
-dist
-build
-coverage
-logs
-*.log
-*.cache
-*.tmp
-.vscode
-.idea
+# ==========================================
+# .NET / C# Specific
+# ==========================================
+bin/
+obj/
+out/
+appsettings.Development.json
+*.user
+*.suo
+*.sln.docstates
+publish/
 
+# ==========================================
+# C++ / Native Build Artifacts
+# ==========================================
+# Ignore the build folder where CMake generates files
+build/
+*.o
+*.obj
+*.so
+*.dylib
+*.dll
+*.lib
+*.pdb
+.cmake/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+# ==========================================
+# macOS Specific (M2 Environment)
+# ==========================================
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ==========================================
+# Docker / Containerization
+# ==========================================
+.dockerignore
+# Do not ignore the Dockerfile itself, but ignore local data volumes
+data/
+docker-compose.override.yml
+
+# ==========================================
+# IDE / Editor Specific (VS Code / Visual Studio)
+# ==========================================
+.vscode/
+.vs/
+.idea/
+*.swp

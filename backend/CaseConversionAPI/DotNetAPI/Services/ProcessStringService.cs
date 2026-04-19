@@ -23,13 +23,16 @@
  * 1.1         2026-04-13     Nitish Singh     Added memory safety, freeString delegate, IDisposable
  * 1.2         2026-04-18     Nitish Singh     Added OpenTelemetry instrumentation and updated 
  * delegate for distributed tracing (traceId).
+ * 1.3         2026-04-19     Nitish Singh     Added M2-Optimized Parallel Batch Processing (P-Cores)
  **************************************************************************************************/
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Diagnostics;
-
+using System.Threading;
+using System.Threading.Tasks;
 namespace StringConversionAPI.Services
 {
     /// <summary>
@@ -135,6 +138,42 @@ namespace StringConversionAPI.Services
                     _freeStringDelegate(resultPtr);
                 }
             }
+        }
+
+        /// <summary>
+        /// Hardware-optimized parallel batch processing
+        /// Targets the 4 Performance Cores of the M2 to avoid Efficiency Core latency.
+        /// </summary>
+        
+        public async Task<IEnumerable<string>> ConvertBatchAsync(IEnumerable<string> inputs, int choice)
+        {
+            // Tuning: Saturate 4 P-Cores to maintain maximum IPC without triggering thermal throttling
+            
+            var options = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = 4 // Limit to 4 to target P-Cores
+            };
+
+            var results = new List<string>();
+            var ListLock = new SemaphoreSlim(1, 1); // To synchronize access to results list
+
+            await Parallel.ForEachAsync(inputs, options, async (input, cancellationToken) =>
+            {
+                // Offload synchronous P/Invoke to ThreadPool
+                string result = await Task.Run(() => Convert(input, choice), cancellationToken);
+
+                await ListLock.WaitAsync(cancellationToken);
+                try
+                {
+                    results.Add(result);
+                }
+                finally
+                {
+                    ListLock.Release();
+                }
+            });
+
+            return results;
         }
 
         #region Disposal Pattern

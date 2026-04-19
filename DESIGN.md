@@ -1,6 +1,17 @@
 # Case Conversion API — Design Document
 
-## 1. Overview
+## Revision History
+
+| Version | Date       | Author       | Description                                           |
+| :------ | :--------- | :----------- | :---------------------------------------------------- |
+| 1.0     | 2026-04-11 | Nitish Singh | Initial Architecture & Strategy Pattern Design.       |
+| 1.1     | 2026-04-14 | Nitish Singh | Added P/Invoke Interop & Docker Orchestration.        |
+| 1.2     | 2026-04-17 | Nitish Singh | Integrated OpenTelemetry & Trace Context Propagation. |
+| 1.3     | 2026-04-19 | Nitish Singh | M2 Hardware Saturation (4 P-Cores) & Batch Logic.     |
+
+---
+
+## Overview
 
 The Case Conversion API is a multi-layered system that exposes a high-performance C++ string conversion engine through a .NET REST API and serves it to a React-based frontend UI. The architecture separates performance-critical logic from API orchestration and UI concerns.
 
@@ -8,27 +19,25 @@ The system uses native C++ for efficient string transformations, .NET for servic
 
 ---
 
-## 2. Goals
+## Goals
 
-* Provide multiple string conversion strategies
-* Ensure high performance using native C++
-* Expose conversions via REST API
-* Support containerized deployment
-* Maintain modular and extensible architecture
-* Enable cross-platform shared library usage
+- Performance: Utilize native C++ for O(n) string transformations.
+- Scalability: Saturate M2 Performance Cores via parallel orchestration.
+- Observability: Provide full-stack trace propagation across the ABI boundary.
+- Security: Enforce a strict 5MB security gate for native memory protection.
 
 ---
 
-## 3. Non-Goals
+## Non-Goals
 
-* Persistent storage
-* Authentication/authorization
-* Distributed scaling
-* Streaming or batch processing
+- Persistent storage
+- Authentication/authorization
+- Distributed scaling
+- Streaming or batch processing
 
 ---
 
-## 4. High-Level Architecture
+## High-Level Architecture
 
 ```sh
         Frontend (React)
@@ -48,38 +57,38 @@ The system uses native C++ for efficient string transformations, .NET for servic
 
 ---
 
-## 5. Component Design
+## Component Design
 
-### 5.1 C++ Conversion Engine
+### C++ Conversion Engine (Native Layer)
 
 Responsibilities:
 
-* Implement conversion strategies
-* Dispatch based on user choice
-* Return processed string
+- Implement conversion strategies
+- Dispatch based on user choice
+- Return processed string
 
 Design Patterns:
 
-* Strategy Pattern
-* Factory Pattern
-* Dispatcher
+- Strategy Pattern: Each conversion (SnakeCase, LeetSpeak, etc.) is an isolated strategy class.
+- Factory Pattern: A central factory dispatches the input string to the correct strategy based on an integer `choice`.
+- Memory Ownership: Follows the **"Callee-Allocates, Caller-Frees"** contract. The native engine allocates the result on the heap, and .NET is responsible for calling a `freeString` delegate.
 
 Example Strategies:
 
-* AlternatingCase
-* CapitalizeWords
-* SnakeCase
-* KebabCase
-* LeetSpeak
-* Reverse
-* ToggleCase
+- AlternatingCase
+- CapitalizeWords
+- SnakeCase
+- KebabCase
+- LeetSpeak
+- Reverse
+- ToggleCase
 
 Factory selects strategy:
 Input Choice → Factory → Strategy → Execute
 
 ---
 
-### 5.2 Shared Library Export Layer
+### .NET Interop & Service Layer
 
 The engine is exposed via a C-compatible interface.
 
@@ -91,20 +100,21 @@ extern "C" const char* processStringDLL(const char* input, int choice);
 
 Responsibilities:
 
-* Bridge C++ and C#
-* Dispatch conversion request
-* Return C-style string pointer
+- Bridge C++ and C#
+- Dispatch conversion request
+- Return C-style string pointer
 
-#### 5.2.1 Memory Ownership Policy
+#### Memory Ownership Policy
 
 The Contract: To prevent memory leaks, the system follows a Caller-Must-Cleanup or Static-Return pattern.
 
 Implementation: The C++ engine returns a const char*. The .NET side treats this as an IntPtr.
 
 Safety: Because string conversions are stateless, we avoid long-lived heap allocations in the native layer to minimize the risk of fragmentation.
+
 ---
 
-### 5.3 .NET Interop Layer
+### .NET Interop Layer
 
 Uses P/Invoke to call native DLL.
 
@@ -115,13 +125,13 @@ private static extern IntPtr processStringDLL(string input, int choice);
 
 Responsibilities:
 
-* Marshal strings
-* Convert IntPtr to managed string
-* Handle API-level validation
+- Marshal strings
+- Convert IntPtr to managed string
+- Handle API-level validation
 
 ---
 
-### 5.4 REST API Layer
+### REST API Layer
 
 Endpoint:
 POST /api/WordCase/convert
@@ -139,42 +149,50 @@ Response:
 
 Responsibilities:
 
-* Input validation
-* Call service layer
-* Return JSON response
+- Input validation
+- Call service layer
+- Return JSON response
+
+### M2 Hardware Optimization (v1.3)
+
+To maximize throughput on Apple Silicon:
+
+- P-Core Saturation: The system targets the 4 Performance Cores (P-Cores) of the M2.
+- Parallel Orchestration: The `convert-batch` endpoint uses `Parallel.ForEachAsync` with a `MaxDegreeOfParallelism` of 4.
+- N+1 Queueing: A `SemaphoreSlim` ensures that a 5th concurrent request is queued correctly, preventing the system from offloading high-priority work to the slower E-Cores (Efficiency Cores).
 
 ---
 
-### 5.5 Frontend UI
+### Frontend UI
 
 Technology:
 
-* React
-* TypeScript
-* Vite
+- React
+- TypeScript
+- Vite
 
 Responsibilities:
 
-* Collect input
-* Provide conversion selection
-* Call REST API
-* Display results
+- Collect input
+- Provide conversion selection
+- Call REST API
+- Display results
 
 ---
 
-## 6. Build & Deployment Architecture
+## Build & Deployment Architecture
 
 ### Multi-stage Docker Build
 
 Stage 1:
 
-* Build C++ shared library
-* Publish .NET API
+- Build C++ shared library
+- Publish .NET API
 
 Stage 2:
 
-* Copy artifacts
-* Run ASP.NET runtime
+- Copy artifacts
+- Run ASP.NET runtime
 
 ---
 
@@ -208,19 +226,19 @@ Stage 2:
 
 ## 8. Error Handling
 
-* Invalid choice → return lower case of string
-* Null input → return empty string
-* DLL load failure → HTTP 500
-* API validation failure → HTTP 400
+- Invalid choice → return lower case of string
+- Null input → return empty string
+- DLL load failure → HTTP 500
+- API validation failure → HTTP 400
 
 ---
 
 ## 9. Performance Considerations
 
-* Native C++ for string processing
-* No heap allocations in critical path
-* Static buffer reuse
-* Minimal interop overhead
+- Native C++ for string processing
+- No heap allocations in critical path
+- Static buffer reuse
+- Minimal interop overhead
 
 ---
 
@@ -241,16 +259,16 @@ No API changes required.
 
 C++:
 
-* GoogleTest unit tests
-* Strategy validation
+- GoogleTest unit tests
+- Strategy validation
 
 .NET:
 
-* Service layer tests
+- Service layer tests
 
 Integration:
 
-* API endpoint tests
+- API endpoint tests
 
 ---
 
@@ -264,18 +282,18 @@ Docker container on port 5173
 
 Docker Compose orchestrates:
 
-* frontend
-* backend
+- frontend
+- backend
 
 ---
 
 ## 13. Future Improvements
 
-* SIMD optimizations
-* Async API calls
-* Plugin-based strategies
-* Benchmark endpoints
-* WASM build of C++ engine
+- SIMD optimizations
+- Async API calls
+- Plugin-based strategies
+- Benchmark endpoints
+- WASM build of C++ engine
 
 ---
 
@@ -316,15 +334,15 @@ Reason: Ensures that errors occurring deep in the C++ engine are correlated to t
 
 Pros:
 
-* High performance
-* Modular design
-* Extensible architecture
+- High performance
+- Modular design
+- Extensible architecture
 
 Cons:
 
-* Native interop complexity
-* Memory management risks
-* Cross-platform build complexity
+- Native interop complexity
+- Memory management risks
+- Cross-platform build complexity
 
 ---
 
@@ -343,3 +361,5 @@ To ensure the polyglot boundary is transparent, the system implements:
 - Buffer Overflow Protection: The managed API validates the input length against a MAX_BUFFER_SIZE before the P/Invoke call.
 
 - Sanitization: The C++ engine uses std::string_view or bound-checked iterators to ensure it never reads past the memory allocated by the managed environment.
+
+- Managed Handling**: The .NET layer detects this sentinel and throws a controlled `ArgumentException`, returning a `400 Bad Request` to the user instead of crashing the native process.
