@@ -24,6 +24,7 @@
  * 1.2         2026-04-18     Nitish Singh     Added OpenTelemetry instrumentation and updated 
  * delegate for distributed tracing (traceId).
  * 1.3         2026-04-19     Nitish Singh     Added M2-Optimized Parallel Batch Processing (P-Cores)
+ * 1.4         2026-04-19     Nitish Singh     Integrated ConcurrentBag and Aggregate Memory Guard
  **************************************************************************************************/
 
 using System;
@@ -33,17 +34,29 @@ using System.IO;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
+using System.Linq;
+
 namespace StringConversionAPI.Services
 {
     /// <summary>
     /// Service to facilitate communication between .NET and the native C++ 
-    /// conversion library with built-in observability.
+    /// conversion library with built-in observability and memory safety.
     /// </summary>
     public class ProcessStringService : IDisposable
     {
+        #region Performance & Security Constants
+
+        // Hardware-targeted parallelism for M2 P-Cores to maintain maximum IPC
+        private const int MaxNativeParallelism = 4;
+
+        // Aggregate Batch Limit (20MB) to prevent container heap exhaustion
+        private const long MaxBatchPayloadBytes = 20 * 1024 * 1024; 
+
+        #endregion
+
         #region Native Delegates
 
-        // Updated Version 1.2: Added traceId parameter to the delegate signature
         private delegate IntPtr ProcessStringDelegate(
             [MarshalAs(UnmanagedType.LPStr)] string input, 
             int choice, 
@@ -60,7 +73,6 @@ namespace StringConversionAPI.Services
         private readonly IntPtr _libraryHandle;
         private bool _disposed = false;
 
-        // OpenTelemetry Activity Source
         private static readonly ActivitySource _activitySource = new("CaseConversion.Engine");
 
         #endregion
@@ -95,11 +107,6 @@ namespace StringConversionAPI.Services
 
             using var activity = _activitySource.StartActivity("Native-C++-Process", ActivityKind.Internal);
 
-            // If activity is null here, it means no one is listening to "CaseConversion.Engine"
-            if (activity == null) {
-                 Console.WriteLine("[DEBUG] Telemetry Warning: Activity was not started. Check ActivitySource name.");
-            }
-
             string traceId = activity?.Id ?? "no-trace-context";
             
             activity?.SetTag("conversion.choice", choice);
@@ -109,7 +116,6 @@ namespace StringConversionAPI.Services
 
             try
             {
-                // Dispatch call to C++ with TraceContext
                 resultPtr = _processString(input, choice, traceId);
                 
                 if (resultPtr == IntPtr.Zero)
@@ -117,7 +123,7 @@ namespace StringConversionAPI.Services
 
                 string result = Marshal.PtrToStringAnsi(resultPtr) ?? string.Empty;
 
-                // Sentinel Check for security gate
+                // Sentinel Check for native security gate
                 if (result == "ERROR_BUFFER_OVERFLOW_LIMIT_5MB")
                 {
                     activity?.SetStatus(ActivityStatusCode.Error, "Input exceeds 5MB limit.");
@@ -141,36 +147,37 @@ namespace StringConversionAPI.Services
         }
 
         /// <summary>
-        /// Hardware-optimized parallel batch processing
-        /// Targets the 4 Performance Cores of the M2 to avoid Efficiency Core latency.
+        /// Hardware-optimized parallel batch processing with aggregate memory guarding.
+        /// Targets the 4 Performance Cores of the M2.
         /// </summary>
-        
         public async Task<IEnumerable<string>> ConvertBatchAsync(IEnumerable<string> inputs, int choice)
         {
-            // Tuning: Saturate 4 P-Cores to maintain maximum IPC without triggering thermal throttling
-            
+            if (inputs == null) return Array.Empty<string>();
+
+            // 1. Pre-flight Validation: Total Payload Guard
+            long totalByteCount = 0;
+            foreach (var str in inputs)
+            {
+                totalByteCount += str?.Length ?? 0;
+                if (totalByteCount > MaxBatchPayloadBytes)
+                {
+                    throw new ArgumentException($"Total batch payload ({totalByteCount} bytes) exceeds the 20MB safety limit.");
+                }
+            }
+
+            // 2. Execution Orchestration
             var options = new ParallelOptions
             {
-                MaxDegreeOfParallelism = 4 // Limit to 4 to target P-Cores
+                MaxDegreeOfParallelism = MaxNativeParallelism 
             };
 
-            var results = new List<string>();
-            var ListLock = new SemaphoreSlim(1, 1); // To synchronize access to results list
+            var results = new ConcurrentBag<string>();
 
             await Parallel.ForEachAsync(inputs, options, async (input, cancellationToken) =>
             {
-                // Offload synchronous P/Invoke to ThreadPool
+                // Offload synchronous P/Invoke to ThreadPool to keep the async loop responsive
                 string result = await Task.Run(() => Convert(input, choice), cancellationToken);
-
-                await ListLock.WaitAsync(cancellationToken);
-                try
-                {
-                    results.Add(result);
-                }
-                finally
-                {
-                    ListLock.Release();
-                }
+                results.Add(result);
             });
 
             return results;

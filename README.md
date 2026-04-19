@@ -96,12 +96,30 @@ npm run build
 
 ### Integration Layer (C#)
 
-The .NET service calls the DLL:
+The .NET service implements a **Double-Lock Security Gate** to ensure system stability across the ABI boundary:
 
 ```csharp
-// Updated for Production Grade Interop
-[DllImport("libProcessStringDLL", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-private static extern IntPtr processStringDLL([MarshalAs(UnmanagedType.LPStr)] string input, int choice);
+// Version 1.4: High-Performance Parallel Orchestration with Aggregate Guard
+public async Task<IEnumerable<string>> ConvertBatchAsync(IEnumerable<string> inputs, int choice)
+{
+    // Gate 1: Managed Aggregate Memory Guard (20MB)
+    // Prevents "Death by a Thousand Cuts" where many small strings overwhelm the container.
+    if (inputs.Sum(s => (long)s.Length) > MaxBatchPayloadBytes)
+        throw new ArgumentException($"Total batch payload exceeds the {MaxBatchPayloadBytes / 1024 / 1024}MB safety limit.");
+
+    var options = new ParallelOptions { MaxDegreeOfParallelism = MaxNativeParallelism };
+    var results = new ConcurrentBag<string>();
+
+    await Parallel.ForEachAsync(inputs, options, async (input, cancellationToken) =>
+    {
+        // Gate 2: Native Sentinel Check (5MB)
+        // Wraps the synchronous P/Invoke in Task.Run to preserve ThreadPool responsiveness.
+        string result = await Task.Run(() => Convert(input, choice), cancellationToken);
+        results.Add(result);
+    });
+
+    return results;
+}
 ```
 
 This enables the REST API to use native C++ performance-critical logic.
@@ -143,11 +161,10 @@ A dedicated script manages the lifecycle of the OTLP (OpenTelemetry Protocol) ba
 
 ## Hardware-Specific Optimization (Apple M2)
 
-The system was developed and benchmarked on an 8GB M2 MacBook Air. Operating within a Unified Memory Architecture (UMA) required specific architectural decisions to maintain high throughput without triggering SSD swapping:
-
-- Concurrency Tuning: To maximize efficiency on the M2's 8-core silicon, the `MaxDegreeOfParallelism` was tuned to 4. This aligns with the M2's high-performance cores, ensuring heavy C++ string transformations do not compete with OS-level efficiency tasks.
-- Memory Pressure Mitigation: With only 8GB of shared RAM, a strict RAII-to-Disposable bridge was implemented. This ensures that native `char*` buffers are released back to the OS immediately after the managed layer completes its copy, preventing the system from falling into the "Swap Zone," which would degrade ABI latency.
-- Thermal Efficiency: By throttling concurrent native calls, the engine maintains a sustainable CPU temperature on fanless hardware, preventing thermal throttling during high-volume batch processing.
+- **P-Core Saturation:** `MaxDegreeOfParallelism` is explicitly set to 4. This aligns with the M2's Performance Cores, ensuring heavy C++ string transformations maintain maximum IPC (Instructions Per Cycle) without being offloaded to Efficiency Cores.
+- Double-Lock Memory Safety: - Global: 20MB batch ceiling prevents the 8GB Unified Memory from triggering SSD swap.
+    - Local: 5MB native limit prevents buffer overflows in unmanaged memory.
+- Contention-Free Buffering:** Utilizes `ConcurrentBag<T>` to allow parallel P-Cores to flush data back to managed memory without the lock-contention overhead of traditional `List<T>` synchronization.
 
 ## Engineering Deep Dive
 
@@ -172,6 +189,12 @@ In a high-throughput REST environment, thread-safety is paramount. The integrati
 - RAII (Resource Acquisition Is Initialization): Employed in C++ to manage internal resources and in C# via IDisposable to ensure native library handles are released.
 
 Note on Thread-Safety: The native C++ engine is designed to be Stateless and Thread-Safe, allowing the .NET pool to safely execute concurrent P/Invoke calls without shared-state contention.
+
+3. Defensive Interop Design
+
+- Sentinel Pattern: The C++ engine returns a sentinel string (`ERROR_BUFFER_OVERFLOW_LIMIT_5MB`) upon security violation. The C# layer traps this and re-throws a managed `ArgumentException`, providing a clean error path for the API consumer.
+- Reentrant & Stateless: The native engine maintains no global state. Every P/Invoke call operates on its own stack and heap allocation, ensuring full reentrancy for parallel execution.
+- Zero-Footprint Disposal: Implements a strict "Callee-Allocates, Caller-Frees" contract. Every native `IntPtr` is released via a `finally` block to the `freeString` delegate, ensuring the unmanaged heap remains clean even during execution failures.
 
 ---
 
