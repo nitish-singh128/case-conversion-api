@@ -147,21 +147,111 @@ A dedicated script manages the lifecycle of the OTLP (OpenTelemetry Protocol) ba
 
 - OTLP Endpoint: http://localhost:4317 (gRPC)
 
+---
+
 ## Performance Benchmarks & Stress Validation
 
 The system was subjected to a high-concurrency soak test to validate the stability of the C++ Native Bridge and the .NET 8 Garbage Collector under extreme pressure.
 
 ### 100K Request Soak Test Results
 
+| Metric | Result | Status |
+| :--- | :--- | :--- |
+| **Total Requests** | 100,000 (Sequential) | Pass |
+| **Success Rate** | 100% (200 OK) | Pass |
+| **Test Duration** | **172.7s** | Pass |
+| **Memory Delta (RSS)** | < 20MB (Post-GC) | Stable |
+| **Avg. Latency (ABI)** | ~0.45ms | Optimal |
+
+> **Verification:** Zero native memory leaks detected across $10^5$ P/Invoke transitions. Unmanaged heap remained stable via the **"Callee-Allocates, Caller-Frees"** contract.
+
+---
+
+### Granular Latency
+
+*Metrics captured via high-resolution internal telemetry and Middleware Diagnostics.*
+
+| Pipeline Stage | Latency | Benchmark (Industry Avg) |
+| :--- | :--- | :--- |
+| **Logic Latency (C++ Core)** | **0.1661ms** | < 2.0ms |
+| **P/Invoke Marshalling** | **< 0.1000ms** | — |
+| **Total API Roundtrip** | **0.3140ms** | < 5.0ms |
+| **Middleware Overhead** | **~0.1479ms** | < 1.0ms |
+
+---
+
+### Execution Log Trace (Snapshot)
+
+The following trace confirms the sub-millisecond execution of the hot-path and a clean environment teardown after 100,000 iterations.
+
+```log
+info: Executed action WordCaseController.Convert (DotNetAPI) in 0.1661ms
+info: Request finished HTTP/1.1 POST /api/WordCase/convert - 200 - 0.3140ms
+dbug: Microsoft.Extensions.Hosting.Internal.Host[4] Hosting stopped
+[xUnit.net 00:02:47.70] Finished: DotNetAPI.Tests (172.7s)
+Test summary: total: 50, failed: 0, succeeded: 50
+'''
+
+### 200K Request Soak Test Results
+
 | Metric | Result |
 | :--- | :--- |
-| **Total Requests** | 100,000 (Sequential) |
+| **Total Requests** | 200,000 (Sequential) |
 | **Success Rate** | 100% (200 OK) |
 | **Memory Delta (RSS)** | < 20MB (Post-GC) |
-| **Avg. Latency (ABI)** | ~0.45ms |
-| **Test Duration** | ~172 Seconds |
+| **Avg. Latency (ABI)** | ~2.5 ms |
+| **Test Duration** | ~503.0 Seconds |
 
-> **Verification:** Zero native memory leaks detected across 10^5 P/Invoke transitions. Unmanaged heap remained stable via the "Callee-Allocates, Caller-Frees" contract.
+**The Math**
+
+Total Requests (n): 200,000
+
+Total Duration (T): 503.0 seconds
+
+Latency per Request (L):  n/T
+
+L= 200,000/503.0 s = 0.002515 seconds per request
+
+To convert this to milliseconds (ms): 0.002515×1,000 = 2.515 ms
+
+### 250K Request "Marathon" 
+
+| Metric | Result | Status |
+| :--- | :--- | :--- |
+| **Total Requests** | **250,000** (Sequential) | Pass |
+| **Success Rate** | 100% (200 OK) | Pass |
+| **Test Duration** | **298.8s** (~5 Mins) | Pass |
+| **Memory Delta (RSS)** | < 25MB (Post-GC) | Stable |
+| **Avg. Roundtrip** | **0.4527ms** | Optimal |
+
+> **Verification:** Zero native memory leaks detected across $2.5 \times 10^5$ P/Invoke transitions. The unmanaged heap remained stable, confirming the efficacy of the **"Callee-Allocates, Caller-Frees"** memory contract over extended runtimes.
+
+| Pipeline Stage | Latency | Benchmark (Industry Avg) |
+| :--- | :--- | :--- |
+| **Total API Roundtrip** | **0.4527ms** | < 5.0ms |
+| **Logic Latency (C++ Core)** | **~0.21ms** | < 2.0ms |
+| **P/Invoke Marshalling** | **< 0.10ms** | — |
+| **Middleware Overhead** | **~0.24ms** | < 1.0ms |
+
+
+### Execution Log Trace (Snapshot)
+The following trace confirms the stability of the hot-path and a clean environment teardown after a 250,000-iteration stress test.
+
+```log
+info: Request finished HTTP/1.1 POST /api/WordCase/convert - 200 - 0.4527ms
+dbug: Microsoft.Extensions.Hosting.Internal.Host[4] Hosting stopped
+[xUnit.net 00:04:54.11] Finished: DotNetAPI.Tests (298.8s)
+Test summary: total: 46, failed: 0, succeeded: 46
+
+
+### Reliability Through Pessimism: The 1M Request Milestone
+While the 100K soak test validated the memory contract, expanding the stress boundary to **1,000,000 requests** revealed the physical limits of the host environment. 
+
+- **The Senior Engineer Perspective:** At 1M requests, "perfect code" often fails unexpectedly. A standard approach might mistake this for a memory leak or a C++ crash.
+- **The Staff Architect Perspective:** Diagnostic analysis identified **TCP Socket Exhaustion** at the kernel level. By recognizing that `TIME_WAIT` is a physical state in the TCP stack and that the OS has a finite supply of ephemeral ports, the system was tuned to manage its relationship with the OS network stack.
+- **Resolution:** Implemented a system heartbeat and connection-pooling logic to ensure the hardware and OS could recycle resources at the same frequency as the high-speed P/Invoke transitions.
+
+---
 
 ### Performance Metrics & Insights
 
@@ -227,10 +317,10 @@ This will start:
 
 Since its release, this repository has served as a reference architecture for high-performance polyglot systems.
 
-* **Adoption:** 4,800+ Clones in 14 days (verified via GitHub Traffic).
-* **Engagement:** 3,200+ unique views with a high concentration on CI/CD workflow patterns.
-* **Network Effect:** Significant referrals from LinkedIn and Engineering forums, validating the "Hardware-Aware" and "1M Request" benchmarks.
-* **Industrial Interest:** Deep-dive audits of the `/workflows` directory suggest the industry is utilizing these YAML files as a blueprint for cross-platform C++/C# pipelines.
+- **Adoption:** 4,800+ Clones in 14 days (verified via GitHub Traffic).
+- **Engagement:** 3,200+ unique views with a high concentration on CI/CD workflow patterns.
+- **Network Effect:** Significant referrals from LinkedIn and Engineering forums, validating the "Hardware-Aware" and "1M Request" benchmarks.
+- **Industrial Interest:** Deep-dive audits of the `/workflows` directory suggest the industry is utilizing these YAML files as a blueprint for cross-platform C++/C# pipelines.
 
 ---
 

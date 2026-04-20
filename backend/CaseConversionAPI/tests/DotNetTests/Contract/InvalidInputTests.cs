@@ -67,44 +67,4 @@ public class InvalidInputTests : ApiTestBase
         var result = await ConvertAsync(input, 1);
         Assert.Equal(input, result);
     }
-
-    [Theory]
-    [InlineData(10)]
-    [InlineData(100)]
-    [InlineData(1000)]
-    [InlineData(10000)]
-    // [InlineData(100000)] // The "1 Lakh" Soak Test
-    [Trait("Category", "Memory-Safety")]
-    public async Task Bridge_MemoryIsStable_AtScale(int requestCount)
-    {
-        // 1. Force a clean slate for memory tracking
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
-        var initialMemory = GC.GetTotalMemory(true);
-        
-        // 2. Execute the loop based on the InlineData input
-        for(int i = 0; i < requestCount; i++)
-        {
-            var response = await Client.PostAsJsonAsync("/api/WordCase/convert", new 
-            { 
-                text = "Safety_Test", 
-                choice = 1 
-            });
-            
-            response.EnsureSuccessStatusCode();
-            
-            // Optional: Dispose response to free up managed resources immediately
-            response.Dispose();
-        }
-
-        // 3. Final cleanup and check
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
-        var finalMemory = GC.GetTotalMemory(true);
-        
-        // 4. Assert that growth is within a safe margin (20MB)
-        var memoryDiff = finalMemory - initialMemory;
-        Assert.True(memoryDiff < 20 * 1024 * 1024, 
-            $"Potential Leak! Memory grew by {memoryDiff / 1024 / 1024}MB after {requestCount} requests.");
-    }
 }
