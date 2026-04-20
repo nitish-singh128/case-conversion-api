@@ -64,7 +64,7 @@ We enforce a strict testing policy. No PR will be merged without:
 
 ## Security & Vulnerabilities
 
-If you find a security hole (especially regarding buffer overflows in the native bridge), please do not open a public issue. Email the maintainer directly at [me.singhnitish@gmail.com] to ensure a coordinated disclosure.
+If you find a security hole (especially regarding buffer overflows in the native bridge), please do not open a public issue. Email the maintainer directly at [contact us](mailto:me.singhnitish@yandex.com). to ensure a coordinated disclosure.
 
 ## License
 
