@@ -165,8 +165,6 @@ The system was subjected to a high-concurrency soak test to validate the stabili
 
 > **Verification:** Zero native memory leaks detected across $10^5$ P/Invoke transitions. Unmanaged heap remained stable via the **"Callee-Allocates, Caller-Frees"** contract.
 
----
-
 ### Granular Latency
 
 *Metrics captured via high-resolution internal telemetry and Middleware Diagnostics.*
@@ -177,42 +175,6 @@ The system was subjected to a high-concurrency soak test to validate the stabili
 | **P/Invoke Marshalling** | **< 0.1000ms** | — |
 | **Total API Roundtrip** | **0.3140ms** | < 5.0ms |
 | **Middleware Overhead** | **~0.1479ms** | < 1.0ms |
-
----
-
-### Execution Log Trace (Snapshot)
-
-The following trace confirms the sub-millisecond execution of the hot-path and a clean environment teardown after 100,000 iterations.
-
-```log
-info: Executed action WordCaseController.Convert (DotNetAPI) in 0.1661ms
-info: Request finished HTTP/1.1 POST /api/WordCase/convert - 200 - 0.3140ms
-dbug: Microsoft.Extensions.Hosting.Internal.Host[4] Hosting stopped
-[xUnit.net 00:02:47.70] Finished: DotNetAPI.Tests (172.7s)
-Test summary: total: 50, failed: 0, succeeded: 50
-```
-
-### 200K Request Soak Test Results
-
-| Metric | Result |
-| :--- | :--- |
-| **Total Requests** | 200,000 (Sequential) |
-| **Success Rate** | 100% (200 OK) |
-| **Memory Delta (RSS)** | < 20MB (Post-GC) |
-| **Avg. Latency (ABI)** | ~2.5 ms |
-| **Test Duration** | ~503.0 Seconds |
-
-**The Math**
-
-Total Requests (n): 200,000
-
-Total Duration (T): 503.0 seconds
-
-Latency per Request (L):  n/T
-
-L= 200,000/503.0 s = 0.002515 seconds per request
-
-To convert this to milliseconds (ms): 0.002515×1,000 = 2.515 ms
 
 ### 250K Request "Marathon" 
 
