@@ -176,6 +176,8 @@ The system was subjected to a high-concurrency soak test to validate the stabili
 | **Total API Roundtrip** | **0.3140ms** | < 5.0ms |
 | **Middleware Overhead** | **~0.1479ms** | < 1.0ms |
 
+---
+
 ### 250K Request "Marathon" 
 
 | Metric | Result | Status |
@@ -195,7 +197,6 @@ The system was subjected to a high-concurrency soak test to validate the stabili
 | **P/Invoke Marshalling** | **< 0.10ms** | — |
 | **Middleware Overhead** | **~0.24ms** | < 1.0ms |
 
-
 ### Execution Log Trace (Snapshot)
 The following trace confirms the stability of the hot-path and a clean environment teardown after a 250,000-iteration stress test.
 
@@ -205,6 +206,8 @@ dbug: Microsoft.Extensions.Hosting.Internal.Host[4] Hosting stopped
 [xUnit.net 00:04:54.11] Finished: DotNetAPI.Tests (298.8s)
 Test summary: total: 46, failed: 0, succeeded: 46
 ```
+
+---
 
 ### Reliability Through Pessimism: The 1M Request Milestone
 While the 100K soak test validated the memory contract, expanding the stress boundary to **1,000,000 requests** revealed the physical limits of the host environment. 
