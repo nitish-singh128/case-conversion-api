@@ -190,7 +190,7 @@ info: Request finished HTTP/1.1 POST /api/WordCase/convert - 200 - 0.3140ms
 dbug: Microsoft.Extensions.Hosting.Internal.Host[4] Hosting stopped
 [xUnit.net 00:02:47.70] Finished: DotNetAPI.Tests (172.7s)
 Test summary: total: 50, failed: 0, succeeded: 50
-'''
+```
 
 ### 200K Request Soak Test Results
 
@@ -242,7 +242,7 @@ info: Request finished HTTP/1.1 POST /api/WordCase/convert - 200 - 0.4527ms
 dbug: Microsoft.Extensions.Hosting.Internal.Host[4] Hosting stopped
 [xUnit.net 00:04:54.11] Finished: DotNetAPI.Tests (298.8s)
 Test summary: total: 46, failed: 0, succeeded: 46
-
+```
 
 ### Reliability Through Pessimism: The 1M Request Milestone
 While the 100K soak test validated the memory contract, expanding the stress boundary to **1,000,000 requests** revealed the physical limits of the host environment. 
