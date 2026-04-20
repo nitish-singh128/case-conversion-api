@@ -232,7 +232,7 @@ Since its release, this repository has served as a reference architecture for hi
 * **Network Effect:** Significant referrals from LinkedIn and Engineering forums, validating the "Hardware-Aware" and "1M Request" benchmarks.
 * **Industrial Interest:** Deep-dive audits of the `/workflows` directory suggest the industry is utilizing these YAML files as a blueprint for cross-platform C++/C# pipelines.
 
---
+---
 
 ## Summary
 
