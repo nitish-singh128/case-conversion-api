@@ -144,7 +144,6 @@ A dedicated script manages the lifecycle of the OTLP (OpenTelemetry Protocol) ba
 ```
 
 - UI Dashboard: http://localhost:16686
-
 - OTLP Endpoint: http://localhost:4317 (gRPC)
 
 ---
@@ -153,7 +152,7 @@ A dedicated script manages the lifecycle of the OTLP (OpenTelemetry Protocol) ba
 
 The system was subjected to high-concurrency soak testing to validate the stability of the **C++ Native Bridge** and the **.NET 8 Garbage Collector** under extreme, sustained pressure.
 
-### 📊 Performance Summary
+### Performance Summary
 
 | Metric | 100K Baseline | 250K Marathon |
 | :--- | :--- | :--- |
@@ -166,10 +165,8 @@ The system was subjected to high-concurrency soak testing to validate the stabil
 
 ---
 
-### 🏁 250K Request "Marathon" Deep Dive
+### 250K Request "Marathon" Deep Dive
 
-<<<<<<< HEAD
-=======
 The 250,000-request test proves that the system maintains sub-millisecond efficiency without degradation over extended runtimes.
 
 #### Granular Latency Analysis
@@ -210,15 +207,12 @@ Test summary: total: 46, failed: 0, succeeded: 46
 
 ### Technical Significance
 
-<<<<<<< HEAD
 - Leak-Proof Architecture: Stable Resident Set Size (RSS) proves the manual memory management and RAII patterns in the C++ layer are production-grade.
 
-=======
 - Sustained Throughput: Maintaining an average latency of 0.45ms over a quarter-million requests proves there is no performance decay or "warm-up" penalty in the native bridge.
 
 - Leak-Proof Architecture: Stable Resident Set Size (RSS) proves the manual memory management and RAII patterns in the C++ layer are production-grade.
 
->>>>>>> a352fee (Added the performance benchmark)
 - Hardware Efficiency: Optimized for Apple Silicon (arm64), leveraging unified memory to minimize data copy overhead during managed-to-unmanaged transitions.
 
 ---
