@@ -100,6 +100,12 @@ The .NET service implements a **Double-Lock Security Gate** to ensure system sta
 
 ```csharp
 // Version 1.4: High-Performance Parallel Orchestration with Aggregate Guard
+
+// Dynamically align with M2 P-Cores or Cloud VCPUs
+var options = new ParallelOptions { 
+    MaxDegreeOfParallelism = Environment.ProcessorCount > 4 ? 4 : Environment.ProcessorCount 
+};
+
 public async Task<IEnumerable<string>> ConvertBatchAsync(IEnumerable<string> inputs, int choice)
 {
     if (inputs.Sum(s => (long)s.Length) > MaxBatchPayloadBytes)
