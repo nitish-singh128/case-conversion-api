@@ -1,16 +1,13 @@
 #*********************************************************************/
 #  CI Pipeline - Full Stack Project (Core, API, & Frontend)          */
 #                                                                    */
-# Purpose   : Orchestrates a comprehensive multi-platform build of   */
-#              the C++ Native Layer, .NET 8 API, and React Frontend. */
+# Purpose   : Orchestrates multi-platform builds and automates       */
+#             Docker distribution to GitHub Packages (GHCR).         */
 # Trigger   : Push to main                                           */
-# Runtime   : Matrix Build (Ubuntu, Windows, macOS) + Independent UI */
+# Runtime   : Matrix Build (Linux, Win, macOS) + Docker Publish      */
 #                                                                    */
-# Notes     : - The Master Orchestrator for the entire project.      */
-#             - Ensures synchronized builds across all layers.       */
-#             - Parallelizes Backend and Frontend builds.            */
-#             - Manages the complex ABI artifact injection process.   */
-#             - Optimized to reduce CI minute consumption.           */
+# Notes     : - v1.4 adds GHCR (GitHub Packages) integration.        */
+#             - Injects pre-built Linux ABI into Docker to save time.*/
 #                                                                    */
 # Revision History:                                                  */
 # ------------------------------------------------------------------ */
@@ -19,9 +16,8 @@
 # 1.0        2026-04-14  Nitish Singh    Initial Full-Project CI     */
 # 1.1        2026-04-15  Nitish Singh    Updated for Monorepo Paths  */
 # 1.2        2026-04-15  Nitish Singh    Extracted Frontend Job      */
-# 1.3        2026-04-16  Nitish Singh    Removed redundant tool      */ 
-#                                        installs; optimized Windows */
-#                                        build                       */
+# 1.3        2026-04-16  Nitish Singh    Optimized Toolchain Setup   */
+# 1.4        2026-04-22  Nitish Singh    Added Docker GHCR Deployment*/
 #*********************************************************************/
 
 name: Build Full Project - All Platforms
@@ -30,23 +26,23 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-dll-api:
     strategy:
       fail-fast: false
       matrix:
-        # Use windows-2022 if 2025 is causing edge-case issues, but 2025 is fine if we skip Choco
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30 # Reduced timeout; optimized builds shouldn't take an hour
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # --- Optimized Toolchain Setup ---
-      # CMake is pre-installed on all GitHub runners. 
-      # We only need jwlawson's action if we need a specific, non-default version.
       - name: Setup CMake
         uses: jwlawson/actions-setup-cmake@v1.14
         with:
@@ -63,15 +59,6 @@ jobs:
           cmake -S backend/CaseConversionAPI/CppLib \
                 -B backend/CaseConversionAPI/CppLib/build_dll \
                 -DCMAKE_BUILD_TYPE=Release
-
-      - name: Configure DLL (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          cmake -S backend/CaseConversionAPI/CppLib `
-                -B backend/CaseConversionAPI/CppLib/build_dll `
-                -DCMAKE_BUILD_TYPE=Release `
-                -DPROCESSSTRING_EXPORTS=ON `
-                -G "Visual Studio 17 2022" -A x64
 
       - name: Configure DLL (Windows)
         if: runner.os == 'Windows'
@@ -105,7 +92,6 @@ jobs:
           elif [ "${{ runner.os }}" == "macOS" ]; then
             cp backend/CaseConversionAPI/CppLib/build_dll/libProcessStringDLL.dylib ./publish/
           elif [ "${{ runner.os }}" == "Windows" ]; then
-            # Use find to locate the DLL regardless of the VS folder nesting (Debug/Release)
             find backend/CaseConversionAPI/CppLib/build_dll -name "ProcessStringDLL.dll" -exec cp {} ./publish/ \;
           fi
 
@@ -134,3 +120,33 @@ jobs:
         with:
           name: Frontend-Static-Assets
           path: frontend/dist/
+
+  publish-docker:
+    needs: [build-dll-api]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Download Linux Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: DotNetAPI-ubuntu-latest
+          path: ./docker-context
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push to Packages
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
