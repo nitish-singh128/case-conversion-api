@@ -171,7 +171,6 @@ The 250,000-request test proves that the system maintains sub-millisecond effici
 
 #### Granular Latency Analysis
 
->>>>>>> a352fee (Added the performance benchmark)
 *Metrics captured via high-resolution internal telemetry on ARM64 architecture.*
 
 | Pipeline Stage | Latency | Benchmark (Industry Avg) |
