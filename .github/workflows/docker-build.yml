@@ -64,7 +64,8 @@ jobs:
       - name: Build and Push Backend
         uses: docker/build-push-action@v5
         with:
-          context: ./backend
+          # Change context to root (.) so paths like 'backend/CaseConversionAPI' work
+          context: . 
           file: ./backend/Dockerfile
           push: true
           tags: |
