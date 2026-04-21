@@ -19,10 +19,13 @@ jobs:
       # 1. Build Native C++ Engine
       - name: "Build Native Engine"
         run: |
-          # Use your CI strategy: Configure explicitly with pathing
+          # 1. Define the source path (-S) where CMakeLists.txt lives
+          # 2. Define the build path (-B) where artifacts will be generated
           cmake -S backend/CaseConversionAPI/CppLib -B build -DCMAKE_BUILD_TYPE=Release
+          
+          # Build using the generated build folder
           cmake --build build --config Release --parallel
-
+          
       # 2. Build .NET API Artifacts
       - name: "Publish API"
         run: |
