@@ -68,38 +68,15 @@ The project is designed to be built in sequence:
 
 1. Native Layer: Compile the C++ Shared Library.
 
-```bash
-mkdir -p CaseConversionAPI/CppLib/build
-cd CaseConversionAPI/CppLib/build
-cmake ..
-cmake --build . --config Release
-
-```
-
 2.Managed Layer: Restore and Publish the .NET API, injecting the native .so/.dll into the publish artifact.
-
-```Bash
-dotnet restore CaseConversionAPI/DotNetAPI
-dotnet publish CaseConversionAPI/DotNetAPI -c Release -o ./publish
-cp CaseConversionAPI/CppLib/build/libProcessString.* ./publish/
-```
 
 3.Frontend Layer: Build the optimized static assets via Vite.
 
-```Bash
-cd string-conversion-ui
-npm install
-npm run build
-```
-
----
-
-### Integration Layer (C#)
+## Integration Layer (C#)
 
 The .NET service implements a **Double-Lock Security Gate** to ensure system stability across the ABI boundary:
 
 ```csharp
-// Version 1.4: High-Performance Parallel Orchestration with Aggregate Guard
 
 // Dynamically align with M2 P-Cores or Cloud VCPUs
 var options = new ParallelOptions { 
@@ -216,8 +193,6 @@ Test summary: total: 46, failed: 0, succeeded: 46
 
 - Sustained Throughput: Maintaining an average latency of 0.45ms over a quarter-million requests proves there is no performance decay or "warm-up" penalty in the native bridge.
 
-- Leak-Proof Architecture: Stable Resident Set Size (RSS) proves the manual memory management and RAII patterns in the C++ layer are production-grade.
-
 - Hardware Efficiency: Optimized for Apple Silicon (arm64), leveraging unified memory to minimize data copy overhead during managed-to-unmanaged transitions.
 
 ---
@@ -233,6 +208,9 @@ Test summary: total: 46, failed: 0, succeeded: 46
 ## Hardware-Specific Optimization (Apple M2)
 
 - **P-Core Saturation:** `MaxDegreeOfParallelism` is explicitly set to 4. This aligns with the M2's Performance Cores, ensuring heavy C++ string transformations maintain maximum IPC (Instructions Per Cycle) without being offloaded to Efficiency Cores.
+
+Please note that if this runs in a Docker container on an Intel Xeon or AMD EPYC server (common in Production), ProcessorCount might be 64, but our code will still cap at 4.This is scope for future enhancement.
+
 - Double-Lock Memory Safety: - Global: 20MB batch ceiling prevents the 8GB Unified Memory from triggering SSD swap.
   - Local: 5MB native limit prevents buffer overflows in unmanaged memory.
 - Contention-Free Buffering:** Utilizes `ConcurrentBag<T>` to allow parallel P-Cores to flush data back to managed memory without the lock-contention overhead of traditional `List<T>` synchronization.
