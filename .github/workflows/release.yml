@@ -16,31 +16,41 @@ jobs:
       - name: "Checkout Code"
         uses: actions/checkout@v4
 
-      # 1. Build Native C++ Engine (M2/ARM64)
+      # 1. Build Native C++ Engine
       - name: "Build Native Engine"
         run: |
-          mkdir -p build && cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release
-          cmake --build .
-          # Result: libProcessStringDLL.dylib
+          # Use your CI strategy: Configure explicitly with pathing
+          cmake -S backend/CaseConversionAPI/CppLib -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release --parallel
 
       # 2. Build .NET API Artifacts
-      - name: "Setup .NET"
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-
       - name: "Publish API"
         run: |
-          dotnet publish backend/CaseConversionAPI -c Release -o ./publish
-          # Inject the native library into the publish folder
-          cp build/libProcessStringDLL.dylib ./publish/
+          # FIX: Specify the exact .csproj file just like a matrix build would
+          dotnet publish backend/CaseConversionAPI/CaseConversionAPI.csproj -c Release -o ./publish
+          
+          # Use the find command with the "lib" prefix we found in your CMakeLists
+          DYLIB_PATH=$(find build -name "libProcessStringDLL.dylib" | head -n 1)
+          
+          if [ -z "$DYLIB_PATH" ]; then
+            echo "Error: libProcessStringDLL.dylib not found!"
+            exit 1
+          fi
+          
+          cp "$DYLIB_PATH" ./publish/
 
-      # 3. Create the Release Bundle
+      # 3. Create Release Bundle (Using the same paths)
       - name: "Package Assets"
         run: |
-          zip -r WordCaseEngine-ARM64.zip ./publish/*
-          zip -r SourceCode-Metadata.zip ./backend/database/* README.md
+          # Junk paths (-j) to keep the zip clean
+          zip -rj WordCaseEngine-ARM64.zip ./publish
+          
+          # Metadata packaging
+          if [ -d "backend/database" ]; then
+            zip -r SourceCode-Metadata.zip backend/database README.md
+          else
+            zip -r SourceCode-Metadata.zip README.md
+          fi
 
       # 4. Finalize GitHub Release
       - name: "Release to GitHub"
