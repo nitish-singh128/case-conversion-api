@@ -167,7 +167,7 @@ The system was subjected to high-concurrency soak testing to validate the stabil
 
 ### 250K Request "Marathon" Deep Dive
 
-The 250,000-request test proves that the system maintains sub-millisecond efficiency without degradation over extended runtimes.
+The 250,000 request test proves that the system maintains sub-millisecond efficiency without degradation over extended runtimes.
 
 #### Granular Latency Analysis
 

@@ -8,11 +8,12 @@
 # Version | Date       | Author       | Description
 # --------|------------|--------------|----------------------------------------
 # 1.0.0   | 2026-04-21 | Nitish Singh | Initial Release. Polyglot O11y integrated.
+# 1.0.1   | 2026-04-22 | Nitish Singh | Fixed CMake source paths for Docker context.
 # -----------------------------------------------------------------------------
 # ARCHITECTURAL STRATEGY:
 # * Multi-Stage Isolation: Segregates build-time dependencies (CMake) from runtime.
-# * ABI Integrity: Compiles native shared objects (.so) within the target SDK environment.
-# * Artifact Promotion: Manual injection of native binaries into the .NET publish root.
+# * ABI Integrity: Compiles native shared objects (.so) within target SDK.
+# * Artifact Promotion: Manual injection of native binaries into .NET publish root.
 # -----------------------------------------------------------------------------
 
 # --- STAGE 1: BUILD ---
@@ -26,21 +27,23 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /src
 
-# Copy solution context
+# Copy solution context (Assuming context is the 'backend' directory)
 COPY . .
 
 # 1. Clean cache to enforce build reproducibility
-RUN rm -rf CaseConversionAPI/CppLib/build
+# Paths adjusted: Removing 'CaseConversionAPI/' prefix as we are inside the context
+RUN rm -rf CppLib/build
 
 # 2. Build Native C++ Engine (Strategy/Factory Patterns)
-RUN cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build -DCMAKE_BUILD_TYPE=Release
-RUN cmake --build CaseConversionAPI/CppLib/build --parallel
+RUN cmake -S CppLib -B CppLib/build -DCMAKE_BUILD_TYPE=Release
+RUN cmake --build CppLib/build --parallel
 
 # 3. Publish Managed .NET API (Kestrel/OTel)
-RUN dotnet publish CaseConversionAPI/DotNetAPI -c Release -o /app/publish
+RUN dotnet publish DotNetAPI -c Release -o /app/publish
 
 # 4. ABI Bridge: Promote native artifact to managed output directory
-RUN cp CaseConversionAPI/CppLib/build/libProcessStringDLL.so /app/publish/
+# Note: Linux build produces .so (Shared Object) for the Debian-based SDK image
+RUN cp CppLib/build/libProcessStringDLL.so /app/publish/
 
 # --- STAGE 2: RUNTIME ---
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
