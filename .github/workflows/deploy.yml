@@ -145,10 +145,8 @@ jobs:
       - name: Build and Push to Packages
         uses: docker/build-push-action@v5
         with:
-          # Change 1: Move context to the directory containing the Dockerfile
-          context: ./backend/CaseConversionAPI/DotNetAPI
-          # Change 2: Now the file is local to that context
-          file: ./backend/CaseConversionAPI/DotNetAPI/Dockerfile
+          context:
+          file: ./backend/Dockerfile
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:latest
