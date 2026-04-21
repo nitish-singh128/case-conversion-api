@@ -1,0 +1,69 @@
+name: "Production Release"
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-and-release:
+    name: "Build Assets & Create Release"
+    runs-on: macos-latest # Using macOS to ensure ARM64/M2 native builds
+    permissions:
+      contents: write
+    
+    steps:
+      - name: "Checkout Code"
+        uses: actions/checkout@v4
+
+      # 1. Build Native C++ Engine (M2/ARM64)
+      - name: "Build Native Engine"
+        run: |
+          mkdir -p build && cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          cmake --build .
+          # Result: libProcessStringDLL.dylib
+
+      # 2. Build .NET API Artifacts
+      - name: "Setup .NET"
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: "Publish API"
+        run: |
+          dotnet publish backend/CaseConversionAPI -c Release -o ./publish
+          # Inject the native library into the publish folder
+          cp build/libProcessStringDLL.dylib ./publish/
+
+      # 3. Create the Release Bundle
+      - name: "Package Assets"
+        run: |
+          zip -r WordCaseEngine-ARM64.zip ./publish/*
+          zip -r SourceCode-Metadata.zip ./backend/database/* README.md
+
+      # 4. Finalize GitHub Release
+      - name: "Release to GitHub"
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            WordCaseEngine-ARM64.zip
+            SourceCode-Metadata.zip
+          body: |
+            ## Word Case Conversion Engine v1.0.0
+            ### High-Performance Polyglot Architecture (M2 Optimized)
+            
+            This release marks the first stable version of the **Hardware-Aware String Engine**.
+            
+            **Release Highlights:**
+            - **Native Muscle:** C++17 engine with 13 core strategies.
+            - **Stress-Tested:** Validated through 250k request marathon.
+            - **M2 Optimized:** Threading model pinned to P-Cores.
+            
+            **Installation:**
+            1. Download `WordCaseEngine-ARM64.zip`.
+            2. Run the SQL initialization script found in the metadata zip.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
