@@ -16,28 +16,21 @@ jobs:
       - name: "Checkout Code"
         uses: actions/checkout@v4
 
+      # 1. Build Native C++ Engine
       - name: "Build Native Engine"
         run: |
-          # 1. Create the build directory inside the C++ source folder
-          mkdir -p backend/CaseConversionAPI/CppLib/build
-          
-          # 2. Change directory to that specific build folder
-          cd backend/CaseConversionAPI/CppLib/build
-          
-          # 3. Run CMake pointing to the current directory's parent (..)
-          # This works because CMakeLists.txt is exactly one level up
-          cmake .. -DCMAKE_BUILD_TYPE=Release
-          
-          # 4. Build the project
-          cmake --build . --config Release --parallel
+          # Use -S and -B to point exactly to the C++ source and output
+          cmake -S backend/CaseConversionAPI/CppLib -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release --parallel
 
       # 2. Build .NET API Artifacts
       - name: "Publish API"
         run: |
-          # FIX: Specify the exact .csproj file just like a matrix build would
-          dotnet publish backend/CaseConversionAPI/CaseConversionAPI.csproj -c Release -o ./publish
+          # Use the verified path from your find command
+          dotnet publish backend/CaseConversionAPI/DotNetAPI/DotNetAPI.csproj -c Release -o ./publish
           
-          # Use the find command with the "lib" prefix we found in your CMakeLists
+          # Copy the native library into the publish folder
+          # We know this exists because the previous step succeeded!
           DYLIB_PATH=$(find build -name "libProcessStringDLL.dylib" | head -n 1)
           
           if [ -z "$DYLIB_PATH" ]; then
@@ -47,13 +40,13 @@ jobs:
           
           cp "$DYLIB_PATH" ./publish/
 
-      # 3. Create Release Bundle (Using the same paths)
+      # 3. Create the Release Bundle
       - name: "Package Assets"
         run: |
-          # Junk paths (-j) to keep the zip clean
+          # Use -rj to junk paths so the zip root contains the files directly
           zip -rj WordCaseEngine-ARM64.zip ./publish
           
-          # Metadata packaging
+          # Pack metadata
           if [ -d "backend/database" ]; then
             zip -r SourceCode-Metadata.zip backend/database README.md
           else
