@@ -142,12 +142,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and Push to Packages
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./backend/CaseConversionAPI/DotNetAPI/Dockerfile 
+          # Change 1: Move context to the directory containing the Dockerfile
+          context: ./backend/CaseConversionAPI/DotNetAPI
+          # Change 2: Now the file is local to that context
+          file: ./backend/CaseConversionAPI/DotNetAPI/Dockerfile
           push: true
           tags: |
-            ghcr.io/nitishhsinghhh/case-conversion-api:latest
-            ghcr.io/nitishhsinghhh/case-conversion-api:${{ github.sha }}
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
