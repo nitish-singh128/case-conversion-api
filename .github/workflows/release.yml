@@ -16,16 +16,21 @@ jobs:
       - name: "Checkout Code"
         uses: actions/checkout@v4
 
-      # 1. Build Native C++ Engine
       - name: "Build Native Engine"
         run: |
-          # 1. Define the source path (-S) where CMakeLists.txt lives
-          # 2. Define the build path (-B) where artifacts will be generated
-          cmake -S backend/CaseConversionAPI/CppLib -B build -DCMAKE_BUILD_TYPE=Release
+          # 1. Create the build directory inside the C++ source folder
+          mkdir -p backend/CaseConversionAPI/CppLib/build
           
-          # Build using the generated build folder
-          cmake --build build --config Release --parallel
+          # 2. Change directory to that specific build folder
+          cd backend/CaseConversionAPI/CppLib/build
           
+          # 3. Run CMake pointing to the current directory's parent (..)
+          # This works because CMakeLists.txt is exactly one level up
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          
+          # 4. Build the project
+          cmake --build . --config Release --parallel
+
       # 2. Build .NET API Artifacts
       - name: "Publish API"
         run: |
