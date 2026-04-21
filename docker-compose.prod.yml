@@ -1,20 +1,24 @@
-#*********************************************************************/
-#  File        : docker-compose.prod.yml                              */
-#                                                                     */
-#  Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.    */
-#                                                                     */
-#  Description : Production orchestration for the Word Case           */
-#                Conversion platform. Hardened for high availability. */
-#                                                                     */
-#  Revision History:                                                  */
-#  ------------------------------------------------------------------ */
-#  Version    Date        Author          Description                 */
-#  ------------------------------------------------------------------ */
-#  1.0        2026-04-14  Nitish Singh    Initial Production setup    */
-#  1.1        2026-04-15  Nitish Singh    Hardened security & limits  */
-#*********************************************************************/
+# -----------------------------------------------------------------------------
+# Microsoft Azure Container Registry / Docker Compose Template
+# Project:      Hardware-Aware Case Conversion Engine
+# Component:    Production Orchestration & High-Availability Logic
+# Documentation: https://github.com/nitishhsinghhh/case-conversion-api
+# -----------------------------------------------------------------------------
+# VERSION HISTORY
+# Version | Date       | Author       | Description
+# --------|------------|--------------|----------------------------------------
+# 1.0.0   | 2026-04-21 | Nitish Singh | Initial Release. Hardened security & limits.
+# -----------------------------------------------------------------------------
+# ARCHITECTURAL STRATEGY:
+# * Resource Constraints: CPU/Memory limits enforced to protect host stability.
+# * Performance Tuning: DOTNET_gcServer enabled for high-throughput workloads.
+# * Resilience: 'Always' restart policy and 'pull_policy' for CD synchronization.
+# -----------------------------------------------------------------------------
+
+version: "3.9"
 
 services:
+  # --- BACKEND: Production-Hardened .NET + C++ Service ---
   backend:
     image: nitishhsinghhh/case-api:latest
     container_name: case-api-prod
@@ -23,7 +27,7 @@ services:
       - "8080:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - DOTNET_gcServer=1
+      - DOTNET_gcServer=1 # Optimizes for multi-processor throughput
     deploy:
       resources:
         limits:
@@ -32,8 +36,8 @@ services:
     restart: always
     networks:
       - case-network
-    # Removed the curl healthcheck to prevent false failures
 
+  # --- FRONTEND: Optimized NGINX React Bundle ---
   frontend:
     image: nitishhsinghhh/case-ui:latest
     container_name: case-ui-prod
@@ -41,14 +45,14 @@ services:
     ports:
       - "80:80" 
     environment:
-      # NOTE: For local testing, use http://localhost:8080
       - VITE_API_URL=http://localhost:8080
     depends_on:
-      - backend # Changed from service_healthy to standard dependency
+      - backend
     restart: always
     networks:
       - case-network
 
+# --- NETWORK INFRASTRUCTURE ---
 networks:
   case-network:
     driver: bridge

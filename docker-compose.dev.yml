@@ -1,22 +1,28 @@
-#*********************************************************************/
-#  File        : docker-compose.yml                                   */
-#                                                                     */
-#  Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.    */
-#                                                                     */
-#  Description : Orchestrates the LOCAL DEVELOPMENT environment.      */
-#                Links the backend/ and frontend/ subdirectories.     */
-#*********************************************************************/
+# -----------------------------------------------------------------------------
+# Microsoft Azure Container Registry / Docker Compose Template
+# Project:      Hardware-Aware Case Conversion Engine
+# Component:    Full-Stack Local Development Orchestration
+# Documentation: https://github.com/nitishhsinghhh/case-conversion-api
+# -----------------------------------------------------------------------------
+# VERSION HISTORY
+# Version | Date       | Author       | Description
+# --------|------------|--------------|----------------------------------------
+# 1.0.0   | 2026-04-21 | Nitish Singh | Initial Release. Integrated Backend/Frontend.
+# -----------------------------------------------------------------------------
+# ARCHITECTURAL STRATEGY:
+# * Network Isolation: Services communicate over dedicated bridge 'case-network'.
+# * Volume Mapping: Host-to-container mounts enable real-time hot-reloading.
+# * Dependency Graph: Frontend ensures Backend availability via 'depends_on'.
+# -----------------------------------------------------------------------------
 
 version: "3.9"
 
 services:
-  # ======================================================
-  # BACKEND: .NET 8 API + Native C++ Shared Library
-  # ======================================================
+  # --- BACKEND: .NET 8 API + Native C++ Shared Library ---
   backend:
     container_name: case-api-dev
     build:
-      context: ./backend # Pointing to the backend folder
+      context: ./backend
       dockerfile: Dockerfile
     image: nitishhsinghhh/case-api:dev   
     ports:
@@ -24,23 +30,18 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     volumes:
-      # Mount the backend sub-folder for hot-reloading
       - ./backend:/src
     networks:
       - case-network
 
-  # ======================================================
-  # FRONTEND: React + TypeScript (Vite)
-  # ======================================================
+  # --- FRONTEND: React + TypeScript (Vite) ---
   frontend:
     container_name: case-ui-dev
     image: node:20
     working_dir: /app
     volumes:
-      # Updated from ./string-conversion-ui to ./frontend
       - ./frontend:/app
-      # Anonymous volume to protect container node_modules
-      - /app/node_modules
+      - /app/node_modules # Protective mount for container-side dependencies
     ports:
       - "5173:5173"
     environment:
@@ -51,6 +52,7 @@ services:
     networks:
       - case-network
 
+# --- NETWORK INFRASTRUCTURE ---
 networks:
   case-network:
     driver: bridge

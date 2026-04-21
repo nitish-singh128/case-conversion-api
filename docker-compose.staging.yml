@@ -1,36 +1,38 @@
-#*********************************************************************/
-#  File        : docker-compose.staging.yml                           */
-#                                                                     */
-#  Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.    */
-#                                                                     */
-#  Description : Staging environment orchestration for the Word Case  */
-#                Conversion platform. Updated for Monorepo and        */
-#                production-ready networking.                         */
-#                                                                     */
-#  Revision History:                                                  */
-#  ------------------------------------------------------------------ */
-#  Version    Date        Author          Description                 */
-#  ------------------------------------------------------------------ */
-#  1.0        2026-04-14  Nitish Singh    Initial Staging setup       */
-#  1.1        2026-04-15  Nitish Singh    Added Logging & Pull Policy */
-#*********************************************************************/
+# -----------------------------------------------------------------------------
+# Microsoft Azure Container Registry / Docker Compose Template
+# Project:      Hardware-Aware Case Conversion Engine
+# Component:    Staging Environment Orchestration (Pre-Production Validation)
+# Documentation: https://github.com/nitishhsinghhh/case-conversion-api
+# -----------------------------------------------------------------------------
+# VERSION HISTORY
+# Version | Date       | Author       | Description
+# --------|------------|--------------|----------------------------------------
+# 1.0.0   | 2026-04-21 | Nitish Singh | Initial Release. Pre-prod networking setup.
+# -----------------------------------------------------------------------------
+# ARCHITECTURAL STRATEGY:
+# * Environment Parity: Mirrors production configuration with distinct port offsets.
+# * Continuous Deployment: 'Always' pull policy ensures the latest staging tag.
+# * Fault Tolerance: 'Unless-stopped' restart policy for persistent validation.
+# -----------------------------------------------------------------------------
 
+version: "3.9"
 
 services:
+  # --- BACKEND: .NET + C++ Service (Staging Branch) ---
   backend:
     image: nitishhsinghhh/case-api:staging
     container_name: case-api-staging
     pull_policy: always
     ports:
-      - "8081:8080"
+      - "8081:8080" # Staging port offset to allow co-existence with Prod/Dev
     environment:
       - ASPNETCORE_ENVIRONMENT=Staging
       - DOTNET_RUNNING_IN_CONTAINER=true
     restart: unless-stopped
     networks:
       - case-network
-    # --- REMOVED HEALTHCHECK ENTIRELY ---
 
+  # --- FRONTEND: React + Vite (Staging Branch) ---
   frontend:
     image: nitishhsinghhh/case-ui:staging
     container_name: case-ui-staging
@@ -40,11 +42,12 @@ services:
     environment:
       - VITE_API_URL=http://localhost:8081 
     depends_on:
-      - backend # Back to standard dependency
+      - backend
     restart: unless-stopped
     networks:
       - case-network
 
+# --- NETWORK INFRASTRUCTURE ---
 networks:
   case-network:
     driver: bridge

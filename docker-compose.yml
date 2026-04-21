@@ -1,28 +1,24 @@
-#*********************************************************************/
-#  File        : docker-compose.yml                                   */
-#                                                                     */
-#  Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.    */
-#                                                                     */
-#  Description : Streamlined local development orchestration for the  */
-#                Word Case Conversion project. Updated for Monorepo.  */
-#                                                                     */
-#  Services    : 1. backend  - Built from ./backend/Dockerfile        */
-#                2. frontend - Node-based dev server (Vite)           */
-#                                                                     */
-#  Revision History:                                                  */
-#  ------------------------------------------------------------------ */
-#  Version    Date        Author          Description                 */
-#  ------------------------------------------------------------------ */
-#  1.0        2026-04-14  Nitish Singh    Initial Compose setup       */
-#  1.1        2026-04-15  Nitish Singh    Updated for Monorepo paths  */
-#*********************************************************************/
+# -----------------------------------------------------------------------------
+# Microsoft Azure Container Registry / Docker Compose Template
+# Project:      Hardware-Aware Case Conversion Engine
+# Component:    Full-Stack Local Development Orchestration
+# Documentation: https://github.com/nitishhsinghhh/case-conversion-api
+# -----------------------------------------------------------------------------
+# VERSION HISTORY
+# Version | Date       | Author       | Description
+# --------|------------|--------------|----------------------------------------
+# 1.0.0   | 2026-04-21 | Nitish Singh | Initial Release. Monorepo-aligned setup.
+# -----------------------------------------------------------------------------
+# ARCHITECTURAL STRATEGY:
+# * Monorepo Integration: Bridges ./backend and ./frontend root directories.
+# * Hot-Reloading: Utilizes host-volume mounting for rapid React/Vite development.
+# * Isolation: Employs anonymous volumes to preserve container-side node_modules.
+# -----------------------------------------------------------------------------
 
 version: "3.9"
 
 services:
-  # ======================================================
-  # BACKEND: API + Native Engine
-  # ======================================================
+  # --- BACKEND: .NET 8 API + Native C++ Engine ---
   backend:
     build:
       context: ./backend
@@ -31,22 +27,27 @@ services:
     ports:
       - "8080:8080"
     restart: unless-stopped
+    networks:
+      - case-network
 
-  # ======================================================
-  # FRONTEND: React Development Server
-  # ======================================================
+  # --- FRONTEND: React Development Server (Vite) ---
   frontend:
     image: node:20
     container_name: case-ui
     working_dir: /app
     volumes:
-      # Updated path: from string-conversion-ui to frontend
       - ./frontend:/app
-      # Prevents local node_modules from overwriting container node_modules
-      - /app/node_modules
+      - /app/node_modules # Anonymous volume to protect container dependencies
     ports:
       - "5173:5173"
-    # Vite requires --host to be accessible from outside the container
+    # Vite requires --host flag for container port forwarding
     command: sh -c "npm install && npm run dev -- --host"
     depends_on:
       - backend
+    networks:
+      - case-network
+
+# --- NETWORK INFRASTRUCTURE ---
+networks:
+  case-network:
+    driver: bridge

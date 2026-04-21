@@ -1,42 +1,56 @@
-# ---------- Build C++ ----------
-# Use the official .NET SDK image as the build environment
-# This stage compiles the C++ shared library and publishes the .NET API
-# The resulting artifacts are then copied to the runtime image in the next stage
-# The build stage includes the necessary tools to compile C++ code and build the .NET application
-# The final runtime image is based on the ASP.NET image, which is optimized for running .NET applications
-# The build stage ensures that all dependencies are resolved and the application is built in a clean environment
-# The build stage also includes a step to clean any old CMake cache to ensure a fresh build of the C++ library
-# The build stage compiles the C++ shared library using CMake and then publishes the .NET API to a specified output directory
+# -----------------------------------------------------------------------------
+# Microsoft Azure Container Registry / .NET Microservices Template
+# Project:      Hardware-Aware Case Conversion Engine
+# Component:    Polyglot Build Orchestration (C++17 + .NET 8.0)
+# Documentation: https://github.com/nitishhsinghhh/case-conversion-api
+# -----------------------------------------------------------------------------
+# VERSION HISTORY
+# Version | Date       | Author       | Description
+# --------|------------|--------------|----------------------------------------
+# 1.0.0   | 2026-04-21 | Nitish Singh | Initial Release. Polyglot O11y integrated.
+# -----------------------------------------------------------------------------
+# ARCHITECTURAL STRATEGY:
+# * Multi-Stage Isolation: Segregates build-time dependencies (CMake) from runtime.
+# * ABI Integrity: Compiles native shared objects (.so) within the target SDK environment.
+# * Artifact Promotion: Manual injection of native binaries into the .NET publish root.
+# -----------------------------------------------------------------------------
 
+# --- STAGE 1: BUILD ---
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
-# Install build tools
-RUN apt-get update && apt-get install -y build-essential cmake
+# Install native compilation toolchain (C++17/CMake)
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
 
-# Context is 'backend', so this copies 'CaseConversionAPI' into '/src'
+# Copy solution context
 COPY . .
 
-# 1. Clean build directory
+# 1. Clean cache to enforce build reproducibility
 RUN rm -rf CaseConversionAPI/CppLib/build
 
-# 2. Configure and Build C++
-# Notice 'backend/' is removed from the paths
+# 2. Build Native C++ Engine (Strategy/Factory Patterns)
 RUN cmake -S CaseConversionAPI/CppLib -B CaseConversionAPI/CppLib/build -DCMAKE_BUILD_TYPE=Release
 RUN cmake --build CaseConversionAPI/CppLib/build --parallel
 
-# 3. Publish .NET API
+# 3. Publish Managed .NET API (Kestrel/OTel)
 RUN dotnet publish CaseConversionAPI/DotNetAPI -c Release -o /app/publish
 
-# 4. Copy the .so file
+# 4. ABI Bridge: Promote native artifact to managed output directory
 RUN cp CaseConversionAPI/CppLib/build/libProcessStringDLL.so /app/publish/
 
-# ---------- Runtime ----------
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+# --- STAGE 2: RUNTIME ---
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
+
+# Import optimized artifacts from build context
 COPY --from=build /app/publish .
 
+# System Configuration
 EXPOSE 8080
 
+# Entrypoint utilizes P/Invoke to bridge Managed and Unmanaged boundaries
 ENTRYPOINT ["dotnet", "DotNetAPI.dll"]
