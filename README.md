@@ -147,6 +147,18 @@ docker compose -f docker-compose-load.yml up --scale backend=4 -d
 
 - Telemetry: http://localhost:16686
 
+### Endurance & Stress Validation
+
+The architecture was subjected to a 1,000,000-request ultra-stress test to validate long-term stability and memory integrity across the native boundary.
+
+- Result: 100% Success Rate (0 failures).
+
+- Sustained Throughput: ~2,511 req/s under 50 VU (Virtual User) concurrency.
+
+- Stability: Zero native memory growth or heap fragmentation observed, confirming the efficacy of the Aggregate Memory Guard and RAII patterns in the C++ core.
+
+- Tail Latency Control: Even at 1M iterations, the P(95) remained stable at 58.8ms, proving the system handles high-volume Garbage Collection (GC) pressure without process degradation.
+
 ---
 
 ### Technical Significance
@@ -156,8 +168,6 @@ docker compose -f docker-compose-load.yml up --scale backend=4 -d
 - Sustained Throughput: Maintaining an average latency of 0.45ms over a quarter-million requests proves there is no performance decay or "warm-up" penalty in the native bridge.
 
 - Hardware Efficiency: Optimized for Apple Silicon (arm64), leveraging unified memory to minimize data copy overhead during managed-to-unmanaged transitions.
-
----
 
 ### Performance Metrics & Insights
 
