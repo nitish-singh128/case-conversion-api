@@ -363,3 +363,23 @@ To ensure the polyglot boundary is transparent, the system implements:
 - Sanitization: The C++ engine uses std::string_view or bound-checked iterators to ensure it never reads past the memory allocated by the managed environment.
 
 - Managed Handling**: The .NET layer detects this sentinel and throws a controlled `ArgumentException`, returning a `400 Bad Request` to the user instead of crashing the native process.
+
+## Architectural Evolution
+
+### v1.x: The Foundation (Single Instance)
+
+- Architecture: Monolithic REST API wrapper over a Native Engine.
+
+- Focus: Perfecting the ABI boundary and manual memory management.
+
+- Limit: P(95) latency spikes during Garbage Collection (GC) events under high load.
+
+### v2.0.0: Generation 2 (HA Cluster)
+
+- Architecture: Layer 7 Load-Balanced Micro-Cluster.
+
+- Mechanism: NGINX Reverse Proxy distributing traffic across 4 hardware-optimized replicas.
+
+- Justification: Necessary to survive the 1,000,000 request endurance test.
+
+- Result: Stabilized tail latency and 100% success rate by offloading pressure from single-process GC cycles.
