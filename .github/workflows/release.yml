@@ -61,15 +61,16 @@ jobs:
             WordCaseEngine-ARM64.zip
             SourceCode-Metadata.zip
           body: |
-            ## Word Case Conversion Engine v1.0.0
-            ### High-Performance Polyglot Architecture (M2 Optimized)
+            ## Word Case Conversion Engine v2.0.0 (Generation 2)
+            ### The "Millionaire" Milestone Release
             
-            This release marks the first stable version of the **Hardware-Aware String Engine**.
+            This major release introduces high-availability orchestration and validates the system's industrial-grade endurance.
             
-            **Release Highlights:**
-            - **Native Muscle:** C++17 engine with 13 core strategies.
-            - **Stress-Tested:** Validated through 250k request marathon.
-            - **M2 Optimized:** Threading model pinned to P-Cores.
+            **Major Changes:**
+            - **Scale:** Integrated NGINX Layer 7 Load Balancing with a 4-replica backend strategy.
+            - **Validation:** 1,000,000 request endurance test completed with 100% success rate.
+            - **Performance:** Optimized thread-pinning for Apple M2 Performance Cores.
+            - **Observability:** Full OpenTelemetry integration for cross-language trace propagation.
             
             **Installation:**
             1. Download `WordCaseEngine-ARM64.zip`.
