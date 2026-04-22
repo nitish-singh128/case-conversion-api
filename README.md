@@ -204,6 +204,23 @@ This will start:
 
 ---
 
+## High-Availability & Load Balancing
+
+To support massive horizontal scaling, the system utilizes an NGINX Reverse Proxy as a Layer 7 Load Balancer. This architecture allows the API to scale beyond a single process, distributing load across multiple isolated containers.
+
+- Dynamic Scaling: Orchestrated via Docker Compose with a replicas: 4 configuration, perfectly mapping to the M2's Performance Cores for maximum throughput.
+
+- Health-Aware Routing: NGINX ensures traffic is only routed to "Ready" .NET instances, facilitating zero-downtime updates and maintenance.
+
+- Performance Baseline: Validated through a 300,000-request soak test, achieving a sustained ~2,643 req/s with a 100% success rate.
+
+- Latency Smoothing: By distributing requests, the P(95) latency is stabilized at 56ms, significantly reducing the "Tail Latency" spikes caused by parallel Garbage Collection events in managed memory.
+
+```Bash
+# To spin up the load-balanced cluster with 4 backend instances:
+docker compose -f docker-compose-load.yml up --scale backend=4 -d
+```
+
 ## Summary
 
 Developed a cross-platform string conversion ecosystem utilizing a high-performance C++17 engine integrated into a .NET 8 microservice via P/Invoke. Engineered a Zero-Leak memory management policy across the ABI boundary and implemented a multi-stage Docker CI/CD pipeline supporting immutable artifact promotion across Dev, Staging, and Production environments.
