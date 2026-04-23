@@ -1,13 +1,34 @@
+# -----------------------------------------------------------------------------
+# Docker Compose Orchestration Template
+# Project:       Hardware-Aware Case Conversion Engine
+# Component:     Load-Balanced Backend Infrastructure
+# Documentation: https://github.com/nitishhsinghhh/case-conversion-api
+# -----------------------------------------------------------------------------
+# VERSION HISTORY
+# Version | Date       | Author       | Description
+# --------|------------|--------------|----------------------------------------
+# 1.0.0   | 2026-04-24 | Nitish Singh | Initial Release. Added Nginx Load Balancer.
+# -----------------------------------------------------------------------------
+# ARCHITECTURAL STRATEGY:
+# * Scalability: Backend service configured with 4 replicas for high availability.
+# * Load Balancing: Nginx acts as the entry point, distributing traffic to backend.
+# * Network Isolation: Internal communication restricted to 'app-network'.
+# -----------------------------------------------------------------------------
+
+version: "3.9"
+
 services:
+  # --- BACKEND: Replicated API Instances ---
   backend:
     build:
       context: .
-      dockerfile: backend/Dockerfile # backend/Dockerfile
+      dockerfile: backend/Dockerfile
     deploy:
       replicas: 4
     networks:
       - app-network
 
+  # --- EDGE: Nginx Reverse Proxy / Load Balancer ---
   loadbalancer:
     image: nginx:latest
     ports:
@@ -19,6 +40,7 @@ services:
     networks:
       - app-network
 
+# --- NETWORK INFRASTRUCTURE ---
 networks:
   app-network:
     driver: bridge
