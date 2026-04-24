@@ -109,3 +109,5 @@ The following metrics represent the "High-Stress Endurance" baseline, proving lo
 - GC Efficiency: The distribution across 4 instances allowed the .NET Garbage Collector to run in parallel, preventing the "Stop-the-world" pauses that previously spiked latency.
 
 - Memory Integrity: Even after 300k iterations, memory usage remained flat, confirming that the C++-to-managed string marshalling is leaking zero bytes.
+
+![alt text](assets/jagger.png)

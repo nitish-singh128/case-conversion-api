@@ -54,7 +54,7 @@ This project addresses the challenges of exposing high-performance, unmanaged C+
 - The UI: A type-safe React/TypeScript frontend built on Vite for sub-second developer turnaround.
 - The DevOps: A multi-stage Docker orchestration supporting Artifact Promotion (Dev → Staging → Prod) to ensure environmental parity.
 
-![alt text](assets/image.png)
+![alt text](assets/API.png)
 
 ---
 
