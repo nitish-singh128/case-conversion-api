@@ -1,20 +1,40 @@
+# -----------------------------------------------------------------------------
+# Global Git Ignore Configuration
+# Project:       Hardware-Aware Case Conversion Engine
+# Component:     Mono-Repo Root Workspace
+# Documentation: https://github.com/nitishhsinghhh/case-conversion-api
+# -----------------------------------------------------------------------------
+# STRATEGY:
+# * Multi-Stack Protection: Covers C++17, .NET 8, and React/Vite artifacts.
+# * Environment Neutrality: Strips IDE and OS-specific (M2/Windows/Linux) noise.
+# * Artifact Isolation: Ensures build binaries never enter the source tree.
+# -----------------------------------------------------------------------------
+
 # ==========================================
-# .NET / C# Specific
+# .NET / C# (Backend API)
 # ==========================================
 bin/
 obj/
 out/
+publish/
+# Local settings that shouldn't be shared
 appsettings.Development.json
 *.user
 *.suo
 *.sln.docstates
-publish/
+# Managed memory dumps
+*.gcno
+*.gcda
 
 # ==========================================
-# C++ / Native Build Artifacts
+# C++ / CMake (Native Engine)
 # ==========================================
-# Ignore the build folder where CMake generates files
+# Build directories across all platforms
 build/
+build_Local/
+bin-int/
+out/
+# Native artifacts
 *.o
 *.obj
 *.so
@@ -22,30 +42,61 @@ build/
 *.dll
 *.lib
 *.pdb
+*.exp
+*.ilk
+# CMake generated files
 .cmake/
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
+CMakeSettings.json
+vcpkg_installed/
+Makefile
+# Also ignore these common generated build files
+cmake_install.cmake
+CMakeCache.txt
 
 # ==========================================
-# macOS Specific (M2 Environment)
+# Frontend (React / Vite / Node)
+# ==========================================
+node_modules/
+dist/
+.eslintcache
+.stylelintcache
+*.log
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ==========================================
+# macOS (M2 Environment)
 # ==========================================
 .DS_Store
 .AppleDouble
 .LSOverride
+# Thumbnails
+._*
 
 # ==========================================
 # Docker / Containerization
 # ==========================================
-.dockerignore
-# Do not ignore the Dockerfile itself, but ignore local data volumes
+# We keep Dockerfiles, but ignore local persistence/overrides
 data/
+db_data/
 docker-compose.override.yml
+*.tar
+*.tar.gz
 
 # ==========================================
-# IDE / Editor Specific (VS Code / Visual Studio)
+# IDE / Editor Specific
 # ==========================================
 .vscode/
 .vs/
 .idea/
 *.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
