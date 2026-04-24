@@ -6,7 +6,7 @@
 ![Deployment](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/production-release.yml?branch=main&label=Release%3A%20v2.0.0&style=flat-square)
 ![Quality](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/cpp-quality-guard.yml?branch=main&label=Quality%3A%20Clang&style=flat-square)
 ![Telemetry E2E](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/telemetry-e2e-verification.yml?branch=main&label=Observability%3A%20E2E&style=flat-square)
-![Security Audit](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/native-security-audit.yml?branch=main&label=Security%3A%20CodeQL&style=flat-square)
+![Security Audit](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/security-analysis.yml?branch=main&label=Security%3A%20CodeQL&style=flat-square)
 
 ![C++](https://img.shields.io/badge/C++-17-blue.svg)
 ![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)
