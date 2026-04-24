@@ -4,7 +4,7 @@
 ![Full Project Build](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/native-engine-ci_DLL.yml?branch=main&label=Build%3A%20Multi-OS&style=flat-square)
 ![Docker Push](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/docker-hub-distribution.yml?branch=main&label=Registry%3A%20Image&style=flat-square)
 ![Deployment](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/production-release.yml?branch=main&label=Release%3A%20v2.0.0&style=flat-square)
-![Quality](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/native-quality-check.yml?branch=main&label=Quality%3A%20Clang&style=flat-square)
+![Quality](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/cpp-quality-guard.yml?branch=main&label=Quality%3A%20Clang&style=flat-square)
 ![Telemetry E2E](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/telemetry-e2e-verification.yml?branch=main&label=Observability%3A%20E2E&style=flat-square)
 ![Security Audit](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/native-security-audit.yml?branch=main&label=Security%3A%20CodeQL&style=flat-square)
 
