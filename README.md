@@ -24,6 +24,26 @@
 
 A high-performance system demonstrating a Native C++17 engine seamlessly integrated into a .NET 8 managed ecosystem. This project serves as a blueprint for handling manual memory management across the ABI boundary, implementing extensible Strategy patterns, and maintaining an immutable Docker promotion pipeline from development to production.
 
+## Table of Contents
+* [System Architecture](#system-architecture)
+* [Components](#components)
+  * [1. C++ Conversion Engine](#1-c-conversion-engine)
+  * [2. .NET REST API Wrapper](#2-net-rest-api-wrapper)
+  * [3. Frontend UI](#3-frontend-ui-vite--reacttypescript)
+* [Engineering Deep Dive](#engineering-deep-dive)
+  * [1. Concurrency & Thread-Safety](#1-concurrency--thread-safety)
+  * [2. Design Patterns Used](#2-design-patterns-used)
+  * [3. Defensive Interop Design](#3-defensive-interop-design)
+  * [4. Telemetry & Observability](#4-telemetry--observability)
+  * [5. Hardware-Specific Optimization (Apple M2)](#5-hardware-specific-optimization-apple-m2)
+* [Quick Start](#quick-start)
+  * [Run the Load-Balanced Cluster](#run-the-load-balanced-cluster)
+  * [Endurance & Stress Validation](#endurance--stress-validation)
+* [Technical Significance](#technical-significance)
+* [License](#license)
+
+---
+
 ## System Architecture
 
 This project addresses the challenges of exposing high-performance, unmanaged C++ logic to a modern, managed web stack with architectural rigor.
@@ -115,6 +135,8 @@ Please note that if this runs in a Docker container on an Intel Xeon or AMD EPYC
 - Contention-Free Buffering:** Utilizes `ConcurrentBag<T>` to allow parallel P-Cores to flush data back to managed memory without the lock-contention overhead of traditional `List<T>` synchronization.
 
 ---
+
+[↑ Back to Top](#the-hardware-aware-polyglot-string-conversion-engine--api)
 
 ## Quick Start
 
