@@ -26,6 +26,7 @@ This is a high-concurrency, cross-platform string processing ecosystem. It demon
 
 ## Table of Contents
 * [System Architecture](#system-architecture)
+* [CI/CD & Deployment Pipeline](#cicd--deployment-pipeline)
 * [Components](#components)
   * [1. C++ Conversion Engine](#1-c-conversion-engine)
   * [2. .NET REST API Wrapper](#2-net-rest-api-wrapper)
@@ -57,6 +58,31 @@ This project addresses the challenges of exposing high-performance, unmanaged C+
 ![alt text](assets/API.png)
 
 ---
+
+### CI/CD & Deployment Pipeline
+
+```mermaid
+graph TD
+    subgraph Local_Development
+        A[M2 MacBook Air] -->|git push| B(GitHub Repository)
+    end
+
+    subgraph CI_CD_Pipeline
+        B --> C{GitHub Actions}
+        C --> D[C++17 Build Matrix]
+        C --> E[.NET 8 Build]
+        D & E --> F[Multi-Stage Docker Build]
+        F --> G[GHCR.io Registry]
+    end
+
+    subgraph Production_Runtime
+        G --> H[NGINX Load Balancer]
+        H --> I[Backend Replica 1]
+        H --> J[Backend Replica 2]
+        H --> K[Backend Replica 3]
+        H --> L[Backend Replica 4]
+        I & J & K & L --> M[Native C++ Engine]
+    end
 
 ## Components
 
