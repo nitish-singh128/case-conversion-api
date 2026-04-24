@@ -11,6 +11,26 @@
 
 ---
 
+## Table of Contents
+* [Overview](#overview)
+* [Goals & Non-Goals](#goals)
+* [High-Level Architecture](#high-level-architecture)
+* [Component Design](#component-design)
+    * [C++ Conversion Engine](#c-conversion-engine-native-layer)
+    * [.NET Interop & Service Layer](#net-interop-and-service-layer)
+    * [REST API Layer](#rest-api-layer)
+    * [Frontend UI](#frontend-ui)
+* [Hardware Optimization (Apple M2)](#m2-hardware-optimization-v13)
+* [Observability & Security](#17-observability--telemetry-architecture)
+    * [Telemetry Architecture](#17-observability--telemetry-architecture)
+    * [Security & Boundary Hardening](#18-security--boundary-hardening)
+* [Performance & Evolution](#architectural-evolution)
+    * [Benchmark Results](#9-performance-considerations)
+    * [Architectural Evolution](#architectural-evolution)
+* [Testing & Deployment](#11-testing-strategy)
+
+---
+
 ## Overview
 
 The Case Conversion API is a multi-layered system that exposes a high-performance C++ string conversion engine through a .NET REST API and serves it to a React-based frontend UI. The architecture separates performance-critical logic from API orchestration and UI concerns.
@@ -86,9 +106,7 @@ Example Strategies:
 Factory selects strategy:
 Input Choice → Factory → Strategy → Execute
 
----
-
-### .NET Interop & Service Layer
+### .NET Interop and Service Layer
 
 The engine is exposed via a C-compatible interface.
 
