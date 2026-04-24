@@ -1,24 +1,25 @@
 #*********************************************************************/
 #  CI Pipeline - Docker Orchestration & Image Distribution           */
-#                                                                     */
-# Purpose   : Packages the CaseConversionAPI ecosystem into           */
+#                                                                    */
+# Purpose   : Packages the CaseConversionAPI ecosystem into          */
 #              separate Backend and Frontend images for DockerHub.    */
-# Trigger   : Push to main / Pull Request to main                     */
-# Runtime   : Ubuntu Latest                                           */
-#                                                                     */
+# Trigger   : Push to main / Pull Request to main                    */
+# Runtime   : Ubuntu Latest                                          */
+#                                                                    */
 # Notes     : - Builds Backend from /backend/Dockerfile.             */
 #             - Builds Frontend from /frontend/Dockerfile.            */
-#             - Requires DOCKER_USERNAME and DOCKER_PASSWORD secrets. */
-#                                                                     */
-# Revision History:                                                   */
-# ------------------------------------------------------------------  */
-# Version    Date        Author          Description                  */
-# ------------------------------------------------------------------  */
-# 1.0        2026-04-14  Nitish Singh    Initial Docker Hub Workflow  */
-# 1.1        2026-04-15  Nitish Singh    Updated for Monorepo Paths   */
+#             - v1.2 adds GHA Caching and Buildx for speed.           */
+#                                                                    */
+# Revision History:                                                  */
+# ------------------------------------------------------------------ */
+# Version    Date        Author          Description                 */
+# ------------------------------------------------------------------ */
+# 1.0        2026-04-14  Nitish Singh    Initial Docker Hub Workflow 
+# 1.1        2026-04-15  Nitish Singh    Updated for Monorepo Paths  
+# 1.2        2026-04-24  Nitish Singh    Standardized Header & Naming */
 #*********************************************************************/
 
-name: Build and Push Docker Images
+name: "Docker Hub Distribution"
 
 on:
   push:

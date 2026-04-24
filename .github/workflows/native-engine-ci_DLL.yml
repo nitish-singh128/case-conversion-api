@@ -1,23 +1,21 @@
 #*********************************************************************/
-#  CI Pipeline - Cross-Platform Native C++ Engine                     */
-#                                                                     */
-# Purpose   : Orchestrates a multi-OS build and test matrix for       */
+#  CI Pipeline - Cross-Platform Native C++ Engine                    */
+#                                                                    */
+# Purpose   : Orchestrates a multi-OS build and test matrix for      */
 #              the CaseConversionAPI C++17 core.                      */
-# Trigger   : Push to main / Pull Request to main                     */
-# Runtime   : Matrix Build (Ubuntu, Windows, macOS)                   */
-#                                                                     */
-# Notes     : - Uses platform-specific cleanup and config logic.      */
-#             - Injects local app CMake configuration via copy.       */
-#             - Enforces Release configuration for performance.       */
-#             - Updated for Monorepo (backend/ subdirectory).         */
-#                                                                     */
-# Revision History:                                                   */
-# ------------------------------------------------------------------  */
-# Version    Date        Author          Description                  */
-# ------------------------------------------------------------------  */
-# 1.0        2026-04-12  Nitish Singh    Initial multi-OS workflow    */
-# 1.1        2026-04-14  Nitish Singh    Refactored with Env vars     */
-# 1.2        2026-04-15  Nitish Singh    Updated for /backend path    */
+# Trigger   : Push to main / Pull Request to main                    */
+# Runtime   : Matrix Build (Ubuntu, Windows, macOS)                  */
+#                                                                    */
+# Notes     : - Uses platform-specific cleanup and config logic.     */
+#             - Injects local app CMake configuration via copy.      */
+#             - Enforces Release configuration for performance.      */
+#                                                                    */
+# Revision History:                                                  */
+# ------------------------------------------------------------------ */
+# Version    Date        Author          Description                 */
+# ------------------------------------------------------------------ */
+# 1.0-1.2    2026-04-15  Nitish Singh    Initial Setup & Monorepo Fix
+# 1.3        2026-04-24  Nitish Singh    Standardized Shell & Cleanup */
 #*********************************************************************/
 
 name: C++ CI CaseConversionAPI - All Platforms (Local App)

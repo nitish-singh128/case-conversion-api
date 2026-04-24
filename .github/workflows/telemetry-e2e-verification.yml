@@ -1,20 +1,25 @@
 #*********************************************************************/
-#  CI Pipeline - Telemetry E2E Integration & Verification             */
+#  CI Pipeline - Telemetry E2E Integration & Verification            */
 #                                                                    */
-# Purpose   : Orchestrates a full-stack smoke test by building the   */
-#             C++ engine, running the .NET API, and verifying        */
-#             trace ingestion into a live Jaeger instance.           */
+# Purpose   : Orchestrates a full-stack smoke test by building the    */
+#              C++ engine, running the .NET API, and verifying        */
+#              trace ingestion into a live Jaeger instance.           */
 # Trigger   : Push to main / Pull Request to main                    */
 # Runtime   : Ubuntu Latest (GitHub Hosted)                          */
 #                                                                    */
+# Notes     : - Validates cross-language Span propagation.           */
+#             - Requires Jaeger sidecar with OTLP enabled.           */
+#             - v1.1: Standardized paths and added graceful flush.   */
+#                                                                    */
 # Revision History:                                                  */
 # ------------------------------------------------------------------ */
-# Version    Date          Author           Description              */
+# Version    Date        Author          Description                 */
 # ------------------------------------------------------------------ */
-# 1.0        2026-04-18    Nitish Singh     Initial E2E Telemetry CI */
+# 1.0        2026-04-18  Nitish Singh    Initial E2E Telemetry CI    
+# 1.1        2026-04-24  Nitish Singh    Standardized Header & Paths */
 #*********************************************************************/
 
-name: Telemetry E2E Integration
+name: "Telemetry E2E Verification"
 
 on:
   push:

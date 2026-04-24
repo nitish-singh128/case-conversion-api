@@ -1,3 +1,24 @@
+#*********************************************************************/
+#  CI Pipeline - Production Release (ARM64 Optimized)                */
+#                                                                    */
+# Purpose   : Packages high-performance binaries and metadata        */
+#              for official GitHub Releases.                          */
+# Trigger   : Push Version Tags (e.g., v2.0.0)                        */
+# Runtime   : macOS Latest (Native Apple Silicon Compilation)         */
+#                                                                    */
+# Notes     : - Targets M2 Performance Cores via ARM64 build flags.   */
+#             - Bundles C++ .dylib with .NET 8 Managed API.           */
+#             - v2.0.0: Marks the 1M Request Endurance Milestone.     */
+#                                                                    */
+# Revision History:                                                  */
+# ------------------------------------------------------------------ */
+# Version    Date        Author          Description                 */
+# ------------------------------------------------------------------ */
+# 1.0        2026-04-14  Nitish Singh    Initial Release Workflow    
+# 1.1-1.5    2026-04-22  Nitish Singh    Monorepo & Path Optimization
+# 2.0.0      2026-04-24  Nitish Singh    M2 ARM64 Production Milestone */
+#*********************************************************************/
+
 name: "Production Release"
 
 on:
