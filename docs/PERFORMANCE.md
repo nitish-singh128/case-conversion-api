@@ -110,4 +110,4 @@ The following metrics represent the "High-Stress Endurance" baseline, proving lo
 
 - Memory Integrity: Even after 300k iterations, memory usage remained flat, confirming that the C++-to-managed string marshalling is leaking zero bytes.
 
-![alt text](assets/jagger.png)
+![alt text](../assets/jagger.png)
