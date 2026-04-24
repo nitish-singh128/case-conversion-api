@@ -83,6 +83,7 @@ graph TD
         H --> L[Backend Replica 4]
         I & J & K & L --> M[Native C++ Engine]
     end
+```
 
 ## Components
 
