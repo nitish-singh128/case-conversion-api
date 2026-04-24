@@ -2,6 +2,28 @@
 
 This module serves as the managed gateway for the Case Conversion ecosystem. It provides a robust, thread-safe ASP.NET Core REST API that orchestrates communication with the high-performance C++ native engine via Dynamic P/Invoke.
 
+## Table of Contents
+
+* [Architectural Overview](#architectural-overview)
+* [Key Design Patterns](#key-design-patterns)
+* [Getting Started](#getting-started)
+  * [Prerequisites](#prerequisites)
+  * [Automated Execution](#1-automated-execution)
+  * [Manual Development Workflow](#2manual-development-workflow)
+* [Testing Infrastructure](#testing-infrastructure)
+  * [Test Categories](#test-categories)
+* [API Contract](#api-contract)
+* [Security & Memory Governance](#security--memory-governance)
+* [Native Interop Architectural Principles](#native-interop-architectural-principles)
+  * [1. The "Callee-Allocates, Caller-Frees" Pattern](#1-the-callee-allocates-caller-frees-pattern)
+  * [2. Dynamic Library Loading](#2-dynamic-library-loading)
+  * [3. Thread Safety & Lifecycle Management](#3-thread-safety--lifecycle-management)
+* [Telemetry & Observability](#telemetry--observability)
+  * [Setup Instructions](#setup-instructions)
+  * [Visualizing Performance with Jaeger](#3-visualizing-performance-with-jaeger)
+  * [Analyzing the Waterfall](#analyzing-the-waterfall)
+* [Request Lifecycle Flow](#request-lifecycle-flow)
+
 ## Architectural Overview
 
 The .NET layer is designed as a stateless "Thin Wrapper" around the native binary. It handles the critical bridge between Managed (System.String) and Unmanaged (char*) memory.
@@ -123,7 +145,7 @@ This fail-safe mechanism ensures that even if a consumer fails to explicitly dis
 
 This project implements **Distributed Tracing** to monitor the lifecycle of a request as it transitions from the Managed .NET layer into the Native C++ engine.
 
-### Prerequisites
+### Prerequisites docker
 
 - Docker Desktop (for Jaeger backend)
 - .NET 8.0 SDK
@@ -166,3 +188,16 @@ The Parent Span: Total time from request received to response sent.
 The Native Span: The exact microseconds spent inside the C++ processStringDLL function.
 
 This granularity allows developers to verify if a delay is caused by .NET Marshalling overhead or the C++ Strategy logic.
+
+## Request Lifecycle Flow
+
+```mermaid
+graph TD
+    A[Incoming Request] --> B{Size Check < 5MB?}
+    B -- No --> C[400 Bad Request]
+    B -- Yes --> D[Deep Copy to Native]
+    D --> E[C++ Engine Execute]
+    E --> F[Deep Copy to Managed]
+    F --> G[Call native freeString]
+    G --> H[Return Response]
+```
