@@ -83,19 +83,24 @@ jobs:
             SourceCode-Metadata.zip
           body: |
             ## Word Case Conversion Engine v2.0.0 (Generation 2)
-            ### The "Millionaire" Milestone Release
-            
-            This major release introduces high-availability orchestration and validates the system's industrial-grade endurance.
-            
+            ### The "Millionaire" Milestone & Architecture Hardening
+
+            This major release introduces high-availability orchestration and validates the system's industrial-grade endurance. 
+
             **Major Changes:**
             - **Scale:** Integrated NGINX Layer 7 Load Balancing with a 4-replica backend strategy.
             - **Validation:** 1,000,000 request endurance test completed with 100% success rate.
             - **Performance:** Optimized thread-pinning for Apple M2 Performance Cores.
             - **Observability:** Full OpenTelemetry integration for cross-language trace propagation.
             
+            **Project Maintenance & DX (Developer Experience):**
+            - **CI/CD Standardization:** Renamed workflows to a domain-specific hierarchy (`native-*`, `dotnet-*`, `full-stack-*`) for better pipeline clarity.
+            - **Doc Migration:** Reorganized all technical documentation, performance reports, and design patterns into the `/docs` directory for a cleaner root structure.
+            - **Security:** Re-aligned CodeQL advanced security scanning with the new native engine paths.
+
             **Installation:**
             1. Download `WordCaseEngine-ARM64.zip`.
-            2. Run the SQL initialization script found in the metadata zip.
+            2. Follow the setup guide in the `/docs` folder for local orchestration.
           draft: false
           prerelease: false
         env:
