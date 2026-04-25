@@ -8,11 +8,11 @@
 
 ## Table of Contents
 
-1. [Systems Architecture & Interop (ADR 001-009)](#-category-1-systems-architecture-and-interop)
-2. [Performance & Hardware Optimization (ADR 010-015)](#-category-2-performance-and-hardware)
-3. [Security & Error Handling (ADR 016-021)](#-category-3-security-and-error-handling)
-4. [Observability & DevOps (ADR 022-027)](#-category-4-observability-and-devops)
-5. [Development Experience (DevEx) (ADR 028-030)](#-category-5-development-experience)
+1. [Systems Architecture & Interop (ADR 001-009)](#category-1-systems-architecture-and-interop)
+2. [Performance & Hardware Optimization (ADR 010-015)](#category-2-performance-and-hardware)
+3. [Security & Error Handling (ADR 016-021)](#category-3-security-and-error-handling)
+4. [Observability & DevOps (ADR 022-027)](#category-4-observability-and-devops)
+5. [Development Experience (DevEx) (ADR 028-030)](#category-5-development-experience)
 
 ---
 
