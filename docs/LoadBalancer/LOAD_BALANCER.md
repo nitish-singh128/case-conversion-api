@@ -7,8 +7,6 @@ This document explains the Layer 7 load balancing strategy used to scale the Pol
 - [What is a Load Balancer?](#1-what-is-a-load-balancer)
 - [How it is Used in This Project](#2-how-it-is-used-in-this-project)
 - [Configuration Breakdown](#3-configuration-breakdown)
-  - [nginx.conf](#nginxconf)
-  - [docker-compose-load.yml](#docker-compose-loadyml)
 - [Performance Impact (The 1M Test)](#4-performance-impact-the-1m-test)
 - [Orchestration Summary](#5-summary-table)
 - [Support & Contact](#support--contact)
