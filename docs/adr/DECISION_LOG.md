@@ -8,15 +8,15 @@
 
 ## Table of Contents
 
-1. [Systems Architecture & Interop (ADR 001-009)](#-category-1-systems-architecture--interop)
-2. [Performance & Hardware Optimization (ADR 010-015)](#-category-2-performance--hardware)
-3. [Security & Error Handling (ADR 016-021)](#-category-3-security--error-handling)
-4. [Observability & DevOps (ADR 022-027)](#-category-4-observability--devops)
+1. [Systems Architecture & Interop (ADR 001-009)](#-category-1-systems-architecture-and-interop)
+2. [Performance & Hardware Optimization (ADR 010-015)](#-category-2-performance-and-hardware)
+3. [Security & Error Handling (ADR 016-021)](#-category-3-security-and-error-handling)
+4. [Observability & DevOps (ADR 022-027)](#-category-4-observability-and-devops)
 5. [Development Experience (DevEx) (ADR 028-030)](#-category-5-development-experience)
 
 ---
 
-## Category 1: Systems Architecture & Interop
+## Category 1: Systems Architecture and Interop
 
 | ID | Decision | Context / Rationale |
 | :--- | :--- | :--- |
@@ -53,7 +53,7 @@
 
 ---
 
-## Category 2: Performance & Hardware
+## Category 2: Performance and Hardware
 
 | ID | Decision | Context / Rationale |
 | :--- | :--- | :--- |
@@ -67,7 +67,7 @@
 
 ---
 
-## Category 3: Security & Error Handling
+## Category 3: Security and Error Handling
 
 | ID | Decision | Context / Rationale |
 | :--- | :--- | :--- |
@@ -80,7 +80,7 @@
 
 ---
 
-## Category 4: Observability & DevOps
+## Category 4: Observability and DevOps
 
 | ID | Decision | Context / Rationale |
 | :--- | :--- | :--- |
