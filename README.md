@@ -25,6 +25,7 @@
 This is a high-concurrency, cross-platform string processing ecosystem. It demonstrates a Native C++17 engine integrated into a .NET 8 managed environment via a custom C-style ABI. The project serves as a technical blueprint for bridging managed and unmanaged memory, implementing the Strategy and Factory patterns, and maintaining an immutable Docker-based deployment pipeline.
 
 ## Table of Contents
+
 * [System Architecture](#system-architecture)
 * [CI/CD & Deployment Pipeline](#cicd--deployment-pipeline)
 * [Components](#components)
@@ -84,6 +85,7 @@ graph TD
         I & J & K & L --> M[Native C++ Engine]
     end
 ```
+
 ---
 
 ## Components
@@ -137,7 +139,9 @@ Note on Thread-Safety: The native C++ engine is designed to be Stateless and Thr
 ### 3. Defensive Interop Design
 
 - Sentinel Pattern: The C++ engine returns a sentinel string (`ERROR_BUFFER_OVERFLOW_LIMIT_5MB`) upon security violation. The C# layer traps this and re-throws a managed `ArgumentException`, providing a clean error path for the API consumer.
+
 - Reentrant & Stateless: The native engine maintains no global state. Every P/Invoke call operates on its own stack and heap allocation, ensuring full reentrancy for parallel execution.
+
 - Zero-Footprint Disposal: Implements a strict "Callee-Allocates, Caller-Frees" contract. Every native `IntPtr` is released via a `finally` block to the `freeString` delegate, ensuring the unmanaged heap remains clean even during execution failures.
 
 ### 4. Telemetry & Observability
@@ -150,6 +154,7 @@ Integrated OpenTelemetry (OTLP) for end-to-end distributed tracing. W3C Trace ID
 ```
 
 - UI Dashboard: http://localhost:16686
+
 - OTLP Endpoint: http://localhost:4317 (gRPC)
 
 ### 5. Hardware-Specific Optimization (Apple M2)
@@ -171,6 +176,7 @@ Please note that if this runs in a Docker container on an Intel Xeon or AMD EPYC
 Prerequisites
 
 - Docker & Docker Compose
+
 - Apple M2 (Recommended) or ARM64/x64 Linux/Windows
 
 ### Run the Load-Balanced Cluster
