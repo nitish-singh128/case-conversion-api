@@ -15,8 +15,11 @@ This document defines the containerization, orchestration, and environment promo
   - [Development](#development-environment)
   - [Staging (Promotion)](#staging-environment)
   - [Production](#production-environment)
-- [Troubleshooting & Lessons Learned](#troubleshooting--lessons-learned)
+- [Troubleshooting & Lessons Learned](#troubleshooting-and-lessons-learned)
 - [Internal Architecture](#internal-architecture)
+- [Deployment and Environments](#deployment-and-environments)
+- [Key Principles](#key-principles)
+- [Summary](#Summary)
 
 ---
 
@@ -168,7 +171,7 @@ Features:
 
 --
 
-## Troubleshooting & Lessons Learned
+## Troubleshooting and Lessons Learned
 
 During the initial infrastructure setup, the following critical points were identified:
 
@@ -180,7 +183,7 @@ During the initial infrastructure setup, the following critical points were iden
 
 - Zsh Comments: When copy-pasting commands from this guide into Zsh, avoid pasting lines starting with # as they may trigger "command not found" errors depending on shell configuration.
 
-## Internal Architecture
+### Internal Architecture
 
 ```Bash
 [ Browser ]  ←── (HTTP/JSON) ──→  [ Nginx Container (Frontend) ]
@@ -195,7 +198,7 @@ During the initial infrastructure setup, the following critical points were iden
 
 --
 
-## Deployment & Environments
+## Deployment and Environments
 
 This project follows a containerized deployment workflow using Docker. Ensure you are authenticated with Docker Hub before pushing images.
 
