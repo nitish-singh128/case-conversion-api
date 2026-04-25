@@ -100,3 +100,6 @@ docker-compose.override.yml
 *.swo
 *.sublime-project
 *.sublime-workspace
+
+// Solution files should not be ignored as they are essential for the .NET project structure
+*word-case-api.sln
