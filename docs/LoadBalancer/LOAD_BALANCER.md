@@ -9,8 +9,7 @@ This document explains the Layer 7 load balancing strategy used to scale the Pol
 - [Configuration Breakdown](#3-configuration-breakdown)
 - [Performance Impact (The 1M Test)](#4-performance-impact-the-1m-test)
 - [Orchestration Summary](#5-summary-table)
-- [Support & Contact](#support--contact)
-
+  
 ---
 
 ## 1. What is a Load Balancer?
