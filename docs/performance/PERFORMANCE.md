@@ -2,6 +2,18 @@
 
 This document outlines the end-to-end process of containerizing, load balancing, and stress-testing the Polyglot Case Conversion engine.
 
+## Table of Contents
+
+- [Environment Setup](#1-environment-setup)
+- [Load Balancer Configuration](#2-load-balancer-configuration)
+- [Soak Test Methodology](#3-the-soak-test-methodology)
+- [Benchmark Results: 2 Replicas](#4-benchmark-results-m2-macbook-air---2-replicas)
+- [Benchmark Results: 4 Replicas](#5-benchmark-results-m2-macbook-air---4-replicas)
+- [1 Million Request Milestone](#6-benchmark-results-m2-macbook-air---1-million-request-milestone)
+- [Support & Contact](#support--contact)
+
+---
+
 ## 1. Environment Setup
 
 To ensure hardware-level optimization for the Apple M2 chip, the environment is containerized using Docker with a focus on ARM64 compatibility.
@@ -22,13 +34,17 @@ We utilize a dedicated Compose file to separate standard development from high-c
 docker compose -f docker-compose-load.yml up --build -d
 ```
 
+---
+
 ## 2. Load Balancer Configuration
 
 The system uses NGINX to distribute traffic. This is critical for validating the thread-safety of our C++ P/Invoke layer across multiple process instances.
 
-### Relevant Files:
+### Relevant Files
 
 - nginx.conf: Defines the upstream backend pool.
+
+---
 
 ## 3. The Soak Test Methodology
 
@@ -66,6 +82,8 @@ The following metrics represent the "Gold Standard" for this system version.
 | Max Latency      | 749.33 µs       |
 | P(95) Latency    | 34.62 ms        |
 
+---
+
 ## 5. Benchmark Results (M2 MacBook Air - 4 Replicas)
 
 | Metric           | Result          |
@@ -73,9 +91,11 @@ The following metrics represent the "Gold Standard" for this system version.
 | Total Requests   | 300,000         |
 | Throughput       | 2,643.88 req/s  |
 | Success Rate     | 100.00%         |
-| Avg Latency      | 18.7 ms        |
+| Avg Latency      | 18.7 ms         |
 | Max Latency      | 300.45 ms       |
 | P(95) Latency    | 56.07 ms        |
+
+---
 
 ## 6. Benchmark Results (M2 MacBook Air - 1 Million Request Milestone)
 
@@ -84,7 +104,7 @@ The following metrics represent the "High-Stress Endurance" baseline, proving lo
 | Metric           | Result          |
 |----------------------|-----------------|
 | Total Requests       | 1,000,000       |
-| Total Success Checks | 2,000,000     |
+| Total Success Checks | 2,000,000       |
 | Throughput           | 2,511.34 req/s  |
 | Success Rate         | 100.00%         |
 | Avg Latency          | 19.71 ms        |
@@ -100,6 +120,8 @@ The following metrics represent the "High-Stress Endurance" baseline, proving lo
 
 - Network Integrity: The system handled 455 MB of total bidirectional traffic without a single TCP connection drop or socket exhaustion issue.
 
+---
+
 ### Observations
 
 - Latency Stability: By scaling to 4 replicas, we achieved an 8x reduction in max_latency (dropping from ~2.4s to 300ms) compared to the 2-replica setup.
@@ -111,3 +133,6 @@ The following metrics represent the "High-Stress Endurance" baseline, proving lo
 - Memory Integrity: Even after 300k iterations, memory usage remained flat, confirming that the C++-to-managed string marshalling is leaking zero bytes.
 
 ![alt text](../assets/jagger.png)
+
+---
+

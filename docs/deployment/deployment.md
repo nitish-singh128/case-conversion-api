@@ -4,6 +4,23 @@ This document defines the containerization, orchestration, and environment promo
 
 ---
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Docker Architecture](#docker-architecture)
+  - [Multi-Stage Build (Backend)](#multi-stage-build-backend)
+  - [Frontend UI (Nginx)](#frontend-ui-react--vite--nginx)
+- [Environment Strategy](#environment-strategy)
+- [Pipeline Execution](#pipeline-execution)
+  - [Development](#development-environment)
+  - [Staging (Promotion)](#staging-environment)
+  - [Production](#production-environment)
+- [Troubleshooting & Lessons Learned](#troubleshooting--lessons-learned)
+- [Internal Architecture](#internal-architecture)
+- [Support & Contact](#support--contact)
+
+---
+
 ## Overview
 
 The system is containerized using Docker and orchestrated via Docker Compose. It follows a **single-artifact promotion model**, ensuring consistency across environments.

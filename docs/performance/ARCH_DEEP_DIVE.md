@@ -2,21 +2,32 @@
 
 This document provides a technical analysis of how the **String Conversion Engine** interacts with the **Apple M2 Unified Memory Architecture** and its asymmetric core clusters. These insights were derived from sustained 300,000-request stress tests.
 
+## Table of Contents
+
+- [CPU Architecture: P vs. E Cluster Split](#1-cpu-architecture-the-p-vs-e-cluster-split)
+- [GPU: Thermal Budget Sparing](#2-gpu-thermal-budget-sparing)
+- [Unified Memory Architecture (UMA)](#3-unified-memory-architecture-uma)
+- [Empirical Performance Profiles (300K Benchmark)](#4-empirical-performance-profiles-300000-request-benchmark)
+- [Performance Benchmarks & Stress Validation](#performance-benchmarks--stress-validation)
+- [Hardware Summary Table](#hardware-summary-table)
+
+---
+
 ## 1. CPU Architecture: The P vs. E Cluster Split
 
 The M2 chip utilizes a hybrid architecture that balances high-intensity computation with background system stability. Our testing reveals how the .NET 8 runtime and Native C++ engine utilize these clusters differently.
 
 ### **The Efficiency (E) Cluster (CPUs 0-3)**
 
-* **Role:** Background Management & I/O.
-* **Observation:** During 300k-request stress tests, these cores stayed pinned at **~2.4GHz**.
-* **Deduction:** The E-cores handle the "Management Tax"—specifically the .NET Kestrel web server, HTTP request/response parsing, and Garbage Collection (GC). This offloads the high-frequency P-cores to focus solely on native execution.
+- **Role:** Background Management & I/O.
+- **Observation:** During 300k-request stress tests, these cores stayed pinned at **~2.4GHz**.
+- **Deduction:** The E-cores handle the "Management Tax"—specifically the .NET Kestrel web server, HTTP request/response parsing, and Garbage Collection (GC). This offloads the high-frequency P-cores to focus solely on native execution.
 
 ### **The Performance (P) Cluster (CPUs 4-7)**
 
-* **Role:** Native C++ Computational Logic.
-* **4-Thread Optimization (Recommended):** Operates at a stable **~1.2GHz** in a 'Nominal' thermal state. This is the optimal configuration for sustained production workloads on fanless hardware.
-* **8-Thread Saturation (Max Burst):** Forces all 8 cores to **100% residency**. This triggers a power draw of **~5.04W**, causing the frequency to cap at **1.9GHz** to prevent thermal damage. This state causes "Resource Starvation" for background OS tasks (e.g., UI lag in VS Code).
+- **Role:** Native C++ Computational Logic.
+- **4-Thread Optimization (Recommended):** Operates at a stable **~1.2GHz** in a 'Nominal' thermal state. This is the optimal configuration for sustained production workloads on fanless hardware.
+- **8-Thread Saturation (Max Burst):** Forces all 8 cores to **100% residency**. This triggers a power draw of **~5.04W**, causing the frequency to cap at **1.9GHz** to prevent thermal damage. This state causes "Resource Starvation" for background OS tasks (e.g., UI lag in VS Code).
 
 ---
 
@@ -24,8 +35,8 @@ The M2 chip utilizes a hybrid architecture that balances high-intensity computat
 
 While the M2 features a powerful 8-core GPU, this system is purely **Compute-Bound (CPU)** rather than **Graphics-Bound**.
 
-* **Metric:** GPU power draw remained between **1mW and 4mW** throughout all tests.
-* **Strategic Advantage:** By keeping the GPU idle, the system maximizes the available **Thermal Envelope** for the CPU. This allows the Performance cores to run longer and faster without triggering the hardware's internal thermal governor prematurely.
+- **Metric:** GPU power draw remained between **1mW and 4mW** throughout all tests.
+- **Strategic Advantage:** By keeping the GPU idle, the system maximizes the available **Thermal Envelope** for the CPU. This allows the Performance cores to run longer and faster without triggering the hardware's internal thermal governor prematurely.
 
 ---
 
@@ -33,8 +44,8 @@ While the M2 features a powerful 8-core GPU, this system is purely **Compute-Bou
 
 The integration between the managed .NET layer and the unmanaged C++ engine leverages the M2's Unified Memory for maximum throughput across the ABI boundary.
 
-* **High-Bandwidth ABI Transitions:** Because the CPU clusters share a single memory pool, the "cost" of passing a string pointer from .NET (managed) to C++ (unmanaged) is essentially zero-copy at the hardware level.
-* **Memory Stability:** Across **300,000 P/Invoke transitions**, the Resident Set Size (RSS) remained stable under **25MB**. This confirms that the manual memory management (freeing native pointers from C#) is functioning perfectly within the Unified Memory environment.
+- **High-Bandwidth ABI Transitions:** Because the CPU clusters share a single memory pool, the "cost" of passing a string pointer from .NET (managed) to C++ (unmanaged) is essentially zero-copy at the hardware level.
+- **Memory Stability:** Across **300,000 P/Invoke transitions**, the Resident Set Size (RSS) remained stable under **25MB**. This confirms that the manual memory management (freeing native pointers from C#) is functioning perfectly within the Unified Memory environment.
 
 ---
 

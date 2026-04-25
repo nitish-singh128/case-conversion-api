@@ -2,27 +2,66 @@
 
 First off, thank you for considering contributing! This project is a high-performance polyglot system. To maintain the architectural integrity of the Native-to-Managed bridge, please follow these guidelines.
 
+---
+
+## Table of Contents
+
+- [Architectural Principles](#architectural-principles)
+  - [Statelessness](#statelessness)
+  - [ABI Stability](#abi-stability)
+  - [Zero-Leak Policy](#zero-leak-policy)
+- [Contribution Context Matrix](#contribution-context-matrix)
+- [Development Workflow](#development-workflow)
+  - [1. Native Layer (C++17)](#1-native-layer-c17)
+  - [2. Managed Layer (.NET 8)](#2-managed-layer-net-8)
+- [Testing Requirements](#testing-requirements)
+  - [Unit & Integration Tests](#unit--integration-tests)
+  - [Telemetry & Observability](#telemetry--observability)
+- [Pull Request Process](#pull-request-process)
+- [Security & Vulnerabilities](#security--vulnerabilities)
+- [License](#license)
+
+---
+
 ## Architectural Principles
 
 Before submitting a Pull Request, ensure your changes adhere to these core tenets:
 
-- Statelessness: The C++ engine must remain stateless and reentrant to ensure thread-safety within the .NET ThreadPool.
+### Statelessness
 
-- ABI Stability: Any changes to the ProcessStringDLL interface must maintain C-linkage compatibility.
+The C++ engine must remain stateless and reentrant to ensure thread-safety within the .NET ThreadPool. No global variables or shared static state.
 
-- Zero-Leak Policy: Every malloc or new in the native layer must have a documented lifecycle and a corresponding free or delete.
+### ABI Stability
+
+Any changes to the `ProcessStringDLL` interface must maintain C-linkage compatibility (`extern "C"`).
+
+### Zero-Leak Policy
+
+Every `malloc` or `new` in the native layer must have a documented lifecycle and a corresponding `free` or `delete`. We follow a **"Callee-Allocates, Caller-Frees"** contract.
+
+---
+
+## Contribution Context Matrix
+
+| Requirement | Native Layer (C++17) | Managed Layer (.NET 8) | Integration / DevOps |
+| :--- | :--- | :--- | :--- |
+| **Primary Goal** | Performance & Statelessness | Reliability & Orchestration | Environment Parity |
+| **Memory Model** | Manual (RAII / `freeString`) | Managed (GC / `IDisposable`) | Resource Quotas (Docker) |
+| **Testing Tool** | GoogleTest (GTest) | xUnit / FluentAssertions | K6 / Jaeger (OTLP) |
+| **Standards** | C++17 ISO | .NET 8 / C# 12 | OCI Image Specs |
+| **Critical Check** | ABI Compatibility | P/Invoke Marshalling Safety | Trace ID Propagation |
+
+---
 
 ## Development Workflow
 
-1. Native Layer (C++17)
+### 1. Native Layer (C++17)
 
-Format: We use Clang-Format. Ensure your code matches the .clang-format specification.
+- **Format**: We use `Clang-Format`. Ensure your code matches the `.clang-format` specification.
+- **Linting**: Run `Clang-Tidy` to check for common C++ pitfalls.
+- **Tests**: New strategies must include a GoogleTest suite in `tests/CppTests/`.
 
-Linting: Run Clang-Tidy to check for common C++ pitfalls.
-
-Tests: New strategies must include a GoogleTest suite in tests/CppTests/.
-
-```Bash
+```bash
 # Build and run native tests
 cd backend/CaseConversionAPI/CppLib/build
 cmake ..

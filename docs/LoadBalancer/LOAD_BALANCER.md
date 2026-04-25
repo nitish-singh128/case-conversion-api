@@ -2,6 +2,19 @@
 
 This document explains the Layer 7 load balancing strategy used to scale the Polyglot Case Conversion API.
 
+## Table of Contents
+
+- [What is a Load Balancer?](#1-what-is-a-load-balancer)
+- [How it is Used in This Project](#2-how-it-is-used-in-this-project)
+- [Configuration Breakdown](#3-configuration-breakdown)
+  - [nginx.conf](#nginxconf)
+  - [docker-compose-load.yml](#docker-compose-loadyml)
+- [Performance Impact (The 1M Test)](#4-performance-impact-the-1m-test)
+- [Orchestration Summary](#5-summary-table)
+- [Support & Contact](#support--contact)
+
+---
+
 ## 1. What is a Load Balancer?
 
 A Load Balancer acts as a "traffic cop" sitting in front of your servers. It routes incoming client requests across all servers capable of fulfilling those requests in a manner that maximizes speed and capacity utilization and ensures that no one server is overworked.
@@ -83,3 +96,5 @@ During the 1,000,000 request stress test, the load balancer played a critical ro
 | Strategy       | Round Robin                                     |
 | Max Replicas   | 4 (Hardware-optimized for M2)                  |
 | Health Checks  | Automatic (NGINX failure detection)            |
+
+---
