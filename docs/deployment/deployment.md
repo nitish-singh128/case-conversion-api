@@ -17,7 +17,6 @@ This document defines the containerization, orchestration, and environment promo
   - [Production](#production-environment)
 - [Troubleshooting & Lessons Learned](#troubleshooting--lessons-learned)
 - [Internal Architecture](#internal-architecture)
-- [Support & Contact](#support--contact)
 
 ---
 
@@ -34,6 +33,8 @@ Development → Staging → Production
 - Build Once: Images are built only during the Development/CI stage.
 - Promote Forward: The same immutable image is re-tagged and moved through the pipeline.
 - No Rebuilds: Eliminates "it worked on my machine" bugs by ensuring the exact same binary runs in Prod as in Staging.
+
+---
 
 ## Docker Architecture
 
@@ -83,6 +84,8 @@ In Production/Staging, the frontend is served via Nginx for high performance. In
 
 - Static Hosting: Nginx handles routing and serves the minified JS/CSS bundle.
 
+---
+
 ## Environment Strategy
 
 Container images are tagged based on the stage of the pipeline.
@@ -98,8 +101,11 @@ nitishhsinghhh/case-api:dev
 nitishhsinghhh/case-api:staging
 nitishhsinghhh/case-api:latest
 ```
+---
 
-## Development Environment
+## Pipeline Execution
+
+### Development Environment
 
 Used for active development and debiugging
 
@@ -114,13 +120,11 @@ Features:
 - Hot reload for frontend
 - Debug logging enabled
 
---
-
-## Staging Environment
+### Staging Environment
 
 Used for production-like validation.
 
-### Promote & Deploy Image: Staging
+#### Promote & Deploy Image: Staging
 
 ```Bash
 # Tag and Push
@@ -140,11 +144,11 @@ Features:
 
 --
 
-## Production Environment
+### Production Environment
 
 Used for final deployment.
 
-### Promote & Deploy Image: Prod
+#### Promote & Deploy Image: Prod
 
 ```Bash
 # Tag and Push
