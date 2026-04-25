@@ -16,7 +16,7 @@
 ![Telemetry](https://img.shields.io/badge/Telemetry-OpenTelemetry-orange.svg)
 ![License](https://img.shields.io/github/license/nitishhsinghhh/case-conversion-api?style=flat-square&color=blue)
 
-![Visitors](https://komarev.com/ghpvc/?username=nitishhsinghhh&repo=case-conversion-api&label=Repo%20Views&color=2088FF&style=flat-square)
+![Visitors](https://api.visitorbadge.io/api/visitors?path=nitishhsinghhh/CaseConversionAPI&label=Project%20Views&countColor=%232088ff&style=flat-square)
 
 ---
 
