@@ -145,7 +145,7 @@ Features:
 - No local builds
 - Mirrors production behavior
 
---
+---
 
 ### Production Environment
 
@@ -169,7 +169,7 @@ Features:
 - Restart policies enabled
 - Health checks enabled
 
---
+---
 
 ## Troubleshooting and Lessons Learned
 
@@ -196,7 +196,7 @@ During the initial infrastructure setup, the following critical points were iden
      (Controller)                                      (Strategy Pattern)
 ```
 
---
+---
 
 ## Deployment and Environments
 
@@ -222,7 +222,7 @@ After pushing, verify the image exists in the registry:
 
 - Check the Tags tab for the staging identifier.
 
---
+---
 
 ## Key Principles
 
@@ -231,7 +231,7 @@ After pushing, verify the image exists in the registry:
 - Environment isolation via configuration
 - Consistent runtime behavior across all stages
 
---
+---
 
 ## Summary
 
