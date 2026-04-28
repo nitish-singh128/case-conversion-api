@@ -1,80 +1,182 @@
 /*********************************************************************/
-/* $File: ProcessString.cpp                                        */
-/*                                                                   */
+/* $File: ProcessStringDLL.cpp                                       */
+/* */
 /* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
 /* This material may be reproduced for teaching and learning         */
 /* purposes only. It is not to be used in industry or for            */
 /* commercial purposes.                                              */
-/*                                                                   */
-/* Class       - ProcessString                                       */
-/*                                                                   */
-/* Description - Core dispatcher selecting conversion strategies     */
-/*               using Factory and Strategy design patterns.         */
-/*               Shared by DLL and CLI applications.                 */
-/*                                                                   */
-/* Notes       - Uses Strategy and Factory design patterns           */
-/*               Returns original input for invalid choice           */
-/*                                                                   */
-/* $Log: ProcessString.cpp                                           */
-/*                                                                   */
-/*  Revision 1.0  2026/04/11  Nitish Singh                           */
-/*  Initial implementation of ProcessString dispatcher.              */
-/*                                                                   */
-/*  Revision 1.1  2026/04/12  Nitish Singh                           */
-/*  Added code quality changes.                                      */
+/* */
+/* Class       - ProcessStringDLL                                    */
+/* */
+/* Description - DLL wrapper exposing C++ string conversion engine   */
+/* for C# P/Invoke interoperability.                    */
+/* Delegates calls to core ProcessString dispatcher.   */
+/* */
+/* Notes       - Interop layer between native C++ and .NET API.      */
+/* */
+/* $Log: ProcessStringDLL.cpp                                        */
+/* */
+/* Revision 1.0  2026/04/11  Nitish Singh                           */
+/* Initial implementation of DLL interop wrapper.                   */
+/* */
+/* Revision 1.1  2026/04/12  Nitish Singh                           */
+/* Refactored for maintainability and safety.                       */
+/* */
+/* Revision 1.2  2026/04/13  Nitish Singh                           */
+/* Added 5MB security gate to prevent buffer overflow.              */
+/* */
+/* Revision 1.3  2026/04/18  Nitish Singh                           */
+/* Applied clang-format for code quality.                           */
+/* */
+/* Revision 1.4  2026/04/18  Nitish Singh                           */
+/* Added traceId for distributed tracing (OpenTelemetry).           */
+/* */
+/* Revision 1.5  2026/04/28  Nitish Singh                           */
+/* Hardened DLL API with exception safety and memory safety.        */
 /*********************************************************************/
 
 /*********************************************************************/
 /* Dependencies                                                      */
 /*********************************************************************/
-
-#include "ProcessString.hpp"
+#include "ProcessStringDLL.hpp"
 #include "Client.hpp"
 #include "ConversionTypeEnum.hpp"
+#include "ProcessString.hpp"
 #include "StringConversionFactory.hpp"
 
-static ConversionType mapChoiceToType(ConversionChoice choice) {
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <string>
+
+//===================================================================
+// Constants: 5 MB Buffer Limit
+//===================================================================
+namespace {
+constexpr size_t MAX_INPUT_SIZE = 5 * 1024 * 1024;  // 5 MB
+}
+
+//===================================================================
+// Helper Utilities (internal, not exported - C++ only)
+//===================================================================
+
+static char* allocateCString(const std::string& str) {
+  char* output = static_cast<char*>(std::malloc(str.size() + 1));
+  if (!output) return nullptr;
+
+  std::memcpy(output, str.c_str(), str.size() + 1);
+  return output;
+}
+
+static const char* safeError(const char* msg) {
+  char* err = allocateCString(msg);
+  return err ? err : "FATAL_ALLOCATION_FAILURE";
+}
+
+//===================================================================
+// Conversion Mapping (Internal - C++ only)
+//===================================================================
+
+static bool mapConversionType(ConversionChoice choice, ConversionType& type) {
   switch (choice) {
-  case ConversionChoice::Alternating:
-    return ConversionType::Alternating;
-  case ConversionChoice::Capitalize:
-    return ConversionType::Capitalize;
-  case ConversionChoice::Lower:
-    return ConversionType::Lower;
-  case ConversionChoice::Upper:
-    return ConversionType::Upper;
-  case ConversionChoice::Sentence:
-    return ConversionType::Sentence;
-  case ConversionChoice::Toggle:
-    return ConversionType::Toggle;
-  case ConversionChoice::Reverse:
-    return ConversionType::Reverse;
-  case ConversionChoice::RemoveVowels:
-    return ConversionType::RemoveVowels;
-  case ConversionChoice::RemoveSpaces:
-    return ConversionType::RemoveSpaces;
-  case ConversionChoice::InvertWords:
-    return ConversionType::InvertWords;
-  case ConversionChoice::SnakeCase:
-    return ConversionType::SnakeCase;
-  case ConversionChoice::KebabCase:
-    return ConversionType::KebabCase;
-  case ConversionChoice::LeetSpeak:
-    return ConversionType::LeetSpeak;
-  default:
-    return ConversionType::Lower; // safe fallback
+    case ConversionChoice::Alternating:
+      type = ConversionType::Alternating;
+      return true;
+    case ConversionChoice::Capitalize:
+      type = ConversionType::Capitalize;
+      return true;
+    case ConversionChoice::Lower:
+      type = ConversionType::Lower;
+      return true;
+    case ConversionChoice::Upper:
+      type = ConversionType::Upper;
+      return true;
+    case ConversionChoice::Sentence:
+      type = ConversionType::Sentence;
+      return true;
+    case ConversionChoice::Toggle:
+      type = ConversionType::Toggle;
+      return true;
+    case ConversionChoice::Reverse:
+      type = ConversionType::Reverse;
+      return true;
+    case ConversionChoice::RemoveVowels:
+      type = ConversionType::RemoveVowels;
+      return true;
+    case ConversionChoice::RemoveSpaces:
+      type = ConversionType::RemoveSpaces;
+      return true;
+    case ConversionChoice::InvertWords:
+      type = ConversionType::InvertWords;
+      return true;
+    case ConversionChoice::SnakeCase:
+      type = ConversionType::SnakeCase;
+      return true;
+    case ConversionChoice::KebabCase:
+      type = ConversionType::KebabCase;
+      return true;
+    case ConversionChoice::LeetSpeak:
+      type = ConversionType::LeetSpeak;
+      return true;
+    default:
+      return false;
   }
 }
 
-std::string processString(const std::string &input, int choiceInt) {
-  Client client;
+//===================================================================
+// Exported DLL API (Extern "C" for C# interop)
+//===================================================================
 
-  ConversionChoice choice = static_cast<ConversionChoice>(choiceInt);
+extern "C" {
 
-  // Map enum to ConversionType
-  ConversionType type = mapChoiceToType(choice);
+API const char* processStringDLL(const char* input, int choiceInt,
+                                 const char* traceId) {
+  try {
+    if (!input) {
+      return safeError("ERROR_NULL_INPUT");
+    }
 
-  client.setStrategy(StringConversionFactory::create(type));
+    size_t inputLength = std::strlen(input);
+    if (inputLength > MAX_INPUT_SIZE) {
+      return safeError("ERROR_BUFFER_OVERFLOW_LIMIT_5MB");
+    }
 
-  return client.execute(input);
+    ConversionChoice choice = static_cast<ConversionChoice>(choiceInt);
+    ConversionType type;
+
+    if (!mapConversionType(choice, type)) {
+      std::cout << "Received invalid conversion choice: " << choiceInt << std::endl;
+      if (choiceInt < 0) {
+        return safeError("ERROR_NEGATIVE_CONVERSION_CHOICE");
+      } else {
+        return safeError("ERROR_INVALID_CONVERSION_CHOICE");
+      }
+    }
+
+    Client client;
+    if (traceId) {
+      client.setTraceId(traceId);
+    }
+
+    client.setStrategy(StringConversionFactory::create(type));
+    std::string result = client.execute(std::string(input));
+
+    char* output = allocateCString(result);
+    if (!output) {
+      return safeError("FATAL_ALLOCATION_FAILURE");
+    }
+
+    return output;
+
+  } catch (const std::exception& e) {
+    return safeError("ERROR_INTERNAL_EXCEPTION_STD");
+  } catch (...) {
+    return safeError("ERROR_INTERNAL_EXCEPTION_UNKNOWN");
+  }
 }
+
+API void freeString(char* str) {
+  std::free(str);
+}
+
+}  // extern "C"
