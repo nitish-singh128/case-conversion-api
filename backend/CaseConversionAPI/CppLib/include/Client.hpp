@@ -18,6 +18,9 @@
 /*                                                                   */
 /*  Revision 1.0  2026/04/11  Nitish Singh                           */
 /*  Initial implementation of Client context class.                  */
+/*                                                                   */
+/*  Revision 1.1  2026/04/12  Nitish Singh                           */
+/*  Added trace ID functionality for distributed tracing.            */
 /*********************************************************************/
 
 #ifndef CLIENT_HPP
@@ -44,6 +47,7 @@ class Client {
 private:
   /// Pointer to the current string conversion strategy
   std::unique_ptr<IStringConversion> strategy;
+  std::string traceId_; // For distributed tracing (OpenTelemetry)
 
 public:
   /**
@@ -59,6 +63,8 @@ public:
    *         Returns original input if no strategy is set.
    */
   std::string execute(const std::string &input) const;
+
+  void setTraceId(const std::string& traceId);
 };
 
 #endif // CLIENT_HPP

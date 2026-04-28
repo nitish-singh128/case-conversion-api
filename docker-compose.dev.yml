@@ -15,22 +15,20 @@
 # * Dependency Graph: Frontend ensures Backend availability via 'depends_on'.
 # -----------------------------------------------------------------------------
 
-version: "3.9"
-
 services:
   # --- BACKEND: .NET 8 API + Native C++ Shared Library ---
   backend:
     container_name: case-api-dev
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     image: nitishhsinghhh/case-api:dev   
     ports:
       - "8080:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     volumes:
-      - ./backend:/src
+      - ./backend:/src/backend # Mount backend source for live code updates
     networks:
       - case-network
 

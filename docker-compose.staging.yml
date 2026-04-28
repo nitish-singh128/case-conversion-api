@@ -1,27 +1,29 @@
 # -----------------------------------------------------------------------------
 # Microsoft Azure Container Registry / Docker Compose Template
-# Project:      Hardware-Aware Case Conversion Engine
-# Component:    Staging Environment Orchestration (Pre-Production Validation)
+# Project:       Hardware-Aware Case Conversion Engine
+# Component:     Staging Environment Orchestration (Pre-Production Validation)
 # Documentation: https://github.com/nitishhsinghhh/case-conversion-api
 # -----------------------------------------------------------------------------
 # VERSION HISTORY
 # Version | Date       | Author       | Description
 # --------|------------|--------------|----------------------------------------
 # 1.0.0   | 2026-04-21 | Nitish Singh | Initial Release. Pre-prod networking setup.
+# 1.0.1   | 2026-04-28 | Nitish Singh | Resolved OCI Manifest 'unknown' collision.
+# 1.0.2   | 2026-04-28 | Nitish Singh | Targeted linux/arm64/v8 for M2 silicon.
 # -----------------------------------------------------------------------------
 # ARCHITECTURAL STRATEGY:
+# * Manifest Pinning: Explicitly targets arm64/v8 to bypass malformed OCI indexes.
 # * Environment Parity: Mirrors production configuration with distinct port offsets.
 # * Continuous Deployment: 'Always' pull policy ensures the latest staging tag.
 # * Fault Tolerance: 'Unless-stopped' restart policy for persistent validation.
 # -----------------------------------------------------------------------------
-
-version: "3.9"
 
 services:
   # --- BACKEND: .NET + C++ Service (Staging Branch) ---
   backend:
     image: nitishhsinghhh/case-api:staging
     container_name: case-api-staging
+    platform: linux/arm64/v8
     pull_policy: always
     ports:
       - "8081:8080" # Staging port offset to allow co-existence with Prod/Dev
@@ -36,6 +38,7 @@ services:
   frontend:
     image: nitishhsinghhh/case-ui:staging
     container_name: case-ui-staging
+    platform: linux/amd64 # Frontend can remain on AMD64 for broader compatibility
     pull_policy: always
     ports:
       - "5174:80" 

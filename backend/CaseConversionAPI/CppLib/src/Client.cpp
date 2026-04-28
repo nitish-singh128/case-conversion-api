@@ -18,6 +18,9 @@
 /*                                                                   */
 /*  Revision 1.0  2026/04/11  Nitish Singh                           */
 /*  Initial implementation of Client class.                          */
+/*                                                                   */
+/*  Revision 1.1  2026/04/12  Nitish Singh                           */
+/*  Added trace ID functionality for distributed tracing.            */
 /*********************************************************************/
 
 /*********************************************************************/
@@ -35,4 +38,8 @@ std::string Client::execute(const std::string &input) const {
   }
 
   return strategy->convert(input);
+}
+
+void Client::setTraceId(const std::string& traceId) {
+    traceId_ = traceId;
 }

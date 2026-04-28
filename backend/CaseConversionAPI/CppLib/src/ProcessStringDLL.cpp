@@ -1,72 +1,67 @@
-/*********************************************************************/
-/* $File: ProcessStringDLL.cpp                                       */
-/* */
-/* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
-/* This material may be reproduced for teaching and learning         */
-/* purposes only. It is not to be used in industry or for            */
-/* commercial purposes.                                              */
-/* */
-/* Class       - ProcessStringDLL                                    */
-/* */
-/* Description - DLL wrapper exposing C++ string conversion engine   */
-/* for C# P/Invoke interoperability. Delegates calls   */
-/* to core ProcessString dispatcher.                   */
-/* */
-/* Notes       - Interop layer between native C++ and .NET API       */
-/* */
-/* $Log: ProcessStringDLL.cpp                                        */
-/* */
-/* Revision 1.0  2026/04/11  Nitish Singh                           */
-/* Initial implementation of DLL interop wrapper.                   */
-/* */
-/* Revision 1.1  2026/04/12  Nitish Singh                           */
-/* Refactored DLL wrapper for improved maintainability and safety.  */
-/* */
-/* Revision 1.2  2026/04/13  Nitish Singh                           */
-/* Added security gate (5MB limit) to prevent buffer overflows.     */
-/* */
-/* Revision 1.3  2026/04/18  Nitish Singh                           */
-/* Code Quality clang-formatted.                                    */
-/* */
-/* Revision 1.4  2026/04/18  Nitish Singh                           */
-/* Extended API signature for Distributed Tracing (OpenTelemetry).  */
-/* Added 'traceId' parameter to support cross-process correlation.  */
-/*********************************************************************/
+/***************************************************************************************************
+ * File        : ProcessStringDLL.cpp
+ *
+ * Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.
+ *               This material may be reproduced for teaching and learning purposes only.
+ *               It is not to be used in industry or for commercial purposes.
+ *
+ * Class       : ProcessStringDLL
+ *
+ * Description : DLL wrapper exposing C++ string conversion engine for C# P/Invoke interoperability.
+ *               Delegates calls to the core ProcessString dispatcher.
+ *
+ * Notes       : Interop layer between native C++ and .NET API.
+ *
+ /***************************************************************************************************
+ * Revision History
+ * -------------------------------------------------------------------------------------------------
+ * Version   Date         Author         Description
+ * --------  -----------  -------------  -----------------------------------------------------------
+ * 1.0       2026/04/11   Nitish Singh   Initial implementation of DLL interop wrapper.
+ * 1.1       2026/04/12   Nitish Singh   Refactored for maintainability and safety.
+ * 1.2       2026/04/13   Nitish Singh   Added 5MB security gate to prevent buffer overflow.
+ * 1.3       2026/04/18   Nitish Singh   Applied clang-format for code quality.
+ * 1.4       2026/04/18   Nitish Singh   Added traceId for distributed tracing (OpenTelemetry).
+ * 1.5       2026/04/28   Nitish Singh   Reformatted header for alignment and consistency.
+ * 1.6       2026/04/28   Nitish Singh   Hardened DLL API with exception safety, deterministic
+ *                                      error handling, constexpr limits, and improved memory safety.
+ ***************************************************************************************************/
 
-/*********************************************************************/
-/* Dependencies                                                      */
-/*********************************************************************/
+/***************************************************************************************************
+ * Dependencies
+ * -------------------------------------------------------------------------------------------------
+ * External and internal headers required for ProcessStringDLL implementation.
+ ***************************************************************************************************/
 
+// 1. Corresponding header FIRST
+#include "ProcessStringDLL.hpp"   
+
+// 2. Project headers
 #include "Client.hpp"
 #include "ConversionTypeEnum.hpp"
 #include "ProcessString.hpp"
 #include "StringConversionFactory.hpp"
 
+// 3. Standard library headers
 #include <cstdlib>
 #include <cstring>
 #include <string>
-
-#include "ProcessStringDLL.hpp"
 
 //===================================================================
 // Constrants: 5 MB Buffer Limit
 //===================================================================
 
 /*
- *  Note: The 2 MB buffer limit is an arbitrary choice to prevent excessive
+ *  Note: The 5 MB buffer limit is an arbitrary choice to prevent excessive
  * memory usage in the DLL. In a production scenario, you may want to implement
  * a more robust solution for handling large inputs, such as streaming
  * processing or dynamic buffer resizing. For the purposes of this example, we
  * will simply return an error message if the input exceeds this limit.
- *
- *  Secruity Gate: 2MB Buffer Limit
- *  Prevents Heap Exhaustion attacks and protects the Dcoker sidecar's
- *  memory footprint from malicious or accidental large inputs.
- *  This is a common best practice for C-style APIs that allocate memory based
- * on input size.
  */
 
-#define MAX_INPUT_SIZE (5 * 1024 * 1024) // 5 MB
+namespace {
+constexpr size_t MAX_INPUT_SIZE = 5 * 1024 * 1024; // 5 MB
+}
 
 //===================================================================
 // Helper Utilities (internal, not exported - C++ only)
@@ -82,6 +77,14 @@ static char *allocateCString(const std::string &str) {
 
   std::memcpy(output, str.c_str(), str.size() + 1);
   return output;
+}
+
+/**
+ * @brief Safe wrapper to always return a valid error string
+ */
+static const char* safeError(const char* msg) {
+    char* err = allocateCString(msg);
+    return err ? err : "FATAL_ALLOCATION_FAILURE";
 }
 
 //===================================================================
@@ -170,33 +173,53 @@ extern "C" {
 /**
  * @brief Main DLL entry point for C# string conversion
  */
-API const char *processStringDLL(const char *input, int choiceInt,
-                                 const char *traceId) {
+API const char* processStringDLL(const char* input, int choiceInt,
+                                 const char* traceId) {
+    
+    //===== Input Validation and Security Gate =====
 
-  if (!input) {
-    return nullptr;
-  }
+    try {
+        if (!input) {
+            return safeError("ERROR_NULL_INPUT");
+        }
 
-  size_t inputLength = std::strlen(input);
+        size_t inputLength = std::strlen(input);
 
-  if (inputLength > MAX_INPUT_SIZE) {
-    return allocateCString("ERROR_BUFFER_OVERFLOW_LIMIT_5MB");
-  }
+        if (inputLength > MAX_INPUT_SIZE) {
+            return safeError("ERROR_BUFFER_OVERFLOW_LIMIT_5MB");
+        }
+        
+        ConversionChoice choice = static_cast<ConversionChoice>(choiceInt);
+        ConversionType type;
 
-  Client client;
-  ConversionChoice choice = static_cast<ConversionChoice>(choiceInt);
+        if (!mapConversionType(choice, type)) {
+            return safeError("ERROR_INVALID_CONVERSION_CHOICE");
+        }
 
-  ConversionType type;
+        Client client;
 
-  if (!mapConversionType(choice, type)) {
-    return allocateCString(std::string(input));
-  }
+        if (traceId) {
+          client.setTraceId(traceId);
+        }
 
-  client.setStrategy(StringConversionFactory::create(type));
+        client.setStrategy(StringConversionFactory::create(type));
 
-  std::string result = client.execute(std::string(input));
+        std::string result = client.execute(std::string(input));
 
-  return allocateCString(result);
+        // Note: allocateCString returns nullptr on allocation failure, which is handled by safeError
+        char* output = allocateCString(result);
+        if (!output) {
+            return safeError("FATAL_ALLOCATION_FAILURE");
+        }
+
+        return output;
+
+    } catch (const std::exception& e) {
+        return safeError("ERROR_INTERNAL_EXCEPTION_STD");
+    }
+    catch (...) {
+        return safeError("ERROR_INTERNAL_EXCEPTION_UNKNOWN");
+    }
 }
 
 /**

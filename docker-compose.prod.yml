@@ -15,13 +15,12 @@
 # * Resilience: 'Always' restart policy and 'pull_policy' for CD synchronization.
 # -----------------------------------------------------------------------------
 
-version: "3.9"
-
 services:
   # --- BACKEND: Production-Hardened .NET + C++ Service ---
   backend:
     image: nitishhsinghhh/case-api:latest
     container_name: case-api-prod
+    platform: linux/arm64/v8
     pull_policy: always
     ports:
       - "8080:8080"
@@ -41,6 +40,7 @@ services:
   frontend:
     image: nitishhsinghhh/case-ui:latest
     container_name: case-ui-prod
+    platform: linux/amd64 # Frontend can remain on AMD64 for broader compatibility
     pull_policy: always
     ports:
       - "80:80" 

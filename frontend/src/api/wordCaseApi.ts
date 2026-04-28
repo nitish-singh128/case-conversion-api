@@ -46,7 +46,7 @@ export interface ConvertResponse {
 export async function convertText(
   request: ConvertRequest
 ): Promise<ConvertResponse> {
-  const API_ENDPOINT = "http://localhost:8080/api/WordCase/convert";
+  const API_ENDPOINT = "http://localhost:5000/api/WordCase/convert";
 
   const response = await fetch(API_ENDPOINT, {
     method: "POST",

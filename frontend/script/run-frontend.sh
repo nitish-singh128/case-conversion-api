@@ -26,6 +26,5 @@ if [ ! -d "node_modules" ]; then
 fi
 
 # Run Vite dev server
-echo "Launching Vite server..."
-# Use 'npx' to ensure we use the local vite instance
-npx vite
+echo "Launching Vite server on port 5173..."
+npx vite --port 5173 --open
