@@ -145,7 +145,8 @@ API const char* processStringDLL(const char* input, int choiceInt,
     ConversionType type;
 
     if (!mapConversionType(choice, type)) {
-      std::cout << "Received invalid conversion choice: " << choiceInt << std::endl;
+      std::cout << "Received invalid conversion choice: " << choiceInt
+                << std::endl;
       if (choiceInt < 0) {
         return safeError("ERROR_NEGATIVE_CONVERSION_CHOICE");
       } else {
@@ -175,8 +176,6 @@ API const char* processStringDLL(const char* input, int choiceInt,
   }
 }
 
-API void freeString(char* str) {
-  std::free(str);
-}
+API void freeString(char* str) { std::free(str); }
 
 }  // extern "C"

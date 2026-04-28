@@ -9,7 +9,7 @@
 /* Class       - Client                                              */
 /* */
 /* Description - Maintains and executes string conversion strategy    */
-/* using the Strategy design pattern.                   */
+/* using the Strategy design pattern.                  */
 /* */
 /* Notes       - Uses unique_ptr for strategy ownership               */
 /* Returns original input if strategy not set          */
@@ -37,6 +37,6 @@ std::string Client::execute(const std::string& input) const {
   return strategy->convert(input);
 }
 
-void Client::setTraceId(const std::string& traceId) { 
-  traceId_ = traceId; 
+void Client::setTraceId(const std::string& traceId) {
+  traceId_ = traceId;
 }
