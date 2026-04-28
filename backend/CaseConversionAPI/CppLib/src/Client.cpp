@@ -29,7 +29,7 @@ void Client::setStrategy(std::unique_ptr<IStringConversion> s) {
   strategy = std::move(s);
 }
 
-std::string Client::execute(const std::string& input) const {
+std::string Client::execute(const std::string &input) const {
   if (!strategy) {
     return input;
   }
@@ -37,6 +37,4 @@ std::string Client::execute(const std::string& input) const {
   return strategy->convert(input);
 }
 
-void Client::setTraceId(const std::string& traceId) {
-  traceId_ = traceId;
-}
+void Client::setTraceId(const std::string &traceId) { traceId_ = traceId; }

@@ -60,16 +60,17 @@ constexpr size_t MAX_INPUT_SIZE = 5 * 1024 * 1024;
 // Helper Utilities (internal, not exported - C++ only)
 //===================================================================
 
-static char* allocateCString(const std::string& str) {
-  char* output = static_cast<char*>(std::malloc(str.size() + 1));
-  if (!output) return nullptr;
+static char *allocateCString(const std::string &str) {
+  char *output = static_cast<char *>(std::malloc(str.size() + 1));
+  if (!output)
+    return nullptr;
 
   std::memcpy(output, str.c_str(), str.size() + 1);
   return output;
 }
 
-static const char* safeError(const char* msg) {
-  char* err = allocateCString(msg);
+static const char *safeError(const char *msg) {
+  char *err = allocateCString(msg);
   return err ? err : "FATAL_ALLOCATION_FAILURE";
 }
 
@@ -77,49 +78,49 @@ static const char* safeError(const char* msg) {
 // Conversion Mapping (Internal - C++ only)
 //===================================================================
 
-static bool mapConversionType(ConversionChoice choice, ConversionType& type) {
+static bool mapConversionType(ConversionChoice choice, ConversionType &type) {
   switch (choice) {
-    case ConversionChoice::Alternating:
-      type = ConversionType::Alternating;
-      return true;
-    case ConversionChoice::Capitalize:
-      type = ConversionType::Capitalize;
-      return true;
-    case ConversionChoice::Lower:
-      type = ConversionType::Lower;
-      return true;
-    case ConversionChoice::Upper:
-      type = ConversionType::Upper;
-      return true;
-    case ConversionChoice::Sentence:
-      type = ConversionType::Sentence;
-      return true;
-    case ConversionChoice::Toggle:
-      type = ConversionType::Toggle;
-      return true;
-    case ConversionChoice::Reverse:
-      type = ConversionType::Reverse;
-      return true;
-    case ConversionChoice::RemoveVowels:
-      type = ConversionType::RemoveVowels;
-      return true;
-    case ConversionChoice::RemoveSpaces:
-      type = ConversionType::RemoveSpaces;
-      return true;
-    case ConversionChoice::InvertWords:
-      type = ConversionType::InvertWords;
-      return true;
-    case ConversionChoice::SnakeCase:
-      type = ConversionType::SnakeCase;
-      return true;
-    case ConversionChoice::KebabCase:
-      type = ConversionType::KebabCase;
-      return true;
-    case ConversionChoice::LeetSpeak:
-      type = ConversionType::LeetSpeak;
-      return true;
-    default:
-      return false;
+  case ConversionChoice::Alternating:
+    type = ConversionType::Alternating;
+    return true;
+  case ConversionChoice::Capitalize:
+    type = ConversionType::Capitalize;
+    return true;
+  case ConversionChoice::Lower:
+    type = ConversionType::Lower;
+    return true;
+  case ConversionChoice::Upper:
+    type = ConversionType::Upper;
+    return true;
+  case ConversionChoice::Sentence:
+    type = ConversionType::Sentence;
+    return true;
+  case ConversionChoice::Toggle:
+    type = ConversionType::Toggle;
+    return true;
+  case ConversionChoice::Reverse:
+    type = ConversionType::Reverse;
+    return true;
+  case ConversionChoice::RemoveVowels:
+    type = ConversionType::RemoveVowels;
+    return true;
+  case ConversionChoice::RemoveSpaces:
+    type = ConversionType::RemoveSpaces;
+    return true;
+  case ConversionChoice::InvertWords:
+    type = ConversionType::InvertWords;
+    return true;
+  case ConversionChoice::SnakeCase:
+    type = ConversionType::SnakeCase;
+    return true;
+  case ConversionChoice::KebabCase:
+    type = ConversionType::KebabCase;
+    return true;
+  case ConversionChoice::LeetSpeak:
+    type = ConversionType::LeetSpeak;
+    return true;
+  default:
+    return false;
   }
 }
 
@@ -129,8 +130,8 @@ static bool mapConversionType(ConversionChoice choice, ConversionType& type) {
 
 extern "C" {
 
-API const char* processStringDLL(const char* input, int choiceInt,
-                                 const char* traceId) {
+API const char *processStringDLL(const char *input, int choiceInt,
+                                 const char *traceId) {
   try {
     if (!input) {
       return safeError("ERROR_NULL_INPUT");
@@ -162,20 +163,20 @@ API const char* processStringDLL(const char* input, int choiceInt,
     client.setStrategy(StringConversionFactory::create(type));
     std::string result = client.execute(std::string(input));
 
-    char* output = allocateCString(result);
+    char *output = allocateCString(result);
     if (!output) {
       return safeError("FATAL_ALLOCATION_FAILURE");
     }
 
     return output;
 
-  } catch (const std::exception& e) {
+  } catch (const std::exception &e) {
     return safeError("ERROR_INTERNAL_EXCEPTION_STD");
   } catch (...) {
     return safeError("ERROR_INTERNAL_EXCEPTION_UNKNOWN");
   }
 }
 
-API void freeString(char* str) { std::free(str); }
+API void freeString(char *str) { std::free(str); }
 
-}  // extern "C"
+} // extern "C"
