@@ -1,34 +1,44 @@
-/***************************************************************************************************
- * File        : ProcessStringDLL.cpp
- *
- * Copyright   : (c) 2016–2026 nitishhsinghh. All rights reserved.
- * This material may be reproduced for teaching and learning purposes only.
- * It is not to be used in industry or for commercial purposes.
- *
- * Class       : ProcessStringDLL
- *
- * Description : DLL wrapper exposing C++ string conversion engine for C# P/Invoke interoperability.
- * Delegates calls to the core ProcessString dispatcher.
- *
- * Notes       : Interop layer between native C++ and .NET API.
- *
- /***************************************************************************************************
- * Revision History
- * -------------------------------------------------------------------------------------------------
- * Version   Date         Author         Description
- * --------  -----------  -------------  -----------------------------------------------------------
- * 1.0       2026/04/11   Nitish Singh   Initial implementation of DLL interop wrapper.
- * 1.1       2026/04/12   Nitish Singh   Refactored for maintainability and safety.
- * 1.2       2026/04/13   Nitish Singh   Added 5MB security gate to prevent buffer overflow.
- * 1.3       2026/04/18   Nitish Singh   Applied clang-format for code quality.
- * 1.4       2026/04/18   Nitish Singh   Added traceId for distributed tracing (OpenTelemetry).
- * 1.5       2026/04/28   Nitish Singh   Reformatted header for alignment and consistency.
- * 1.6       2026/04/28   Nitish Singh   Hardened DLL API with exception safety, deterministic
- * error handling, constexpr limits, and improved memory safety.
- ***************************************************************************************************/
+/*********************************************************************/
+/* $File: ProcessStringDLL.cpp                                       */
+/* */
+/* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
+/* This material may be reproduced for teaching and learning         */
+/* purposes only. It is not to be used in industry or for            */
+/* commercial purposes.                                              */
+/* */
+/* Class       - ProcessStringDLL                                    */
+/* */
+/* Description - DLL wrapper exposing C++ string conversion engine   */
+/* for C# P/Invoke interoperability.                    */
+/* Delegates calls to core ProcessString dispatcher.   */
+/* */
+/* Notes       - Interop layer between native C++ and .NET API.      */
+/* */
+/* $Log: ProcessStringDLL.cpp                                        */
+/* */
+/* Revision 1.0  2026/04/11  Nitish Singh                           */
+/* Initial implementation of DLL interop wrapper.                   */
+/* */
+/* Revision 1.1  2026/04/12  Nitish Singh                           */
+/* Refactored for maintainability and safety.                       */
+/* */
+/* Revision 1.2  2026/04/13  Nitish Singh                           */
+/* Added 5MB security gate to prevent buffer overflow.              */
+/* */
+/* Revision 1.3  2026/04/18  Nitish Singh                           */
+/* Applied clang-format for code quality.                           */
+/* */
+/* Revision 1.4  2026/04/18  Nitish Singh                           */
+/* Added traceId for distributed tracing (OpenTelemetry).           */
+/* */
+/* Revision 1.5  2026/04/28  Nitish Singh                           */
+/* Hardened DLL API with exception safety and memory safety.        */
+/*********************************************************************/
 
+/*********************************************************************/
+/* Dependencies                                                      */
+/*********************************************************************/
 #include "ProcessStringDLL.hpp"
-
 #include "Client.hpp"
 #include "ConversionTypeEnum.hpp"
 #include "ProcessString.hpp"
@@ -42,18 +52,14 @@
 //===================================================================
 // Constants: 5 MB Buffer Limit
 //===================================================================
-
 namespace {
-constexpr size_t MAX_INPUT_SIZE = 5 * 1024 * 1024;  // 5 MB
+constexpr size_t MAX_INPUT_SIZE = 5 * 1024 * 1024;
 }
 
 //===================================================================
 // Helper Utilities (internal, not exported - C++ only)
 //===================================================================
 
-/**
- * @brief Allocates a C-string from std::string (heap memory)
- */
 static char* allocateCString(const std::string& str) {
   char* output = static_cast<char*>(std::malloc(str.size() + 1));
   if (!output) return nullptr;
@@ -62,9 +68,6 @@ static char* allocateCString(const std::string& str) {
   return output;
 }
 
-/**
- * @brief Safe wrapper to always return a valid error string
- */
 static const char* safeError(const char* msg) {
   char* err = allocateCString(msg);
   return err ? err : "FATAL_ALLOCATION_FAILURE";
@@ -126,9 +129,6 @@ static bool mapConversionType(ConversionChoice choice, ConversionType& type) {
 
 extern "C" {
 
-/**
- * @brief Main DLL entry point for C# string conversion
- */
 API const char* processStringDLL(const char* input, int choiceInt,
                                  const char* traceId) {
   try {
@@ -137,7 +137,6 @@ API const char* processStringDLL(const char* input, int choiceInt,
     }
 
     size_t inputLength = std::strlen(input);
-
     if (inputLength > MAX_INPUT_SIZE) {
       return safeError("ERROR_BUFFER_OVERFLOW_LIMIT_5MB");
     }
@@ -146,8 +145,7 @@ API const char* processStringDLL(const char* input, int choiceInt,
     ConversionType type;
 
     if (!mapConversionType(choice, type)) {
-      std::cout << "Received invalid conversion choice: " << choiceInt
-                << std::endl;
+      std::cout << "Received invalid conversion choice: " << choiceInt << std::endl;
       if (choiceInt < 0) {
         return safeError("ERROR_NEGATIVE_CONVERSION_CHOICE");
       } else {
@@ -156,13 +154,11 @@ API const char* processStringDLL(const char* input, int choiceInt,
     }
 
     Client client;
-
     if (traceId) {
       client.setTraceId(traceId);
     }
 
     client.setStrategy(StringConversionFactory::create(type));
-
     std::string result = client.execute(std::string(input));
 
     char* output = allocateCString(result);
@@ -179,9 +175,8 @@ API const char* processStringDLL(const char* input, int choiceInt,
   }
 }
 
-/**
- * @brief Frees memory allocated by processStringDLL
- */
-API void freeString(char* str) { std::free(str); }
+API void freeString(char* str) {
+  std::free(str);
+}
 
 }  // extern "C"
