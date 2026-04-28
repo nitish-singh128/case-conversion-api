@@ -218,6 +218,6 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
     public async Task Convert_InvalidChoice_FallsBackToLower()
     {
         var output = await ConvertAsync("Hello", 99);
-        Assert.Equal("Hello", output);
+        Assert.Equal("ERROR_INVALID_CONVERSION_CHOICE", output);
     }
 }

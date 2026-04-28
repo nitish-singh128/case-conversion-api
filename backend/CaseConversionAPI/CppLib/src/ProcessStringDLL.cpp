@@ -46,6 +46,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <iostream>
 
 //===================================================================
 // Constrants: 5 MB Buffer Limit
@@ -193,7 +194,16 @@ API const char* processStringDLL(const char* input, int choiceInt,
         ConversionType type;
 
         if (!mapConversionType(choice, type)) {
-            return safeError("ERROR_INVALID_CONVERSION_CHOICE");
+
+            std::cout << "Received invalid conversion choice: " << choiceInt << std::endl;
+            // Explicit check for negative choices before mapping
+            if (choiceInt < 0) {
+                return safeError("ERROR_NEGATIVE_CONVERSION_CHOICE");
+            } 
+            else {
+                return safeError("ERROR_INVALID_CONVERSION_CHOICE");
+            }
+              
         }
 
         Client client;

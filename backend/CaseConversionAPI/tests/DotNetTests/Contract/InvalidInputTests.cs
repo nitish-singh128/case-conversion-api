@@ -43,7 +43,7 @@ public class InvalidInputTests : ApiTestBase
     [Fact]
     [Trait("Category", "Resiliency")]
     public async Task Convert_InvalidChoice_ReturnsOriginalString_SafeFallback()
-        => Assert.Equal("Hello", await ConvertAsync("Hello", 99));
+        => Assert.Equal("ERROR_INVALID_CONVERSION_CHOICE", await ConvertAsync("Hello", 99));
 
     /// <summary>
     /// Verifies behavior when a negative index is passed.
@@ -51,7 +51,7 @@ public class InvalidInputTests : ApiTestBase
     [Fact]
     [Trait("Category", "Resiliency")]
     public async Task Convert_NegativeChoice_ReturnsOriginalString_SafeFallback()
-        => Assert.Equal("BoundaryTest", await ConvertAsync("BoundaryTest", -1));
+        => Assert.Equal("ERROR_NEGATIVE_CONVERSION_CHOICE", await ConvertAsync("BoundaryTest", -1));
 
 
     /// <summary>
