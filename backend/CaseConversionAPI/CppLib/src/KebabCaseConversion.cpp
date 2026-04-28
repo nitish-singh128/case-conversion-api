@@ -1,5 +1,5 @@
 /*********************************************************************/
-/* $File: KebabCaseConversion.cpp                                  */
+/* $File: KebabCaseConversion.cpp                                    */
 /*                                                                   */
 /* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
 /* This material may be reproduced for teaching and learning         */
@@ -24,6 +24,7 @@
 /*********************************************************************/
 /* Dependencies                                                      */
 /*********************************************************************/
+
 #include "KebabCaseConversion.hpp"
 #include "LowerCaseConversion.hpp"
 

@@ -23,7 +23,12 @@
 #define PROCESSSTRINGDLL_HPP
 
 /*********************************************************************/
-/* Dependencies                                                      */
+/* Platform-Specific API Macros                                      */     
+/*                                                                   */                                           
+/*  Configures symbol visibility for the dynamic linker.             */
+/* - Windows: Uses __declspec to manage DLL export/import tables.    */
+/* - macOS/Linux: Uses visibility attributes to ensure P/Invoke      */
+/*   can locate native entry points.                                 */
 /*********************************************************************/
 
 #ifdef _WIN32

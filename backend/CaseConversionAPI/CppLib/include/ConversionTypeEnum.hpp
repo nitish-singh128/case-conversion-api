@@ -24,10 +24,6 @@
 #ifndef CONVERSIONTYPEENUM_HPP
 #define CONVERSIONTYPEENUM_HPP
 
-/*********************************************************************/
-/* Dependencies                                                      */
-/*********************************************************************/
-
 /**
  * @enum ConversionChoice
  * @brief Enumerates supported string conversion strategies.

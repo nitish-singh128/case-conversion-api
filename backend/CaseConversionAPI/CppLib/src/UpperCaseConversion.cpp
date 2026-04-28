@@ -23,6 +23,7 @@
 /*********************************************************************/
 /* Dependencies                                                      */
 /*********************************************************************/
+
 #include "UpperCaseConversion.hpp"
 
 std::string UpperCaseConversion::convert(const std::string &input) const {

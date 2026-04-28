@@ -1,49 +1,49 @@
 /*********************************************************************/
 /* $File: ProcessStringDLL.cpp                                       */
-/* */
+/*                                                                   */
 /* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
 /* This material may be reproduced for teaching and learning         */
 /* purposes only. It is not to be used in industry or for            */
 /* commercial purposes.                                              */
-/* */
+/*                                                                   */
 /* Class       - ProcessStringDLL                                    */
-/* */
+/*                                                                   */
 /* Description - DLL wrapper exposing C++ string conversion engine   */
-/* for C# P/Invoke interoperability.                    */
-/* Delegates calls to core ProcessString dispatcher.   */
-/* */
+/*               for C# P/Invoke interoperability.                   */
+/*               Delegates calls to core ProcessString dispatcher.   */
+/*                                                                   */
 /* Notes       - Interop layer between native C++ and .NET API.      */
-/* */
+/*                                                                   */
 /* $Log: ProcessStringDLL.cpp                                        */
-/* */
-/* Revision 1.0  2026/04/11  Nitish Singh                           */
-/* Initial implementation of DLL interop wrapper.                   */
-/* */
-/* Revision 1.1  2026/04/12  Nitish Singh                           */
-/* Refactored for maintainability and safety.                       */
-/* */
-/* Revision 1.2  2026/04/13  Nitish Singh                           */
-/* Added 5MB security gate to prevent buffer overflow.              */
-/* */
-/* Revision 1.3  2026/04/18  Nitish Singh                           */
-/* Applied clang-format for code quality.                           */
-/* */
-/* Revision 1.4  2026/04/18  Nitish Singh                           */
-/* Added traceId for distributed tracing (OpenTelemetry).           */
-/* */
-/* Revision 1.5  2026/04/28  Nitish Singh                           */
-/* Hardened DLL API with exception safety and memory safety.        */
+/*                                                                   */
+/* Revision 1.0  2026/04/11  Nitish Singh                            */
+/* Initial implementation of DLL interop wrapper.                    */
+/*                                                                   */
+/* Revision 1.1  2026/04/12  Nitish Singh                            */
+/* Refactored for maintainability and safety.                        */
+/*                                                                   */
+/* Revision 1.2  2026/04/13  Nitish Singh                            */
+/* Added 5MB security gate to prevent buffer overflow.               */
+/*                                                                   */
+/* Revision 1.3  2026/04/18  Nitish Singh                            */
+/* Applied clang-format for code quality.                            */
+/*                                                                   */
+/* Revision 1.4  2026/04/18  Nitish Singh                            */
+/* Added traceId for distributed tracing (OpenTelemetry).            */
+/*                                                                   */
+/* Revision 1.5  2026/04/28  Nitish Singh                            */
+/* Hardened DLL API with exception safety and memory safety.         */
 /*********************************************************************/
 
 /*********************************************************************/
 /* Dependencies                                                      */
 /*********************************************************************/
+
 #include "ProcessStringDLL.hpp"
 #include "Client.hpp"
 #include "ConversionTypeEnum.hpp"
 #include "ProcessString.hpp"
 #include "StringConversionFactory.hpp"
-
 #include <cstdlib>
 #include <cstring>
 #include <iostream>

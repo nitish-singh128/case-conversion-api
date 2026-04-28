@@ -1,5 +1,5 @@
 /*********************************************************************/
-/* $File: LowerCaseConversion.cpp                                  */
+/* $File: LowerCaseConversion.cpp                                    */
 /*                                                                   */
 /* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
 /* This material may be reproduced for teaching and learning         */
@@ -16,13 +16,14 @@
 /*                                                                   */
 /* $Log: LowerCaseConversion.cpp                                     */
 /*                                                                   */
-/*  Revision 1.0  2026/04/11  Nitish Singh                           */
-/*  Initial implementation of LowerCaseConversion.                   */
+/* Revision 1.0  2026/04/11  Nitish Singh                            */
+/* Initial implementation of LowerCaseConversion.                    */
 /*********************************************************************/
 
 /*********************************************************************/
 /* Dependencies                                                      */
 /*********************************************************************/
+
 #include "LowerCaseConversion.hpp"
 
 std::string LowerCaseConversion::convert(const std::string &input) const {

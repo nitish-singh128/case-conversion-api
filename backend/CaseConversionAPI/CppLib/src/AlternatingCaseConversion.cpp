@@ -1,5 +1,5 @@
 /*********************************************************************/
-/* $File:: AlternatingCaseConversion.cpp                            */
+/* $File:: AlternatingCaseConversion.cpp                             */
 /*                                                                   */
 /* Copyright (c) 2016-2026 nitishhsinghh. All rights reserved.       */
 /* This material may be reproduced for teaching and learning         */
@@ -17,13 +17,14 @@
 /*                                                                   */
 /* $Log: AlternatingCaseConversion.cpp                               */
 /*                                                                   */
-/*  Revision 1.0  2026/04/11  Nitish Singh                           */
-/*  Initial implementation of AlternatingCaseConversion.             */
+/* Revision 1.0  2026/04/11  Nitish Singh                            */
+/* Initial implementation of AlternatingCaseConversion.              */
 /*********************************************************************/
 
 /*********************************************************************/
 /* Dependencies                                                      */
 /*********************************************************************/
+
 #include "AlternatingCaseConversion.hpp"
 #include "LowerCaseConversion.hpp"
 #include "UpperCaseConversion.hpp"
