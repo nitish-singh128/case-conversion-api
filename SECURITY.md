@@ -1,4 +1,4 @@
-## Reporting a Vulnerability
+# Reporting a Vulnerability
 
 We take the security of our native interop layer and web gateway seriously. If you find a vulnerability, please follow these steps:
 
