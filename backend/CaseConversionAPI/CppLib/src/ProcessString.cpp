@@ -27,6 +27,7 @@
 /*********************************************************************/
 /* Dependencies                                                      */
 /*********************************************************************/
+
 #include "ProcessString.hpp"
 #include "Client.hpp"
 #include "ConversionTypeEnum.hpp"
