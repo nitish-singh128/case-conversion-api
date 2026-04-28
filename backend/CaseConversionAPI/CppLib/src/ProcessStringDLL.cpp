@@ -126,6 +126,9 @@ static bool mapConversionType(ConversionChoice choice, ConversionType& type) {
 
 extern "C" {
 
+/**
+ * @brief Main DLL entry point for C# string conversion
+ */
 API const char* processStringDLL(const char* input, int choiceInt,
                                  const char* traceId) {
   try {
@@ -176,6 +179,9 @@ API const char* processStringDLL(const char* input, int choiceInt,
   }
 }
 
+/**
+ * @brief Frees memory allocated by processStringDLL
+ */
 API void freeString(char* str) { std::free(str); }
 
 }  // extern "C"
