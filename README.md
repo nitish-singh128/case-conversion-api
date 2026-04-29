@@ -20,7 +20,7 @@
 
 ---
 
-# The Hardware-Aware Polyglot String Conversion Engine & API
+# High-Performance String Processing: A Polyglot Architecture
 
 This is a high-concurrency, cross-platform string processing ecosystem. It demonstrates a Native C++17 engine integrated into a .NET 8 managed environment via a custom C-style ABI. The project serves as a technical blueprint for bridging managed and unmanaged memory, implementing the Strategy and Factory patterns, and maintaining an immutable Docker-based deployment pipeline.
 
