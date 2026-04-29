@@ -44,7 +44,7 @@ public:
    * @param input The string to convert.
    * @return The converted string with first letter capitalized.
    */
-  std::string convert(const std::string &input) const override;
+  ConversionResult convert(const std::string &input) const override;
 };
 
 #endif // SENTENCECASECONVERSION_HPP

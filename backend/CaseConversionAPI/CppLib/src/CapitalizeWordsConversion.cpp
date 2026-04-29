@@ -30,7 +30,7 @@
 #include "UpperCaseConversion.hpp"
 #include <sstream>
 
-std::string CapitalizeWordsConversion::convert(const std::string &input) const {
+ConversionResult CapitalizeWordsConversion::convert(const std::string &input) const {
   LowerCaseConversion lowerConv;
   UpperCaseConversion upperConv;
 
@@ -44,15 +44,15 @@ std::string CapitalizeWordsConversion::convert(const std::string &input) const {
     }
 
     // Convert whole word to lowercase first
-    word = lowerConv.convert(word);
+    word = ConversionResult(lowerConv.convert(word)).get_c_str(); // Get C-string from ConversionResult
 
     // Capitalize first letter using UpperCaseConversion
     std::string firstChar(1, word[0]);
-    firstChar = upperConv.convert(firstChar);
+    firstChar = ConversionResult(upperConv.convert(firstChar)).get_c_str();
     word[0] = firstChar[0];
 
     result += word;
   }
 
-  return result;
+  return ConversionResult(result.c_str());
 }

@@ -36,6 +36,7 @@
 #include "ProcessString.hpp"
 #include "StringConversionFactory.hpp"
 #include "TestHelpers.hpp"
+#include "ConversionResult.hpp"
 
 // Basic Conversions
 #include "AlternatingCaseConversion.hpp"
@@ -65,38 +66,38 @@
 
 TEST(LowerCaseConversionTest, Basic) {
   LowerCaseConversion conv;
-  EXPECT_EQ(conv.convert("HELLO"), "hello");
+  EXPECT_STREQ(conv.convert("HELLO").get_c_str(), "hello");
 }
 
 TEST(UpperCaseConversionTest, Basic) {
   UpperCaseConversion conv;
-  EXPECT_EQ(conv.convert("hello"), "HELLO");
+  EXPECT_STREQ(conv.convert("hello").get_c_str(), "HELLO");
 }
 
 TEST(CapitalizeWordsConversionTest, Basic) {
   CapitalizeWordsConversion conv;
-  EXPECT_EQ(conv.convert("hello world"), "Hello World");
+  EXPECT_STREQ(conv.convert("hello world").get_c_str(), "Hello World");
 }
 
 TEST(SentenceCaseConversionTest, Basic) {
   SentenceCaseConversion conv;
-  EXPECT_EQ(conv.convert("hELLO WORLD"), "Hello world");
+  EXPECT_STREQ(conv.convert("hELLO WORLD").get_c_str(), "Hello world");
 }
 
 TEST(ToggleCaseConversionTest, Basic) {
   ToggleCaseConversion conv;
-  EXPECT_EQ(conv.convert("HeLLo"), "hEllO");
+  EXPECT_STREQ(conv.convert("HeLLo").get_c_str(), "hEllO");
 }
 
 TEST(AlternatingCaseConversionTest, Basic) {
   AlternatingCaseConversion conv;
-  EXPECT_EQ(conv.convert("hello world"), "HeLlO WoRlD");
+  EXPECT_STREQ(conv.convert("hello world").get_c_str(), "HeLlO WoRlD");
 }
 
 TEST(ReverseConversionTest, Basic) {
   ReverseConversion conv;
-  EXPECT_EQ(conv.convert("Hello"), "olleH");
-  EXPECT_EQ(conv.convert("Hello World!"), "!dlroW olleH");
+  EXPECT_STREQ(conv.convert("Hello").get_c_str(), "olleH");
+  EXPECT_STREQ(conv.convert("Hello World!").get_c_str(), "!dlroW olleH");
 }
 
 //
@@ -107,33 +108,33 @@ TEST(ReverseConversionTest, Basic) {
 
 TEST(InvertWordsConversionTest, Basic) {
   InvertWordsConversion conv;
-  EXPECT_EQ(conv.convert("Hello World"), "olleH dlroW");
+  EXPECT_STREQ(conv.convert("Hello World").get_c_str(), "olleH dlroW");
 }
 
 TEST(KebabCaseConversionTest, Basic) {
   KebabCaseConversion conv;
-  EXPECT_EQ(conv.convert("Hello World Example"), "hello-world-example");
+  EXPECT_STREQ(conv.convert("Hello World Example").get_c_str(), "hello-world-example");
 }
 
 TEST(SnakeCaseConversionTest, Basic) {
   SnakeCaseConversion conv;
-  EXPECT_EQ(conv.convert("Hello World Example"), "hello_world_example");
+  EXPECT_STREQ(conv.convert("Hello World Example").get_c_str(), "hello_world_example");
 }
 
 TEST(RemoveSpacesConversionTest, Basic) {
   RemoveSpacesConversion conv;
-  EXPECT_EQ(conv.convert("Hello World"), "HelloWorld");
+  EXPECT_STREQ(conv.convert("Hello World").get_c_str(), "HelloWorld");
 }
 
 TEST(RemoveVowelsConversionTest, Basic) {
   RemoveVowelsConversion conv;
-  EXPECT_EQ(conv.convert("Hello World"), "Hll Wrld");
+  EXPECT_STREQ(conv.convert("Hello World").get_c_str(), "Hll Wrld");
 }
 
 TEST(LeetSpeakConversionTest, Basic) {
   LeetSpeakConversion conv;
-  EXPECT_EQ(conv.convert("Hello"), "H3ll0");
-  EXPECT_EQ(conv.convert("Testing"),
+  EXPECT_STREQ(conv.convert("Hello").get_c_str(), "H3ll0");
+  EXPECT_STREQ(conv.convert("Testing").get_c_str(),
             "73571ng"); // ensure mapping matches implementation
 }
 
@@ -145,38 +146,38 @@ TEST(LeetSpeakConversionTest, Basic) {
 
 TEST(EdgeCases, EmptyString) {
   LowerCaseConversion conv;
-  EXPECT_EQ(conv.convert(""), "");
+  EXPECT_STREQ(conv.convert("").get_c_str(), "");
 }
 
 TEST(EdgeCases, OnlySpaces) {
   RemoveSpacesConversion conv;
-  EXPECT_EQ(conv.convert("   "), "");
+  EXPECT_STREQ(conv.convert("   ").get_c_str(), "");
 }
 
 TEST(EdgeCases, NumbersOnly) {
   UpperCaseConversion conv;
-  EXPECT_EQ(conv.convert("12345"), "12345");
+  EXPECT_STREQ(conv.convert("12345").get_c_str(), "12345");
 }
 
 TEST(EdgeCases, SpecialCharacters) {
   ReverseConversion conv;
-  EXPECT_EQ(conv.convert("!@#$"), "$#@!");
+  EXPECT_STREQ(conv.convert("!@#$").get_c_str(), "$#@!");
 }
 
 TEST(EdgeCases, OnlyVowels) {
   RemoveVowelsConversion conv;
-  EXPECT_EQ(conv.convert("aeiouAEIOU"), "");
+  EXPECT_STREQ(conv.convert("aeiouAEIOU").get_c_str(), "");
 }
 
 TEST(EdgeCases, NoVowels) {
   RemoveVowelsConversion conv;
-  EXPECT_EQ(conv.convert("bcdfg"), "bcdfg");
+  EXPECT_STREQ(conv.convert("bcdfg").get_c_str(), "bcdfg");
 }
 
 TEST(LeetSpeakConversionTest, EdgeCases) {
   LeetSpeakConversion conv;
-  EXPECT_EQ(conv.convert(""), "");
-  EXPECT_EQ(conv.convert("123"), "123");
+  EXPECT_STREQ(conv.convert("").get_c_str(), "");
+  EXPECT_STREQ(conv.convert("123").get_c_str(), "123");
 }
 
 //
@@ -188,19 +189,19 @@ TEST(LeetSpeakConversionTest, EdgeCases) {
 TEST(FactoryTest, CreatesLowerCase) {
   auto conv = StringConversionFactory::create(ConversionType::Lower);
   ASSERT_NE(conv, nullptr);
-  EXPECT_EQ(conv->convert("HELLO"), "hello");
+  EXPECT_STREQ(conv->convert("HELLO").get_c_str(), "hello");
 }
 
 TEST(FactoryTest, CreatesUpperCase) {
   auto conv = StringConversionFactory::create(ConversionType::Upper);
   ASSERT_NE(conv, nullptr);
-  EXPECT_EQ(conv->convert("hello"), "HELLO");
+  EXPECT_STREQ(conv->convert("hello").get_c_str(), "HELLO");
 }
 
 TEST(FactoryTest, CreatesReverse) {
   auto conv = StringConversionFactory::create(ConversionType::Reverse);
   ASSERT_NE(conv, nullptr);
-  EXPECT_EQ(conv->convert("Hello"), "olleH");
+  EXPECT_STREQ(conv->convert("Hello").get_c_str(), "olleH");
 }
 
 //
@@ -213,18 +214,18 @@ TEST(ClientTest, ExecutesStrategy) {
   Client client;
 
   client.setStrategy(StringConversionFactory::create(ConversionType::Lower));
-  EXPECT_EQ(client.execute("HELLO"), "hello");
+  EXPECT_STREQ(client.execute("HELLO").get_c_str(), "hello");
 
   client.setStrategy(StringConversionFactory::create(ConversionType::Toggle));
-  EXPECT_EQ(client.execute("AbC"), "aBc");
+  EXPECT_STREQ(client.execute("AbC").get_c_str(), "aBc");
 
   client.setStrategy(StringConversionFactory::create(ConversionType::Reverse));
-  EXPECT_EQ(client.execute("Hello"), "olleH");
+  EXPECT_STREQ(client.execute("Hello").get_c_str(), "olleH");
 }
 
 TEST(ClientTest, NoStrategySet) {
   Client client;
-  EXPECT_EQ(client.execute("Hello"), "Hello");
+  EXPECT_STREQ(client.execute("Hello").get_c_str(), "Hello");
 }
 
 //
@@ -234,48 +235,48 @@ TEST(ClientTest, NoStrategySet) {
 //
 
 TEST(ProcessStringTest, BasicFlow) {
-  EXPECT_EQ(processString("hello world",
-                          static_cast<int>(ConversionChoice::Alternating)),
+  EXPECT_STREQ(processString("hello world",
+                          static_cast<int>(ConversionChoice::Alternating)).get_c_str(),
             "HeLlO WoRlD");
-  EXPECT_EQ(processString("hello world",
-                          static_cast<int>(ConversionChoice::Capitalize)),
+  EXPECT_STREQ(processString("hello world",
+                          static_cast<int>(ConversionChoice::Capitalize)).get_c_str(),
             "Hello World");
-  EXPECT_EQ(processString("Hello", static_cast<int>(ConversionChoice::Lower)),
+  EXPECT_STREQ(processString("Hello", static_cast<int>(ConversionChoice::Lower)).get_c_str(),
             "hello");
-  EXPECT_EQ(processString("Hello", static_cast<int>(ConversionChoice::Upper)),
+  EXPECT_STREQ(processString("Hello", static_cast<int>(ConversionChoice::Upper)).get_c_str(),
             "HELLO");
-  EXPECT_EQ(processString("hELLO wORLD",
-                          static_cast<int>(ConversionChoice::Sentence)),
+  EXPECT_STREQ(processString("hELLO wORLD",
+                          static_cast<int>(ConversionChoice::Sentence)).get_c_str(),
             "Hello world");
-  EXPECT_EQ(processString("HeLLo", static_cast<int>(ConversionChoice::Toggle)),
+  EXPECT_STREQ(processString("HeLLo", static_cast<int>(ConversionChoice::Toggle)).get_c_str(),
             "hEllO");
-  EXPECT_EQ(processString("Hello", static_cast<int>(ConversionChoice::Reverse)),
+  EXPECT_STREQ(processString("Hello", static_cast<int>(ConversionChoice::Reverse)).get_c_str(),
             "olleH");
 }
 
 TEST(ProcessStringTest, AdvancedChoices) {
-  EXPECT_EQ(processString("Hello World",
-                          static_cast<int>(ConversionChoice::RemoveVowels)),
+  EXPECT_STREQ(processString("Hello World",
+                          static_cast<int>(ConversionChoice::RemoveVowels)).get_c_str(),
             "Hll Wrld");
-  EXPECT_EQ(processString("Hello World",
-                          static_cast<int>(ConversionChoice::RemoveSpaces)),
+  EXPECT_STREQ(processString("Hello World",
+                          static_cast<int>(ConversionChoice::RemoveSpaces)).get_c_str(),
             "HelloWorld");
-  EXPECT_EQ(processString("Hello World",
-                          static_cast<int>(ConversionChoice::InvertWords)),
+  EXPECT_STREQ(processString("Hello World",
+                          static_cast<int>(ConversionChoice::InvertWords)).get_c_str(),
             "olleH dlroW");
-  EXPECT_EQ(processString("Hello World",
-                          static_cast<int>(ConversionChoice::SnakeCase)),
+  EXPECT_STREQ(processString("Hello World",
+                          static_cast<int>(ConversionChoice::SnakeCase)).get_c_str(),
             "hello_world");
-  EXPECT_EQ(processString("Hello World",
-                          static_cast<int>(ConversionChoice::KebabCase)),
+  EXPECT_STREQ(processString("Hello World",
+                          static_cast<int>(ConversionChoice::KebabCase)).get_c_str(),
             "hello-world");
-  EXPECT_EQ(
-      processString("Test", static_cast<int>(ConversionChoice::LeetSpeak)),
+  EXPECT_STREQ(
+      processString("Test", static_cast<int>(ConversionChoice::LeetSpeak)).get_c_str(),
       "7357");
 }
 
 TEST(ProcessStringTest, InvalidChoice) {
-  EXPECT_EQ(processString("Hello", 99), "hello"); // invalid choice falls back
+  EXPECT_STREQ(processString("Hello", 99).get_c_str(), "hello"); // invalid choice falls back
 }
 
 //
@@ -288,8 +289,8 @@ TEST(LoggingTest, ConversionLogging) {
   std::string input = "TeSt";
   ToggleCaseConversion conv;
 
-  std::string result = conv.convert(input);
+  std::string result = conv.convert(input).get_c_str();
   logConversion("ToggleCase", input, result);
 
-  EXPECT_EQ(result, "tEsT");
+  EXPECT_STREQ(conv.convert(input).get_c_str(), "tEsT");
 }

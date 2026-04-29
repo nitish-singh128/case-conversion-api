@@ -43,9 +43,9 @@ int main() {
   int choice;
   std::cin >> choice;
 
-  std::string result = processString(input, choice);
+  ConversionResult result = processString(input, choice);
 
-  std::cout << "Result: " << result << std::endl;
+  std::cout << "Result: " << result.get_c_str() << std::endl;
 
   return 0;
 }

@@ -45,7 +45,7 @@ public:
    * @param input The original string to convert.
    * @return A new string with alternating character case.
    */
-  std::string convert(const std::string &input) const override;
+  ConversionResult convert(const std::string &input) const override;
 };
 
 #endif // ALTERNATINGCASECONVERSION_HPP

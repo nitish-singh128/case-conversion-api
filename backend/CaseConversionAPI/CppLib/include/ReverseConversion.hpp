@@ -43,7 +43,7 @@ public:
    * @param input The string to be reversed.
    * @return A new string with characters in reverse order.
    */
-  std::string convert(const std::string &input) const override;
+  ConversionResult convert(const std::string &input) const override;
 };
 
 #endif // REVERSECONVERSION_HPP

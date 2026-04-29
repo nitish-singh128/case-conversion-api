@@ -47,7 +47,7 @@ public:
    * @param input The string to convert.
    * @return The kebab-case version of the input.
    */
-  std::string convert(const std::string &input) const override;
+  ConversionResult convert(const std::string &input) const override;
 };
 
 #endif // KEBABCASECONVERSION_HPP

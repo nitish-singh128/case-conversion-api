@@ -28,34 +28,36 @@
 #include "AlternatingCaseConversion.hpp"
 #include "LowerCaseConversion.hpp"
 #include "UpperCaseConversion.hpp"
+#include "ConversionResult.hpp"
 
-std::string AlternatingCaseConversion::convert(const std::string &input) const {
+ConversionResult AlternatingCaseConversion::convert(const std::string &input) const {
   LowerCaseConversion lowerConv;
   UpperCaseConversion upperConv;
 
-  std::string result;
+  std::string finalResult; // Renamed for clarity
   bool upper = true;
 
   for (char c : input) {
-    if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+    // Standardize check using isalpha for better practice
+    if (std::isalpha(static_cast<unsigned char>(c))) {
       std::string temp(1, c);
 
       if (upper) {
-        temp = upperConv.convert(temp);
+        auto resObj = upperConv.convert(temp);
+        finalResult += resObj.get_c_str(); 
       } else {
-        temp = lowerConv.convert(temp);
+        auto resObj = lowerConv.convert(temp);
+        finalResult += resObj.get_c_str(); 
       }
 
-      result += temp;
       upper = !upper;
     } else {
-      result += c;
-
+      finalResult += c; 
       if (c == ' ') {
-        upper = true;
+        upper = true; 
       }
     }
   }
 
-  return result;
+  return ConversionResult(finalResult.c_str());
 }

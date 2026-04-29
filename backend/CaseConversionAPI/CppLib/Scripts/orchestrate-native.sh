@@ -44,7 +44,7 @@ cmake --build . --config Release --parallel
 # -------------------------------
 echo -e "\n===== Running Core Tests ====="
 # This is the primary validation for your C++ logic
-./ProcessStringDLLTests
+./runTests
 
 # -------------------------------
 # 4. Workspace Restoration

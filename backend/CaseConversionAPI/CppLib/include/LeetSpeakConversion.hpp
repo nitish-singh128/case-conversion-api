@@ -46,7 +46,7 @@ public:
    * @param input The string to convert.
    * @return The leet speak version of the input.
    */
-  std::string convert(const std::string &input) const override;
+  ConversionResult convert(const std::string &input) const override;
 };
 
 #endif // LEETSPEAKCONVERSION_HPP

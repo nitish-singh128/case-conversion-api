@@ -27,6 +27,7 @@
 /* Dependencies                                                      */
 /*********************************************************************/
 
+#include "ConversionResult.hpp"
 #include <string>
 
 /**
@@ -42,7 +43,7 @@ public:
    * @param input The input string to be converted.
    * @return The converted string.
    */
-  virtual std::string convert(const std::string &input) const = 0;
+  virtual ConversionResult convert(const std::string &input) const = 0;
 
   /**
    * @brief Virtual destructor for proper cleanup of derived classes.

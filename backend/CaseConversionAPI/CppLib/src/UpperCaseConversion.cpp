@@ -26,7 +26,7 @@
 
 #include "UpperCaseConversion.hpp"
 
-std::string UpperCaseConversion::convert(const std::string &input) const {
+ConversionResult UpperCaseConversion::convert(const std::string &input) const {
   std::string result = input;
 
   for (char &c : result) {
@@ -35,5 +35,5 @@ std::string UpperCaseConversion::convert(const std::string &input) const {
     }
   }
 
-  return result;
+  return ConversionResult(result.c_str());
 }

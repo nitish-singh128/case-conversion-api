@@ -23,6 +23,12 @@ The "Source of Truth" for the system. A stateless, high-performance library desi
     cmake --build . --config Release --parallel $(nproc)
 ```
 
+```Bash
+cmake ..
+make
+./runTests
+```
+
 ## Quality Assurance
 
 Comprehensive validation via GoogleTest covering edge cases (empty strings, special characters, and maximum buffer sizes).

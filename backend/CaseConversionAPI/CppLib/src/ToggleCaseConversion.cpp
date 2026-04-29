@@ -31,7 +31,7 @@
 #include "LowerCaseConversion.hpp"
 #include "UpperCaseConversion.hpp"
 
-std::string ToggleCaseConversion::convert(const std::string &input) const {
+ConversionResult ToggleCaseConversion::convert(const std::string &input) const {
   LowerCaseConversion lowerConv;
   UpperCaseConversion upperConv;
 
@@ -40,14 +40,14 @@ std::string ToggleCaseConversion::convert(const std::string &input) const {
   for (char c : input) {
     if (c >= 'a' && c <= 'z') {
       std::string temp(1, c);
-      result += upperConv.convert(temp);
+      result += ConversionResult(upperConv.convert(temp)).get_c_str();
     } else if (c >= 'A' && c <= 'Z') {
       std::string temp(1, c);
-      result += lowerConv.convert(temp);
+      result += ConversionResult(lowerConv.convert(temp)).get_c_str();
     } else {
       result += c; // Non-alphabetic characters unchanged
     }
   }
 
-  return result;
+  return ConversionResult(result.c_str());
 }

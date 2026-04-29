@@ -44,7 +44,7 @@ public:
    * @param input The original string to convert.
    * @return A new string with each word reversed.
    */
-  std::string convert(const std::string &input) const override;
+  ConversionResult convert(const std::string &input) const override;
 };
 
 #endif // INVERTWORDSCONVERSION_HPP

@@ -27,6 +27,7 @@
 /* Dependencies                                                      */
 /*********************************************************************/
 
+#include "ConversionResult.hpp"
 #include <string>
 
 /**
@@ -36,6 +37,6 @@
  * Input  : ("Hello World", 3)
  * Output : "hello world"
  */
-std::string processString(const std::string &input, int choice);
+ConversionResult processString(const std::string &input, int choice);
 
 #endif // PROCESSSTRING_HPP

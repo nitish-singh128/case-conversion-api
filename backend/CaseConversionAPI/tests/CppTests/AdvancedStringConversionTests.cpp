@@ -28,6 +28,7 @@
 // ---------------------------
 #include "AlternatingCaseConversion.hpp"
 #include "CapitalizeWordsConversion.hpp"
+#include "ConversionResult.hpp"
 #include "IStringConversion.hpp"
 #include "LowerCaseConversion.hpp"
 #include "ReverseConversion.hpp"
@@ -63,27 +64,27 @@ TEST(AdvancedConversionTest, MixedCaseInputWithLog) {
 
   std::string result;
 
-  result = lower.convert(input);
+  result = ConversionResult(lower.convert(input)).get_c_str();
   logConversion("LowerCase", input, result);
   EXPECT_EQ(result, "hello world!");
 
-  result = upper.convert(input);
+  result = ConversionResult(upper.convert(input)).get_c_str();
   logConversion("UpperCase", input, result);
   EXPECT_EQ(result, "HELLO WORLD!");
 
-  result = cap.convert(input);
+  result = ConversionResult(cap.convert(input)).get_c_str();
   logConversion("CapitalizeWords", input, result);
   EXPECT_EQ(result, "Hello World!");
 
-  result = sentence.convert(input);
+  result = ConversionResult(sentence.convert(input)).get_c_str();
   logConversion("SentenceCase", input, result);
   EXPECT_EQ(result, "Hello world!");
 
-  result = toggle.convert(input);
+  result = ConversionResult(toggle.convert(input)).get_c_str();
   logConversion("ToggleCase", input, result);
   EXPECT_EQ(result, "HeLlO wOrlD!");
 
-  result = alternating.convert(input);
+  result = ConversionResult(alternating.convert(input)).get_c_str();
   logConversion("AlternatingCase", input, result);
   EXPECT_EQ(result, "HeLlO WoRlD!");
 }
@@ -98,7 +99,7 @@ TEST(ClientTest, ExecuteStrategyWithLog) {
   Client client;
   client.setStrategy(StringConversionFactory::create(ConversionType::Toggle));
 
-  std::string output = client.execute(input);
+  std::string output = ConversionResult(client.execute(input)).get_c_str();
 
   std::cout << "[Client Toggle] Input: \"" << input << "\" => Output: \""
             << output << "\"" << std::endl;
@@ -114,7 +115,7 @@ TEST(ProcessStringTest, ProcessStringAlternating) {
   std::string input = "Hello World!";
   int choice = 1; // Alternating case
 
-  std::string output = processString(input, choice);
+  std::string output = ConversionResult(processString(input, choice)).get_c_str();
 
   logConversion("ProcessString Alternating", input, output);
 
@@ -125,7 +126,7 @@ TEST(ProcessStringTest, ProcessStringReverse) {
   std::string input = "Hello World!";
   int choice = 7; // Reverse
 
-  std::string output = processString(input, choice);
+  std::string output = ConversionResult(processString(input, choice)).get_c_str();
 
   logConversion("ProcessString Reverse", input, output);
 
@@ -140,7 +141,7 @@ TEST(ReverseConversionTest, ReverseStringWithLog) {
   std::string input = "Hello World!";
   ReverseConversion reverse;
 
-  std::string output = reverse.convert(input);
+  std::string output = ConversionResult(reverse.convert(input)).get_c_str();
 
   logConversion("ReverseCase", input, output);
 
@@ -157,7 +158,7 @@ TEST(UpperCasePerformanceTest, LargeInput) {
   std::string largeInput(1'000'000, 'a');
 
   auto start = std::chrono::high_resolution_clock::now();
-  auto result = converter.convert(largeInput);
+  auto result = ConversionResult(converter.convert(largeInput)).get_c_str() ;
   auto end = std::chrono::high_resolution_clock::now();
 
   auto duration =
@@ -165,7 +166,7 @@ TEST(UpperCasePerformanceTest, LargeInput) {
 
   std::cout << "Execution time: " << duration.count() << " ms\n";
 
-  EXPECT_EQ(result.size(), largeInput.size());
+  EXPECT_EQ(strlen(ConversionResult(result).get_c_str()), largeInput.size());
 
   EXPECT_LT(duration.count(), 25); // < 25 ms
 }
@@ -189,7 +190,7 @@ TEST(UpperCaseFuzzTest, RandomStrings) {
       input += static_cast<char>(charDist(rng));
     }
 
-    std::string output = converter.convert(input);
+    std::string output = ConversionResult(converter.convert(input)).get_c_str();
 
     EXPECT_EQ(output.size(), input.size());
   }

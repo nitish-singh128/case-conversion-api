@@ -46,7 +46,7 @@ public:
    * @param input The string to convert.
    * @return A new string where all alphabetic characters are lowercase.
    */
-  std::string convert(const std::string &input) const override;
+  ConversionResult convert(const std::string &input) const override;
 };
 
 #endif // LOWERCASECONVERSION_HPP

@@ -42,7 +42,7 @@
  * auto strategy = std::make_unique<LowerCaseConversion>();
  * Client client;
  * client.setStrategy(std::move(strategy));
- * std::string result = client.execute("HELLO"); // "hello"
+ * ConversionResult result = client.execute("HELLO"); // "hello"
  */
 class Client {
 private:
@@ -63,7 +63,7 @@ public:
    * @return The converted string according to the current strategy.
    *         Returns original input if no strategy is set.
    */
-  std::string execute(const std::string &input) const;
+  ConversionResult execute(const std::string &input) const;
 
   void setTraceId(const std::string& traceId);
 };

@@ -26,7 +26,7 @@
 
 #include "LowerCaseConversion.hpp"
 
-std::string LowerCaseConversion::convert(const std::string &input) const {
+ConversionResult LowerCaseConversion::convert(const std::string &input) const {
   std::string result = input;
 
   for (char &c : result) {
@@ -36,5 +36,5 @@ std::string LowerCaseConversion::convert(const std::string &input) const {
     // Non-alphabetic characters are unchanged
   }
 
-  return result;
+  return ConversionResult(result.c_str());
 }

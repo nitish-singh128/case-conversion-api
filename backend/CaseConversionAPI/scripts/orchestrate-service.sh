@@ -50,22 +50,36 @@ echo -e "\n===== Building project ====="
 dotnet build -c Release
 
 # -------------------------------
-# 4. Sync Native Binaries (CRITICAL FOR P/INVOKE & NativeLibrary)
+# 4. Sync Native Binaries
 # -------------------------------
 echo -e "\n===== Syncing Native C++ Library ====="
 BIN_DIR="bin/Release/net8.0"
 mkdir -p "$BIN_DIR"
-SRC_LIB="../CppLib/build/lib/libProcessStringDLL.dylib"
 
-if [ ! -f "$SRC_LIB" ]; then
-    echo "ERROR: Native library not found at $SRC_LIB"
+# Try the most likely paths
+POSSIBLE_PATHS=(
+    "../CppLib/build/libProcessStringDLL.dylib"
+    "../CppLib/build/lib/libProcessStringDLL.dylib"
+)
+
+SRC_LIB=""
+for path in "${POSSIBLE_PATHS[@]}"; do
+    if [ -f "$path" ]; then
+        SRC_LIB="$path"
+        break
+    fi
+done
+
+if [ -z "$SRC_LIB" ]; then
+    echo "ERROR: Native library not found. Checked: ${POSSIBLE_PATHS[*]}"
     exit 1
 fi
 
-cp "$SRC_LIB" "$BIN_DIR/ProcessStringDLL.dylib"
+# Copy both with and without 'lib' prefix to satisfy P/Invoke across different environments
 cp "$SRC_LIB" "$BIN_DIR/libProcessStringDLL.dylib"
+cp "$SRC_LIB" "$BIN_DIR/ProcessStringDLL.dylib"
 
-echo "Synced: libProcessStringDLL.dylib -> $BIN_DIR/"
+echo "Synced: $SRC_LIB -> $BIN_DIR/"
 
 # -------------------------------
 # 5. Publish the project

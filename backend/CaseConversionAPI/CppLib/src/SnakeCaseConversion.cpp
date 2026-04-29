@@ -27,10 +27,10 @@
 #include "SnakeCaseConversion.hpp"
 #include "LowerCaseConversion.hpp"
 
-std::string SnakeCaseConversion::convert(const std::string &input) const {
+ConversionResult SnakeCaseConversion::convert(const std::string &input) const {
   LowerCaseConversion lowerConv;
 
-  std::string lower = lowerConv.convert(input);
+  std::string lower = ConversionResult(lowerConv.convert(input)).get_c_str();
   std::string result;
 
   for (char ch : lower) {
@@ -39,5 +39,5 @@ std::string SnakeCaseConversion::convert(const std::string &input) const {
     else
       result += ch;
   }
-  return result;
+  return ConversionResult(result.c_str());
 }

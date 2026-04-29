@@ -66,7 +66,7 @@ static ConversionType mapChoiceToType(ConversionChoice choice) {
   }
 }
 
-std::string processString(const std::string &input, int choiceInt) {
+ConversionResult processString(const std::string &input, int choiceInt) {
   Client client;
 
   ConversionChoice choice = static_cast<ConversionChoice>(choiceInt);

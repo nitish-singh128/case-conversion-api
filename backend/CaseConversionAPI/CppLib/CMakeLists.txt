@@ -22,6 +22,7 @@ add_library(StringConversionLib STATIC
     src/AlternatingCaseConversion.cpp
     src/CapitalizeWordsConversion.cpp
     src/Client.cpp
+    src/ConversionResult.cpp
     src/InvertWordsConversion.cpp
     src/KebabCaseConversion.cpp
     src/LeetSpeakConversion.cpp

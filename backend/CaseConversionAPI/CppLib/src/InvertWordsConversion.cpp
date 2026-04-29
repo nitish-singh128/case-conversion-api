@@ -27,7 +27,7 @@
 #include <algorithm>
 #include <sstream>
 
-std::string InvertWordsConversion::convert(const std::string &input) const {
+ConversionResult InvertWordsConversion::convert(const std::string &input) const {
   std::istringstream iss(input);
   std::ostringstream oss;
   std::string word;
@@ -44,5 +44,5 @@ std::string InvertWordsConversion::convert(const std::string &input) const {
     first = false;
   }
 
-  return oss.str();
+  return ConversionResult(oss.str().c_str());
 }

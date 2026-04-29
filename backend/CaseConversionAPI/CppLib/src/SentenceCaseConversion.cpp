@@ -29,17 +29,17 @@
 #include "LowerCaseConversion.hpp"
 #include "UpperCaseConversion.hpp"
 
-std::string SentenceCaseConversion::convert(const std::string &input) const {
+ConversionResult SentenceCaseConversion::convert(const std::string &input) const {
   if (input.empty()) {
-    return input;
+    return ConversionResult(input.c_str());
   }
 
   LowerCaseConversion lowerConv;
   UpperCaseConversion upperConv;
 
-  std::string result = lowerConv.convert(input);
+  std::string result = ConversionResult(lowerConv.convert(input)).get_c_str();
   std::string first(1, result[0]);
-  result[0] = upperConv.convert(first)[0];
+  result[0] = ConversionResult(upperConv.convert(first)).get_c_str()[0];
 
-  return result;
+  return ConversionResult(result.c_str());
 }

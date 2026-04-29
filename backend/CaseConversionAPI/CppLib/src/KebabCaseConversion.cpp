@@ -28,10 +28,10 @@
 #include "KebabCaseConversion.hpp"
 #include "LowerCaseConversion.hpp"
 
-std::string KebabCaseConversion::convert(const std::string &input) const {
+ConversionResult KebabCaseConversion::convert(const std::string &input) const {
   LowerCaseConversion lowerConv;
 
-  std::string lower = lowerConv.convert(input);
+  std::string lower = ConversionResult(lowerConv.convert(input)).get_c_str();
   std::string result;
 
   for (char ch : lower) {
@@ -41,5 +41,5 @@ std::string KebabCaseConversion::convert(const std::string &input) const {
       result += ch;
     }
   }
-  return result;
+  return ConversionResult(result.c_str());
 }
