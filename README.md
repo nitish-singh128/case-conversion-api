@@ -1,3 +1,7 @@
+# High-Performance String Processing: A Polyglot Architecture
+
+This is a high-concurrency, cross-platform string processing ecosystem. It demonstrates a Native C++17 engine integrated into a .NET 8 managed environment via a custom C-style ABI. The project serves as a technical blueprint for bridging managed and unmanaged memory, implementing the Strategy and Factory patterns, and maintaining an immutable Docker-based deployment pipeline.
+
 ![C++ CI](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/native-engine-ci.yml?branch=main&label=Engine%3A%20Native&style=flat-square)
 ![.NET API Status](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/dotnet-tests.yml?branch=main&label=Gateway%3A%20.NET%208&style=flat-square)
 ![.NET API Integeration Tests](https://img.shields.io/github/actions/workflow/status/nitishhsinghhh/case-conversion-api/dotnet-integration-tests.yml?branch=main&label=Integeration%20Tests&style=flat-square)
@@ -20,10 +24,6 @@
 
 ---
 
-# High-Performance String Processing: A Polyglot Architecture
-
-This is a high-concurrency, cross-platform string processing ecosystem. It demonstrates a Native C++17 engine integrated into a .NET 8 managed environment via a custom C-style ABI. The project serves as a technical blueprint for bridging managed and unmanaged memory, implementing the Strategy and Factory patterns, and maintaining an immutable Docker-based deployment pipeline.
-
 ## Table of Contents
 
 * [System Architecture](#system-architecture)
@@ -38,6 +38,8 @@ This is a high-concurrency, cross-platform string processing ecosystem. It demon
   * [3. Defensive Interop Design](#3-defensive-interop-design)
   * [4. Telemetry & Observability](#4-telemetry--observability)
   * [5. Hardware-Specific Optimization (Apple M2)](#5-hardware-specific-optimization-apple-m2)
+  * [6. Strict Memory Ownership: The Marshalling Contract](#6-strict-memory-ownership-the-marshalling-contract)
+  * [7. Reliability and Fault Tolerance](#7-reliability-and-fault-tolerance)
 * [Quick Start](#quick-start)
   * [Run the Load-Balanced Cluster](#run-the-load-balanced-cluster)
   * [Endurance & Stress Validation](#endurance--stress-validation)
@@ -48,7 +50,7 @@ This is a high-concurrency, cross-platform string processing ecosystem. It demon
 
 ## System Architecture
 
-This project addresses the challenges of exposing high-performance, unmanaged C++ logic to a modern, managed web stack with architectural rigor.
+The architecture addresses the inherent challenges of exposing unmanaged performance logic to a managed web stack. It adheres to a Strict Separation of Concerns through three primary tiers:
 
 * The Core: A C++17 engine utilizing the Strategy and Factory patterns for extensible string processing.
 * The Bridge: A custom C-style ABI wrapper with explicit memory ownership management (allocate/free contract).
@@ -146,24 +148,26 @@ Note on Thread-Safety: The native C++ engine is designed to be Stateless and Thr
 
 ### 3. Defensive Interop Design
 
-* Sentinel Pattern: The C++ engine returns a sentinel string (`ERROR_BUFFER_OVERFLOW_LIMIT_5MB`) upon security violation. The C# layer traps this and re-throws a managed `ArgumentException`, providing a clean error path for the API consumer.
+The bridge between .NET 8 and C++17 is engineered as a "Safe Harbor." The system ensures that native failures never crash the managed process by implementing a multi-tiered error trap.
 
-* Reentrant & Stateless: The native engine maintains no global state. Every P/Invoke call operates on its own stack and heap allocation, ensuring full reentrancy for parallel execution.
+* The Sentinel Pattern: Rather than returning null pointers or throwing unhandled SEH exceptions, the engine returns Sentinel Strings (e.g., ERROR_BUFFER_OVERFLOW_LIMIT_5MB). This allows the .NET layer to perform a graceful string comparison and map the failure to a managed ArgumentException or SecurityException.
 
-* Zero-Footprint Disposal: Implements a strict "Callee-Allocates, Caller-Frees" contract. Every native `IntPtr` is released via a `finally` block to the `freeString` delegate, ensuring the unmanaged heap remains clean even during execution failures.
+* Security Gating: A hard-coded 5MB Input Ceiling is enforced at the DLL entry point. This acts as a circuit breaker against potential Denial of Service (DoS) attacks attempting to exhaust the unmanaged heap.
 
 ### 4. Telemetry & Observability
 
 Integrated OpenTelemetry (OTLP) for end-to-end distributed tracing. W3C Trace IDs are propagated into the C++ layer to correlate native logs with specific REST requests.
+
+Every error returned by the native layer is tagged with the provided traceId. If the factory fails to create a strategy or an allocation fails, the error is correlated in the Jaeger/OpenTelemetry dashboard for immediate root-cause analysis.
 
 ```Bash
 # Start the Jaeger collector and UI
 ./scripts/run-telemetry.sh start
 ```
 
-* UI Dashboard: http://localhost:16686
+* UI Dashboard: <http://localhost:16686>
 
-* OTLP Endpoint: http://localhost:4317 (gRPC)
+* OTLP Endpoint: <http://localhost:4317> (gRPC)
 
 ### 5. Hardware-Specific Optimization (Apple M2)
 
@@ -174,6 +178,30 @@ Please note that if this runs in a Docker container on an Intel Xeon or AMD EPYC
 * Double-Lock Memory Safety: - Global: 20MB batch ceiling prevents the 8GB Unified Memory from triggering SSD swap.
   * Local: 5MB native limit prevents buffer overflows in unmanaged memory.
 * Contention-Free Buffering:** Utilizes `ConcurrentBag<T>` to allow parallel P-Cores to flush data back to managed memory without the lock-contention overhead of traditional `List<T>` synchronization.
+
+### 6. Strict Memory Ownership: The Marshalling Contract
+
+To achieve a "Zero-Leak" policy, the project strictly adheres to the "Callee-Allocates, Caller-Frees" pattern:
+
+* Allocation: The C++ engine uses std::malloc to allocate a buffer for the result string on the unmanaged heap.
+
+* Transfer: The pointer is passed across the ABI as a const char*.
+
+* Managed Reception: .NET receives this as an IntPtr and marshals it into a managed System.String.
+
+* Deterministic Cleanup: The .NET layer is then obligated to call the exported freeString(char* str) function inside a finally block.
+
+Technical Note: This approach avoids the common pitfalls of CoTaskMemFree which can be unreliable in cross-platform (Linux/macOS) environments, favoring the standard C library's free() for maximum portability.
+
+### 7. Reliability and Fault Tolerance
+
+| Scenario            | Native C++ Sentinel              | Managed .NET Response   | Architectural Significance                                  |
+|-------------------- |----------------------------------|-------------------------|-------------------------------------------------------------|
+| Payload > 5MB       | ERROR_BUFFER_OVERFLOW...         | 413 Payload Too Large   | Prevents heap-based DoS attacks.                            |
+| Invalid Option      | ERROR_INVALID_CONVERSION...      | 400 Bad Request         | Validates Enum integrity at the ABI boundary.               |
+| Null Reference      | ERROR_NULL_INPUT                 | 400 Bad Request         | Defensive guard against malformed P/Invoke calls.           |
+| Heap Exhaustion     | FATAL_ALLOCATION_FAILURE         | 500 Internal Error      | Traps std::bad_alloc before process termination.            |
+| Malformed ID        | ERROR_MALFORMED_TRACE_ID         | 400 Bad Request         | Protects telemetry buffers from overflow.                   |
 
 ---
 
@@ -205,11 +233,11 @@ To spin up the system with 4 backend replicas and the NGINX Load Balancer:
 docker compose -f docker-compose-load.yml up --scale backend=4 -d
 ```
 
-* API Gateway: http://localhost:8080
+* API Gateway: <http://localhost:8080>
 
-* Frontend UI: http://localhost:5173
+* Frontend UI: <http://localhost:5173>
 
-* Telemetry: http://localhost:16686
+* Telemetry: <http://localhost:16686>
 
 ### Endurance & Stress Validation
 
