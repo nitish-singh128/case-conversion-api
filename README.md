@@ -43,8 +43,11 @@ This is a high-concurrency, cross-platform string processing ecosystem. It demon
 * [Quick Start](#quick-start)
   * [Run the Load-Balanced Cluster](#run-the-load-balanced-cluster)
   * [Endurance & Stress Validation](#endurance--stress-validation)
+* [Performance Metrics and Insights](#performance-metrics-and-insights)
 * [Technical Significance](#technical-significance)
 * [License](#license)
+* [Project Timeline and Roadmap](#project-timeline-and-roadmap)
+* [Summary](#summary)
 
 ---
 
@@ -205,7 +208,7 @@ Technical Note: This approach avoids the common pitfalls of CoTaskMemFree which 
 
 ---
 
-[↑ Back to Top](#the-hardware-aware-polyglot-string-conversion-engine--api)
+[↑ Back to Top](#high-performance-string-processing-a-polyglot-architecture)
 
 ## Quick Start
 
@@ -261,7 +264,7 @@ The architecture was subjected to a 1,000,000-request ultra-stress test to valid
 
 * Hardware Efficiency: Optimized for Apple Silicon (arm64), leveraging unified memory to minimize data copy overhead during managed-to-unmanaged transitions.
 
-### Performance Metrics & Insights
+### Performance Metrics and Insights
 
 * ABI Latency: Verification that data marshalling between System.String and char* remains under 1ms.
 
@@ -276,6 +279,17 @@ The architecture was subjected to a 1,000,000-request ultra-stress test to valid
 Distributed under the Apache-2.0 License. See LICENSE for more information.
 
 Nitish Singh - Software Systems Engineer
+
+---
+
+## Project Timeline and Roadmap
+
+| Milestone          | Date            | Description                                                                                                                 |
+|------------------- |-----------------|-----------------------------------------------------------------------------                                                |
+| Project Inception  | April 4, 2026   | Project start: Designing the C-style ABI and C++17 Strategy patterns.                                                       |
+| v1.0.0 Release     | April 20, 2026  | The Foundation: Stable Polyglot Architecture. M2 P-Core optimization and 250k request validation.                           |
+| v2.0.0 Release     | April 23, 2026  | The "Millionaire" Milestone: Integrated NGINX Layer 7 Load Balancing and passed the 1M request endurance test.              |
+| v2.1.0 Release     | April 25, 2026  | Industrial Hardening: Full OpenTelemetry integration, CI/CD pipeline domain-standardization, and CodeQL security alignment. |
 
 ---
 
