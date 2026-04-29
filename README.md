@@ -40,6 +40,7 @@ This is a high-concurrency, cross-platform string processing ecosystem. It demon
   * [5. Hardware-Specific Optimization (Apple M2)](#5-hardware-specific-optimization-apple-m2)
   * [6. Strict Memory Ownership: The Marshalling Contract](#6-strict-memory-ownership-the-marshalling-contract)
   * [7. Reliability and Fault Tolerance](#7-reliability-and-fault-tolerance)
+  * [8. Memory Sovereignty and The Interop Lifecycle](#8-memory-sovereignty-and-the-interop-lifecycle)
 * [Quick Start](#quick-start)
   * [Run the Load-Balanced Cluster](#run-the-load-balanced-cluster)
   * [Endurance & Stress Validation](#endurance--stress-validation)
@@ -90,6 +91,8 @@ graph TD
         I & J & K & L --> M[Native C++ Engine]
     end
 ```
+
+[↑ Back to Top](#high-performance-string-processing-a-polyglot-architecture)
 
 ---
 
@@ -205,6 +208,38 @@ Technical Note: This approach avoids the common pitfalls of CoTaskMemFree which 
 | Null Reference      | ERROR_NULL_INPUT                 | 400 Bad Request         | Defensive guard against malformed P/Invoke calls.           |
 | Heap Exhaustion     | FATAL_ALLOCATION_FAILURE         | 500 Internal Error      | Traps std::bad_alloc before process termination.            |
 | Malformed ID        | ERROR_MALFORMED_TRACE_ID         | 400 Bad Request         | Protects telemetry buffers from overflow.                   |
+
+### 8. Memory Sovereignty and The Interop Lifecycle
+
+To achieve a "Zero-Leak" footprint under extreme concurrency (validated by the 1M request soak test), the system implements a Tiered Memory Ownership Protocol. This ensures deterministic cleanup across the ABI boundary while maintaining high-performance move semantics within the core.
+
+#### Tier 1: Native RAII & The Rule of Five (Internal Sovereignty)
+
+The C++ engine handles its own internal resource state using the Rule of Five. By explicitly defining Move/Copy semantics, we ensure the engine is "memory-safe by design" before a single byte ever reaches the bridge.
+
+* Invariant Protection: Prevents double-frees and dangling pointers during high-frequency strategy rotation.
+
+* Move Optimizations: Leverages C++17 move constructors to transfer ownership of large string buffers without redundant heap allocations.
+
+#### Tier 2: The C-Style ABI (The Stateless Bridge)
+
+The transition layer acts as a strict Marshalling Contract. We avoid the pitfalls of platform-specific allocators by using a standard extern "C" interface.
+
+* Deterministic Hand-off: The engine yields a raw char* to the managed runtime, marking the precise moment ownership transfers from C++ to .NET.
+
+* Cross-Platform Parity: Ensures identical memory layout and behavior across Clang (macOS) and GCC (Linux CI).
+
+#### Tier 3: Managed Orchestration (Deterministic Cleanup)
+
+The .NET 8 layer acts as the ultimate orchestrator of the memory lifecycle.
+
+* Marshalling Integrity: .NET receives the IntPtr, marshals it into a managed System.String, and takes responsibility for the final cleanup.
+
+* Deterministic Disposal: All native calls are wrapped in try-finally blocks (or SafeHandle patterns) to ensure the exported freeString function is invoked, preventing Resident Set Size (RSS) bloat in the containerized environment.
+
+* Technical Significance: This hierarchy solves the "Double-Delete" problem. C++ manages the object lifetime, while C# manages the buffer lifetime after the hand-off.
+
+Engineering Insight: This architecture eliminates the "Double-Delete" risk. C++ governs the object state, while C# governs the result buffer after the native execution context has exited.
 
 ---
 
