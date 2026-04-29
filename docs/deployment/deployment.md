@@ -19,7 +19,7 @@ This document defines the containerization, orchestration, and environment promo
 - [Internal Architecture](#internal-architecture)
 - [Deployment and Environments](#deployment-and-environments)
 - [Key Principles](#key-principles)
-- [Summary](#Summary)
+- [Summary](#summary)
 
 ---
 
@@ -94,16 +94,17 @@ In Production/Staging, the frontend is served via Nginx for high performance. In
 Container images are tagged based on the stage of the pipeline.
 
 | Environment | Tag      | Port (UI) | Port (API) | Purpose                          |
-|------------|----------|-----------|------------|----------------------------------|
-| Dev        | dev      | 5173      | 8080       | Active development & hot-reload  |
-| Staging    | staging  | 5174      | 8081       | Pre-prod validation & QA         |
-| Production | latest   | 80        | 8080       | Production deployment            |
+|------------ |----------|-----------|------------|----------------------------------|
+| Dev         | dev      | 5173      | 8080       | Active development & hot-reload  |
+| Staging     | staging  | 5174      | 8081       | Pre-prod validation & QA         |
+| Production  | latest   | 80        | 8080       | Production deployment            |
 
 ```Bash
 nitishhsinghhh/case-api:dev
 nitishhsinghhh/case-api:staging
 nitishhsinghhh/case-api:latest
 ```
+
 ---
 
 ## Pipeline Execution
@@ -213,6 +214,82 @@ Percentage of the requests served within a certain time (ms)
   99%    102
  100%  15224 (longest request)
  ```
+
+ After implementing native RAII
+
+```log
+nitishsingh@Nitishs-MacBook-Air word-case-api % echo '{"text": "hardware-aware engine", "choice": 1}' > load_test.json
+ab -n 1000000 -c 100 -p load_test.json -T 'application/json' http://localhost:8081/api/WordCase/convert
+This is ApacheBench, Version 2.3 <$Revision: 1923142 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking localhost (be patient)
+Completed 100000 requests
+Completed 200000 requests
+Completed 300000 requests
+Completed 400000 requests
+Completed 500000 requests
+Completed 600000 requests
+Completed 700000 requests
+Completed 800000 requests
+Completed 900000 requests
+Completed 1000000 requests
+Finished 1000000 requests
+
+
+Server Software:        Kestrel
+Server Hostname:        localhost
+Server Port:            8081
+
+Document Path:          /api/WordCase/convert
+Document Length:        96 bytes
+
+Concurrency Level:      100
+Time taken for tests:   353.611 seconds
+Complete requests:      1000000
+Failed requests:        18
+   (Connect: 0, Receive: 0, Length: 18, Exceptions: 0)
+Total transferred:      234995770 bytes
+Total body sent:        202000000
+HTML transferred:       95998272 bytes
+Requests per second:    2827.97 [#/sec] (mean)
+Time per request:       35.361 [ms] (mean)
+Time per request:       0.354 [ms] (mean, across all concurrent requests)
+Transfer rate:          648.98 [Kbytes/sec] received
+                        557.86 kb/s sent
+                        1206.84 kb/s total
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.5      0      41
+Processing:     0   35 233.9     22   18369
+Waiting:        0   29 228.3     18   18369
+Total:          0   35 233.9     22   18369
+
+Percentage of the requests served within a certain time (ms)
+  50%     22
+  66%     34
+  75%     42
+  80%     48
+  90%     67
+  95%     86
+  98%    112
+  99%    134
+ 100%  18369 (longest request)
+ ```
+
+### Performance Metrics and Insights: The RAII Transformation
+
+The project reached a major engineering milestone with the implementation of RAII and the Rule of Five in the native core. Below is the comparative data from a 1,000,000 request stress test conducted on Apple M2 hardware, demonstrating the massive efficiency gains in the polyglot bridge.
+
+| Metric                 | Pre-RAII Baseline | Post-RAII (Optimized)  | Net Improvement           |
+|----------------------- |-------------------|------------------------|---------------------------|
+| Throughput             | 2,262.54 req/s    | 2,827.97 req/s         | +25% Gain                 |
+| Mean Latency           | 44.19 ms          | 35.36 ms               | 20% Reduction             |
+| Median Latency (P50)   | 38.00 ms          | 22.00 ms               | 42% Snappier              |
+| Tail Latency (P99)     | 102.00 ms         | 134.00 ms              | Thermal / TCP Overhead    |
+| Success Rate           | 99.996%           | 99.998%                | Near-Perfect Reliability  |
 
 ## The Architect's Deep Dive
 

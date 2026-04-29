@@ -41,6 +41,7 @@ This is a high-concurrency, cross-platform string processing ecosystem. It demon
   * [6. Strict Memory Ownership: The Marshalling Contract](#6-strict-memory-ownership-the-marshalling-contract)
   * [7. Reliability and Fault Tolerance](#7-reliability-and-fault-tolerance)
   * [8. Memory Sovereignty and The Interop Lifecycle](#8-memory-sovereignty-and-the-interop-lifecycle)
+* [Performance Metrics and Insights RAII](#performance-metrics-and-insights-raii)
 * [Quick Start](#quick-start)
   * [Run the Load-Balanced Cluster](#run-the-load-balanced-cluster)
   * [Endurance & Stress Validation](#endurance--stress-validation)
@@ -243,6 +244,20 @@ Engineering Insight: This architecture eliminates the "Double-Delete" risk. C++ 
 
 ---
 
+## Performance Metrics and Insights RAII
+
+The project reached a major engineering milestone with the implementation of RAII and the Rule of Five in the native core. Below is the comparative data from a 1,000,000 request stress test conducted on Apple M2 hardware, demonstrating the massive efficiency gains in the polyglot bridge.
+
+| Metric                 | Pre-RAII Baseline | Post-RAII (Optimized)  | Net Improvement           |
+|----------------------- |-------------------|------------------------|---------------------------|
+| Throughput             | 2,262.54 req/s    | 2,827.97 req/s         | +25% Gain                 |
+| Mean Latency           | 44.19 ms          | 35.36 ms               | 20% Reduction             |
+| Median Latency (P50)   | 38.00 ms          | 22.00 ms               | 42% Snappier              |
+| Tail Latency (P99)     | 102.00 ms         | 134.00 ms              | Thermal / TCP Overhead    |
+| Success Rate           | 99.996%           | 99.998%                | Near-Perfect Reliability  |
+
+---
+
 [↑ Back to Top](#high-performance-string-processing-a-polyglot-architecture)
 
 ## Quick Start
@@ -312,8 +327,6 @@ The architecture was subjected to a 1,000,000-request ultra-stress test to valid
 ## License
 
 Distributed under the Apache-2.0 License. See LICENSE for more information.
-
-Nitish Singh - Software Systems Engineer
 
 ---
 

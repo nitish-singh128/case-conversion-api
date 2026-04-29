@@ -10,7 +10,6 @@ This document outlines the end-to-end process of containerizing, load balancing,
 - [Benchmark Results: 2 Replicas](#4-benchmark-results-m2-macbook-air---2-replicas)
 - [Benchmark Results: 4 Replicas](#5-benchmark-results-m2-macbook-air---4-replicas)
 - [1 Million Request Milestone](#6-benchmark-results-m2-macbook-air---1-million-request-milestone)
-- [Support & Contact](#support--contact)
 
 ---
 
@@ -101,7 +100,7 @@ The following metrics represent the "Gold Standard" for this system version.
 
 The following metrics represent the "High-Stress Endurance" baseline, proving long-term stability and effective memory recovery.
 
-| Metric           | Result          |
+| Metric               | Result          |
 |----------------------|-----------------|
 | Total Requests       | 1,000,000       |
 | Total Success Checks | 2,000,000       |
@@ -135,4 +134,3 @@ The following metrics represent the "High-Stress Endurance" baseline, proving lo
 ![Jaeger Trace Dashboard](../../assets/jagger.png)
 
 ---
-
