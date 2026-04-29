@@ -29,9 +29,9 @@ This is a high-concurrency, cross-platform string processing ecosystem. It demon
 * [System Architecture](#system-architecture)
 * [CI/CD & Deployment Pipeline](#cicd--deployment-pipeline)
 * [Components](#components)
-  * [1. C++ Conversion Engine](#1-c-conversion-engine)
-  * [2. .NET REST API Wrapper](#2-net-rest-api-wrapper)
-  * [3. Frontend UI](#3-frontend-ui-vite--reacttypescript)
+  * [1. Core Logic: Native Conversion Engine](#1-core-logic-native-conversion-engine)
+  * [2. Managed Gateway: .NET REST API](#2-managed-gateway-net-rest-api)
+  * [3. Presentation Layer: Modern Web Interface](#3-presentation-layer-modern-web-interface)
 * [Engineering Deep Dive](#engineering-deep-dive)
   * [1. Concurrency & Thread-Safety](#1-concurrency--thread-safety)
   * [2. Design Patterns Used](#2-design-patterns-used)
@@ -90,25 +90,33 @@ graph TD
 
 ## Components
 
-### 1. C++ Conversion Engine
+The architecture is divided into three distinct functional layers, each optimized for its specific role in the request lifecycle.
 
-* Implements multiple string conversion strategies.
-* Built as a shared library using **CMake**:
+### 1. Core Logic: Native Conversion Engine
+
+The engine serves as the high-performance foundation of the system, encapsulating the complex string transformation logic.
+
+* Implementation: Developed in C++17 utilizing the Strategy and Factory patterns for modularity.
+* Build System: Orchestrated via CMake to produce platform-agnostic shared binaries:
   * Windows → `libProcessStringDLL.dll`
   * macOS → `libProcessStringDLL.dylib`
   * Linux → `libProcessStringDLL.so`
 
-### 2. .NET REST API Wrapper
+### 2. Managed Gateway: .NET REST API
 
-* Uses **P/Invoke** to call the exported C++ DLL functions.
-* Provides REST endpoints (e.g., `/api/WordCase/convert`) for frontend consumption.
-* Built and published with `dotnet publish`.
+The API layer acts as the secure bridge between unmanaged native code and the external web environment.
 
-### 3. Frontend UI (Vite + React/TypeScript)
+* Interoperability: Utilizes P/Invoke with custom marshalling logic to invoke exported native functions.
+* Interface: Exposes standardized RESTful endpoints (e.g., /api/WordCase/convert) for secure, high-concurrency consumption.
+* Lifecycle: Managed through the standard dotnet CLI, supporting seamless artifact promotion to production environments.
 
-* Provides a user interface to input text and select conversion type.
-* Calls the .NET REST API endpoints to perform conversions.
-* Built with `npm run build` → outputs static files in `dist/`.
+### 3. Presentation Layer: Modern Web Interface
+
+A type-safe, responsive interface designed for sub-second interaction and real-time feedback.
+
+* Stack: Built with Vite + React and TypeScript to ensure strict data modeling and developer efficiency.
+* Communication: Consumes the .NET REST API to deliver hardware-accelerated string transformations to the end-user.
+* Optimized Delivery: Compiled via npm run build into a lightweight, static distribution (dist/) ready for edge-network hosting.
 
 ---
 
