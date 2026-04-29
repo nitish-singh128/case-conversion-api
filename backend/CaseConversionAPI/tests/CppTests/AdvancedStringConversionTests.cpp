@@ -158,7 +158,8 @@ TEST(UpperCasePerformanceTest, LargeInput) {
   std::string largeInput(1'000'000, 'a');
 
   auto start = std::chrono::high_resolution_clock::now();
-  auto result = ConversionResult(converter.convert(largeInput)).get_c_str() ;
+  auto resultObj = converter.convert(largeInput); 
+  const char* resultStr = resultObj.get_c_str();
   auto end = std::chrono::high_resolution_clock::now();
 
   auto duration =
@@ -166,7 +167,7 @@ TEST(UpperCasePerformanceTest, LargeInput) {
 
   std::cout << "Execution time: " << duration.count() << " ms\n";
 
-  EXPECT_EQ(strlen(ConversionResult(result).get_c_str()), largeInput.size());
+  EXPECT_EQ(std::strlen(resultStr), largeInput.size());
 
   EXPECT_LT(duration.count(), 25); // < 25 ms
 }
